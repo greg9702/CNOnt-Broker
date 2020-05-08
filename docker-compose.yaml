@@ -1,9 +1,13 @@
 version: '3'
 services:
   core:
-    container_name: "core-api"
+    container_name: "core"
     build: core/.
     ports:
       - "8080:8080"
-#   client:
-#     build: client/.
+  client:
+    container_name: "client"
+    build: client/.
+    ports:
+      - "3000:3000"
+    stdin_open: true
