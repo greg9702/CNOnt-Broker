@@ -3,7 +3,7 @@ FROM golang
 
 RUN go get github.com/gorilla/mux
 
-WORKDIR /core
+WORKDIR /app
 
 COPY . .
 EXPOSE 8080
