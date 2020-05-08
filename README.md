@@ -5,7 +5,7 @@ Application expose web API which is used by a client application. <br>
 
 ![Image description](docs/assets/system_overview.png)
 
-### __Features__
+### __v1.0 version features__
 - visualize ontology
 - apply ontology to a Kubernetes cluster
 - create ontology based on a Kubernetes cluster
