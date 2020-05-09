@@ -1,12 +1,41 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+function sleep (time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: http://bit.ly/CRA-PWA
-serviceWorker.register();
+class MessageReceiver extends React.Component {
+  state = {
+    loadingState: false,
+    message: "empty",
+
+  }
+
+  getHello = () => {
+    this.setState({ loadingState: true });
+    this.setState({ message: "xd" });
+
+    sleep(1000).then(() => {
+      // Do something after the sleep!
+      this.setState({ loadingState: false });
+    });
+  }
+
+  render() {
+    return (
+        <div>
+        <button onClick={this.getHello}>
+         Get Hello
+        </button><br/>
+       
+        {this.state.loadingState ? 
+          <div>Loading...</div> :
+          <div>Message: {this.state.message}</div>}
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<MessageReceiver />, document.getElementById('root'));
