@@ -4,7 +4,7 @@ import Contacts from './components/contacts';
 class App extends Component {
     render() {
         return (
-            <Contacts contacts={this.state.contacts} />
+            <div> foo </div>
         )
     }
 
