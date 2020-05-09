@@ -15,7 +15,17 @@ class MessageReceiver extends React.Component {
 
   getHello = () => {
     this.setState({ loadingState: true });
-    this.setState({ message: "xd" });
+
+    fetch("http://localhost:8080/api/v1/hello")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({ message: result["message"] });
+        },
+        (error) => {
+          this.setState({ message: "error fetching message" });
+        }
+      )
 
     sleep(1000).then(() => {
       // Do something after the sleep!
