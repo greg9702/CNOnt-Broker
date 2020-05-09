@@ -7,16 +7,18 @@ function sleep (time) {
 }
 
 class MessageReceiver extends React.Component {
+  
   state = {
+    serverUrl: "http://localhost:8080",
     loadingState: false,
     message: "empty",
-
+    number: null
   }
 
   getHello = () => {
     this.setState({ loadingState: true });
 
-    fetch("http://localhost:8080/api/v1/hello")
+    fetch(this.state.serverUrl + "/api/v1/hello")
       .then(res => res.json())
       .then(
         (result) => {
@@ -33,16 +35,52 @@ class MessageReceiver extends React.Component {
     });
   }
 
+  sendEcho = (numberBox) => {
+    fetch(this.state.serverUrl + "/api/v1/hello/" + this.refs.topic.value)
+    .then(res => res.json())
+    .then(
+      (result) => {
+        this.setState({ number: result["number"] });
+      },
+      (error) => {
+        this.setState({ number: "error" });
+      }
+    )
+  }
+
   render() {
     return (
-        <div>
-        <button onClick={this.getHello}>
-         Get Hello
-        </button><br/>
-       
-        {this.state.loadingState ? 
-          <div>Loading...</div> :
-          <div>Message: {this.state.message}</div>}
+      <div>
+        <div id="hello-receiver">
+          <button onClick={this.getHello}>
+          Get Hello
+          </button><br/>
+        
+          {this.state.loadingState ? 
+            <div>Loading...</div> :
+            <div>Message: {this.state.message}</div>}
+        </div>
+        
+        <div id="echo-sender">
+          <input 
+            ref="topic"
+            type="text"
+            name="numberBox"
+            placeholder="Enter number here..."/>
+
+          <button 
+            value="Send"
+            onClick={this.sendEcho}> 
+            Send
+          </button>
+          
+          <div>
+          {this.state.number == "error" ? 'Error!' :
+            this.state.number == null ? "No number" : 
+              'Received number ' + this.state.number }
+          </div>
+        </div>
+        
       </div>
     );
   }

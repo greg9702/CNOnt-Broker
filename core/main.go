@@ -20,7 +20,7 @@ func main() {
 	v1 := router.Group("/api/v1")
 
 	v1.GET("/hello", helloController.GetHello)
-	v1.PUT("/hello/:id", helloController.EchoNumber)
+	v1.GET("/hello/:id", helloController.EchoNumber)
 
 	port := os.Getenv("PORT")
 	if port == "" {
