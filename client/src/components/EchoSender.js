@@ -8,7 +8,7 @@ export default class EchoSender extends React.Component {
       number: null
     }
   
-    sendEcho = (numberBox) => {
+    sendEcho = () => {
       fetch(this.state.serverUrl + "/api/v1/hello/" + this.refs.topic.value)
       .then(res => res.json())
       .then(
