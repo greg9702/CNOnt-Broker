@@ -23,8 +23,8 @@ docker-compose up --build
 
 __v0.1__
 - [x] Add docker-compose
-- [ ] Communicate client and core application
-- [ ] Elaborate concept of the "top" ontology
+- [x] Communicate client and core application
+- [x] Elaborate concept of the "top" ontology
 
 
 __v0.2__
