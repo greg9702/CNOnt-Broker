@@ -25,7 +25,7 @@ GO111MODULE="on" go get sigs.k8s.io/kind@v0.8.0
 ```
 If you would like to have access to kind from your console run:
 ```
-export PATH=$PATH:$(go env GOPATH)/bin
+kubectl config use-context kind-<cluster name>
 ```
 Set up cluster by running:
 ```
