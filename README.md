@@ -21,7 +21,7 @@ docker-compose up --build
 Install [kind](https://github.com/kubernetes-sigs/kind) -  tool for running local Kubernetes clusters using Docker container "nodes". <br>
 If you have go (1.11+) and docker installed:
 ```
-GO111MODULE="on" go get sigs.k8s.io/kind@v0.8.0
+GO111MODULE="on" go get sigs.k8s.io/kind@v0.8.1
 ```
 If you would like to have access to kind from your console run:
 ```
@@ -37,6 +37,18 @@ You are ready to go!
 File _cluster-config.yaml_ contains configuration for cluster. Visit [link](https://github.com/kubernetes-sigs/kind) for more details.
 
 Script by default creates admin account, which access token can be obtained by running script _getadmintoken.sh_ in _cluster_ directory.
+
+#### Issues
+
+According to https://github.com/kubernetes/kubeadm/issues/1292, there can occur bug where _corde-dns_ remains in _CrashLoopBackOff_ state.<br>
+To fix this:
+```
+kubectl -n kube-system edit configmap coredns
+```
+Remove or comment out the line with loop, save and exit.
+```
+kubectl -n kube-system delete pod -l k8s-app=kube-dns
+```
 
 ---
 

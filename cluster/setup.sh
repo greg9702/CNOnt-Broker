@@ -52,5 +52,4 @@ fi
 echo "------------------------"
 
 context="kind-"$cluster_name
-echo $context
-kubectl cluster-info --context kind-foo
+kubectl cluster-info --context $context
