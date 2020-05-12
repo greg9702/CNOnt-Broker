@@ -28,11 +28,12 @@ __v0.1__
 
 
 __v0.2__
+- [ ] Add cluster setup scripts
 - [ ] Design and implement API
 - [ ] Add config file
-
-__v0.3__
-- [ ] Add Parser to the project
+- [ ] Add parser to the project
+- [ ] Add kubernetes client to the project
+- [ ] Create MVP using kuberenets client and parser
 
 __v0.4__
 - [ ] Finish client application
