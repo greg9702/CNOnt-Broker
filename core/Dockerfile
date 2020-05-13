@@ -1,8 +1,7 @@
 FROM golang
 
 WORKDIR /go/src/CNOnt-Broker/core
-RUN go get github.com/gin-gonic/gin
-RUN go get github.com/gin-contrib/cors
+RUN export GO111MODULE=on
 
 COPY . .
 
@@ -10,7 +9,8 @@ RUN go build -o main .
 
 WORKDIR /dist
 RUN cp /go/src/CNOnt-Broker/core/main .
+RUN cp /go/src/CNOnt-Broker/core/kubeconfig .
 
 EXPOSE 8080
 
-CMD ["/dist/main"]
+CMD ["/dist/main", "--kubeconfig", "/dist/kubeconfig"]

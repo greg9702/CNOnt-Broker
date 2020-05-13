@@ -1,15 +1,25 @@
 package controllers
 
 import (
+	client "CNOnt-Broker/core/kubernetes/client"
+
 	"github.com/gin-gonic/gin"
 )
 
 // HelloController is example controller
 type HelloController struct {
+	kubernetesClient *client.KubernetesClient
 }
 
-// GetHello returns hello message
+// NewHelloController creates new HelloController instance
+func NewHelloController(client *client.KubernetesClient) *HelloController {
+	h := HelloController{client}
+	return &h
+}
+
+// GetHello returns hello message and prints all pods to the console
 func (h *HelloController) GetHello(ctx *gin.Context) {
+	h.kubernetesClient.GetAllPods()
 	ctx.JSON(200, gin.H{
 		"message": "Hello",
 	})

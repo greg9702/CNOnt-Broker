@@ -28,7 +28,7 @@ fi
 kind delete cluster --name $cluster_name
 kind create cluster --config cluster-config.yaml --name $cluster_name
 
-kind get kubeconfig --name $cluster_name > ../kubeconfig
+kind get kubeconfig --name $cluster_name > ../core/kubeconfig
 
 if [ $create_admin == 1 ]; then
     echo "Admin account created"

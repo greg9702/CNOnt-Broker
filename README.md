@@ -17,6 +17,16 @@ git clone https://github.com/greg9702/CNOnt-Broker.git
 cd CNOnt-Broker
 docker-compose up --build
 ```
+
+If you would like to run directly on your machine run:
+```
+export GO111MODULE=on
+cd core
+go run main.go
+```
+Make sure to set _GO111MODULE_ to on. Without this issues with dependencies can occur.
+
+
 #### __Cluster setup__
 Install [kind](https://github.com/kubernetes-sigs/kind) -  tool for running local Kubernetes clusters using Docker container "nodes". <br>
 If you have go (1.11+) and docker installed:
