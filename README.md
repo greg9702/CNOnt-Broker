@@ -48,6 +48,10 @@ File _cluster-config.yaml_ contains configuration for cluster. Visit [link](http
 
 Script by default creates admin account, which access token can be obtained by running script _getadmintoken.sh_ in _cluster_ directory.
 
+#### Kuberentes client API documentation
+
+Documentation can be found [here](https://godoc.org/k8s.io/client-go/kubernetes).
+
 #### Issues
 
 According to https://github.com/kubernetes/kubeadm/issues/1292, there can occur bug where _corde-dns_ remains in _CrashLoopBackOff_ state.<br>

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"CNOnt-Broker/core/api/controllers"
-	client "CNOnt-Broker/core/kubernetes/client"
+	"CNOnt-Broker/core/kubernetes/client"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -33,10 +33,10 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
 
-	v1 := router.Group("/api/v1")
+	v1Router := router.Group("/api/v1")
 
-	v1.GET("/hello", helloController.GetHello)
-	v1.GET("/hello/:id", helloController.EchoNumber)
+	v1Router.GET("/hello", helloController.GetHello)
+	v1Router.GET("/hello/:id", helloController.EchoNumber)
 
 	port := os.Getenv("PORT")
 	if port == "" {

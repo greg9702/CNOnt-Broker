@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	client "CNOnt-Broker/core/kubernetes/client"
+	"CNOnt-Broker/core/kubernetes/client"
 
 	"github.com/gin-gonic/gin"
 )

@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	kubernetes "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // KubernetesClient main k8s client module
@@ -39,5 +39,5 @@ func (k *KubernetesClient) Init() {
 
 // GetAllPods prints pods from default namespace
 func (k *KubernetesClient) GetAllPods() {
-	fmt.Println(k.clientset.CoreV1().Pods("default").List(context.TODO(), metav1.ListOptions{}))
+	fmt.Println(k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{}))
 }
