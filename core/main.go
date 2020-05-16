@@ -17,7 +17,6 @@ import (
 func main() {
 
 	var cloudOntology = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
-	cloudOntology.PrintClasses()
 
 	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	flag.Parse()
@@ -25,7 +24,7 @@ func main() {
 	kuberenetesClient := client.NewKubernetesClient(kubeconfig)
 	kuberenetesClient.Init()
 
-	helloController := controllers.NewHelloController(kuberenetesClient)
+	helloController := controllers.NewHelloController(kuberenetesClient, cloudOntology)
 
 	router := gin.Default()
 	router.Use(cors.Default())
