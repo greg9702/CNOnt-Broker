@@ -10,6 +10,10 @@ RUN go build -o main .
 WORKDIR /dist
 RUN cp /go/src/CNOnt-Broker/core/main .
 
+RUN mkdir -p ./ontology/assets
+RUN cp /go/src/CNOnt-Broker/core/ontology/assets/* ./ontology/assets
+
+
 EXPOSE 8080
 
 CMD ["/dist/main", "--kubeconfig", "/secret/kubeconfig"]
