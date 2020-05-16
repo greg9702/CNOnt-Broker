@@ -8,6 +8,7 @@ import (
 
 	"CNOnt-Broker/core/api/controllers"
 	"CNOnt-Broker/core/kubernetes/client"
+	"CNOnt-Broker/core/ontology"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,9 @@ import (
 )
 
 func main() {
+
+	var cloudOntology = ontology.NewOntologyWrapper(filepath.Join("ontology", "CNOnt.owl"))
+	cloudOntology.PrintClasses()
 
 	var kubeconfig *string
 
