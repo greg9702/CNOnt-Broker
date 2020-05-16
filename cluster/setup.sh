@@ -15,7 +15,6 @@ done
 
 echo "Docker deamon ready!"
 
-
 # script creates a Kubernetes cluser from scratch
 # configuration file is cluser-config.yaml
 
@@ -23,7 +22,7 @@ echo "Docker deamon ready!"
 create_admin=1
 
 cluster_name="kind"
-echo $cluster_name > CLUSTERNAME
+cluster_name=$(cat ./CLUSTERNAME)
 
 kind delete cluster --name $cluster_name
 kind create cluster --config cluster-config.yaml --name $cluster_name
