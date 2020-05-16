@@ -8,7 +8,7 @@ while [ $? -ne 0 ]
 do
     echo "Waiting for docker deamon..."
     sleep 1
-    docker ps > /dev/null
+    docker ps &> /dev/null
 done
 
 echo "Docker deamon ready!"
@@ -51,8 +51,5 @@ else
 fi
 
 echo "------------------------"
-
-context="kind-"$cluster_name
-kubectl cluster-info --context $context
 
 exec $@
