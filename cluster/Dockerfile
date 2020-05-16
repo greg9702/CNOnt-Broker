@@ -1,4 +1,4 @@
-FROM docker:dind
+FROM docker:19.03.8-dind
 
 # install tools
 RUN apk add -U wget curl bash openssl jq

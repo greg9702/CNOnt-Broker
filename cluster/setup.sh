@@ -1,6 +1,8 @@
 #!/bin/bash
 
 echo "Starting docker deamon"
+
+rm /var/run/docker.pid 2>/dev/null
 dockerd &> /dev/null &
 docker ps &> /dev/null
 
