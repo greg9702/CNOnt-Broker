@@ -12,21 +12,14 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"k8s.io/client-go/util/homedir"
 )
 
 func main() {
 
-	var cloudOntology = ontology.NewOntologyWrapper(filepath.Join("ontology", "CNOnt.owl"))
+	var cloudOntology = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
 	cloudOntology.PrintClasses()
 
-	var kubeconfig *string
-
-	if home := homedir.HomeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
+	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	flag.Parse()
 
 	kuberenetesClient := client.NewKubernetesClient(kubeconfig)
