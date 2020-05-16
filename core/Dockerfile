@@ -9,8 +9,7 @@ RUN go build -o main .
 
 WORKDIR /dist
 RUN cp /go/src/CNOnt-Broker/core/main .
-RUN cp /go/src/CNOnt-Broker/core/kubeconfig .
 
 EXPOSE 8080
 
-CMD ["/dist/main", "--kubeconfig", "/dist/kubeconfig"]
+CMD ["/dist/main", "--kubeconfig", "/secret/kubeconfig"]

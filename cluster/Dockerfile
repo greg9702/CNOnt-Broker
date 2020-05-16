@@ -21,4 +21,4 @@ COPY ./CLUSTERNAME .
 COPY ./setup.sh .
 
 ENTRYPOINT [ "./setup.sh" ]
-CMD ["/bin/bash", "-c", "--", "while true; do sleep 30; done;"]
+CMD ["kubectl", "proxy", "--address=0.0.0.0"]
