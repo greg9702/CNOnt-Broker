@@ -2,28 +2,16 @@
 
 set -e
 
+docker ps
+
 # script creates a Kubernetes cluser from scratch
 # configuration file is cluser-config.yaml
 
 # if set to 1 create admin account
 create_admin=1
 
-# set path to kind
-export PATH=$PATH:$(go env GOPATH)/bin
-
-if [ "$1" != "" ]; then
-    cluster_name=$1
-else
-    cluster_name="kind"
-fi
-
+cluster_name="kind"
 echo $cluster_name > CLUSTERNAME
-
-if [ "$2" != "" ]; then
-    echo "Passed to many arguments"
-    echo -e "usage:\n./setup.sh 'cluster name' "
-    exit 1
-fi
 
 kind delete cluster --name $cluster_name
 kind create cluster --config cluster-config.yaml --name $cluster_name
@@ -53,3 +41,5 @@ echo "------------------------"
 
 context="kind-"$cluster_name
 kubectl cluster-info --context $context
+
+exec $@
