@@ -44,11 +44,21 @@
     
 
 
-    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#belongsToPod -->
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#belongs_to_node -->
 
-    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#belongsToPod">
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#belongs_to_node">
+        <owl:inverseOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_pod"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#belongs_to_pod -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#belongs_to_pod">
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <owl:inverseOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#hasContainer"/>
+        <owl:inverseOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_container"/>
         <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
         <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
     </owl:ObjectProperty>
@@ -65,6 +75,15 @@
     
 
 
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_container -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_container">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_machine -->
 
     <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_machine">
@@ -72,6 +91,21 @@
         <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#InverseFunctionalProperty"/>
         <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineContainer"/>
         <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_node -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_node"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_pod -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_pod">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
     </owl:ObjectProperty>
     
 
@@ -93,21 +127,6 @@
         <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineGroup"/>
         <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
     </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#hasContainer -->
-
-    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#hasContainer">
-        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
-        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#hasNode -->
-
-    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#hasNode"/>
     
 
 
@@ -199,6 +218,15 @@
     
 
 
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#containerPort -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#containerPort">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#dns_name -->
 
     <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#dns_name">
@@ -255,6 +283,8 @@
         <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Application"/>
         <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
         <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Node"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Pod"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
     </owl:DatatypeProperty>
     
@@ -670,7 +700,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExampleDockerContainer">
         <rdf:type rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#DockerContainer"/>
-        <belongsToPod rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExamplePod"/>
+        <belongs_to_pod rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExamplePod"/>
         <image>exampleImage</image>
         <name>dockerNameContainer</name>
     </owl:NamedIndividual>
@@ -681,7 +711,7 @@
 
     <owl:NamedIndividual rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExamplePod">
         <rdf:type rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Pod"/>
-        <hasContainer rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExampleDockerContainer"/>
+        <contains_container rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExampleDockerContainer"/>
         <apiVersion>apps/v1</apiVersion>
         <name>Example1Pod</name>
         <replicas rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</replicas>
