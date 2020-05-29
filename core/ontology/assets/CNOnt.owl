@@ -1,4 +1,4 @@
-Prefix(:=<http://www.semanticweb.org/greg9702/ontologies/2020/4/untitled-ontology-9#>)
+Prefix(:=<http://www.unifiedcloud.org/2009/2/26/uci.owl#>)
 Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
 Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
 Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
@@ -6,100 +6,481 @@ Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
 Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
 
 
-Ontology(<http://www.semanticweb.org/CNOnt>
+Ontology(<http://www.unifiedcloud.org/2009/2/26/uci.owl>
+Annotation(rdfs:comment "Unified Cloud Ontology"^^xsd:string)
+Annotation(owl:versionInfo "0.1"^^xsd:string)
 
-Declaration(Class(<http://www.semanticweb.org/CNOnt#ApplicationContainer>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#CPU>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#CloudElement>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#Cluster>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#ContainerGroup>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#DockerContainer>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#KubernetesCluster>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#Memory>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#Network>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#Node>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#NodeGroup>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#Pod>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#Resource>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#VirtualMachine>))
-Declaration(Class(<http://www.semanticweb.org/CNOnt#VirtualizationMethod>))
-Declaration(ObjectProperty(<http://www.semanticweb.org/CNOnt#belongsToContainerGroup>))
-Declaration(ObjectProperty(<http://www.semanticweb.org/CNOnt#belongsToNodeGroup>))
-Declaration(ObjectProperty(<http://www.semanticweb.org/CNOnt#hasContainer>))
-Declaration(ObjectProperty(<http://www.semanticweb.org/CNOnt#hasNode>))
+Declaration(Class(:Application))
+Declaration(Class(:ApplicationContainer))
+Declaration(Class(:ApplicationContainerGroup))
+Declaration(Class(:Cloud))
+Declaration(Class(:Cluster))
+Declaration(Class(:Connectivity))
+Declaration(Class(:Credentials))
+Declaration(Class(:Data))
+Declaration(Class(:DockerContainer))
+Declaration(Class(:Firewall))
+Declaration(Class(:FullVirtualizationHypervisor))
+Declaration(Class(:HypervisorType))
+Declaration(Class(:IPAddress))
+Declaration(Class(:IPv4Network))
+Declaration(Class(:IaasCloud))
+Declaration(Class(:InfrastructureElement))
+Declaration(Class(:InfrastructureFacility))
+Declaration(Class(:KVMHypervisor))
+Declaration(Class(:KubernetesCluster))
+Declaration(Class(:LoadBallancer))
+Declaration(Class(:LoginAndPasswordCredentials))
+Declaration(Class(:MachineRunningState))
+Declaration(Class(:MachineState))
+Declaration(Class(:MachineStoppedState))
+Declaration(Class(:Network))
+Declaration(Class(:NetworkAddress))
+Declaration(Class(:NetworkElement))
+Declaration(Class(:Node))
+Declaration(Class(:PaasCloud))
+Declaration(Class(:ParavirtualizationHypervisor))
+Declaration(Class(:Pod))
+Declaration(Class(:Proxy))
+Declaration(Class(:Resource))
+Declaration(Class(:Router))
+Declaration(Class(:SaasCloud))
+Declaration(Class(:Server))
+Declaration(Class(:Site))
+Declaration(Class(:VirtualMachine))
+Declaration(Class(:VirtualMachineContainer))
+Declaration(Class(:VirtualMachineGroup))
+Declaration(Class(:VirtualMachinePackage))
+Declaration(Class(:VirtualizationServer))
+Declaration(Class(:XenHypervisor))
+Declaration(ObjectProperty(:address))
+Declaration(ObjectProperty(:application_container))
+Declaration(ObjectProperty(:belongs_to_cluster))
+Declaration(ObjectProperty(:belongs_to_node))
+Declaration(ObjectProperty(:belongs_to_pod))
+Declaration(ObjectProperty(:contains_application))
+Declaration(ObjectProperty(:contains_container))
+Declaration(ObjectProperty(:contains_machine))
+Declaration(ObjectProperty(:contains_node))
+Declaration(ObjectProperty(:contains_pod))
+Declaration(ObjectProperty(:from_network))
+Declaration(ObjectProperty(:hypervisor))
+Declaration(ObjectProperty(:machine_container))
+Declaration(ObjectProperty(:machine_state))
+Declaration(ObjectProperty(:network_interface))
+Declaration(ObjectProperty(:package))
+Declaration(ObjectProperty(:site))
+Declaration(DataProperty(:apiVersion))
+Declaration(DataProperty(:containerPort))
+Declaration(DataProperty(:dns_name))
+Declaration(DataProperty(:image))
+Declaration(DataProperty(:ip_address))
+Declaration(DataProperty(:ip_mask))
+Declaration(DataProperty(:login))
+Declaration(DataProperty(:name))
+Declaration(DataProperty(:password))
+Declaration(DataProperty(:replicas))
+Declaration(DataProperty(:server_cores))
+Declaration(DataProperty(:server_ram))
+Declaration(NamedIndividual(:Cluster1))
+Declaration(NamedIndividual(:DockerContainer1))
+Declaration(NamedIndividual(:Node1))
+Declaration(NamedIndividual(:Pod1))
+Declaration(NamedIndividual(:machine_running))
+Declaration(NamedIndividual(:machine_stopped))
+
 ############################
 #   Object Properties
 ############################
 
-# Object Property: <http://www.semanticweb.org/CNOnt#belongsToContainerGroup> (<http://www.semanticweb.org/CNOnt#belongsToContainerGroup>)
+# Object Property: :address (:address)
 
-SubObjectPropertyOf(<http://www.semanticweb.org/CNOnt#belongsToContainerGroup> owl:topObjectProperty)
-InverseObjectProperties(<http://www.semanticweb.org/CNOnt#belongsToContainerGroup> <http://www.semanticweb.org/CNOnt#hasContainer>)
+ObjectPropertyDomain(:address :NetworkElement)
+ObjectPropertyRange(:address :NetworkAddress)
 
-# Object Property: <http://www.semanticweb.org/CNOnt#belongsToNodeGroup> (<http://www.semanticweb.org/CNOnt#belongsToNodeGroup>)
+# Object Property: :application_container (:application_container)
 
-InverseObjectProperties(<http://www.semanticweb.org/CNOnt#belongsToNodeGroup> <http://www.semanticweb.org/CNOnt#hasNode>)
+InverseObjectProperties(:application_container :contains_application)
+FunctionalObjectProperty(:application_container)
+ObjectPropertyDomain(:application_container :Application)
+ObjectPropertyRange(:application_container :ApplicationContainer)
 
-# Object Property: <http://www.semanticweb.org/CNOnt#hasContainer> (<http://www.semanticweb.org/CNOnt#hasContainer>)
+# Object Property: :belongs_to_cluster (:belongs_to_cluster)
 
-SubObjectPropertyOf(<http://www.semanticweb.org/CNOnt#hasContainer> owl:topObjectProperty)
+SubObjectPropertyOf(:belongs_to_cluster owl:topObjectProperty)
+InverseObjectProperties(:belongs_to_cluster :contains_node)
+ObjectPropertyDomain(:belongs_to_cluster :VirtualMachine)
+ObjectPropertyRange(:belongs_to_cluster :VirtualMachineGroup)
+
+# Object Property: :belongs_to_node (:belongs_to_node)
+
+InverseObjectProperties(:belongs_to_node :contains_pod)
+ObjectPropertyDomain(:belongs_to_node :ApplicationContainerGroup)
+ObjectPropertyRange(:belongs_to_node :VirtualMachine)
+
+# Object Property: :belongs_to_pod (:belongs_to_pod)
+
+SubObjectPropertyOf(:belongs_to_pod owl:topObjectProperty)
+InverseObjectProperties(:belongs_to_pod :contains_container)
+ObjectPropertyDomain(:belongs_to_pod :ApplicationContainer)
+ObjectPropertyRange(:belongs_to_pod :ApplicationContainerGroup)
+
+# Object Property: :contains_application (:contains_application)
+
+InverseFunctionalObjectProperty(:contains_application)
+ObjectPropertyDomain(:contains_application :ApplicationContainer)
+ObjectPropertyRange(:contains_application :Application)
+
+# Object Property: :contains_container (:contains_container)
+
+ObjectPropertyDomain(:contains_container :ApplicationContainerGroup)
+ObjectPropertyRange(:contains_container :ApplicationContainer)
+
+# Object Property: :contains_machine (:contains_machine)
+
+InverseObjectProperties(:contains_machine :machine_container)
+InverseFunctionalObjectProperty(:contains_machine)
+ObjectPropertyDomain(:contains_machine :VirtualMachineContainer)
+ObjectPropertyRange(:contains_machine :VirtualMachine)
+
+# Object Property: :contains_node (:contains_node)
+
+ObjectPropertyDomain(:contains_node :VirtualMachineGroup)
+ObjectPropertyRange(:contains_node :VirtualMachine)
+
+# Object Property: :contains_pod (:contains_pod)
+
+ObjectPropertyDomain(:contains_pod :VirtualMachine)
+ObjectPropertyRange(:contains_pod :ApplicationContainerGroup)
+
+# Object Property: :from_network (:from_network)
+
+FunctionalObjectProperty(:from_network)
+ObjectPropertyDomain(:from_network :NetworkAddress)
+ObjectPropertyRange(:from_network :Network)
+
+# Object Property: :hypervisor (:hypervisor)
+
+FunctionalObjectProperty(:hypervisor)
+ObjectPropertyDomain(:hypervisor :VirtualMachineContainer)
+ObjectPropertyRange(:hypervisor :HypervisorType)
+
+# Object Property: :machine_container (:machine_container)
+
+FunctionalObjectProperty(:machine_container)
+ObjectPropertyDomain(:machine_container :VirtualMachine)
+ObjectPropertyRange(:machine_container :VirtualMachineContainer)
+
+# Object Property: :machine_state (machine state)
+
+AnnotationAssertion(rdfs:label :machine_state "machine state"^^xsd:string)
+FunctionalObjectProperty(:machine_state)
+ObjectPropertyDomain(:machine_state :VirtualMachine)
+ObjectPropertyRange(:machine_state :MachineState)
+
+# Object Property: :package (Package)
+
+AnnotationAssertion(rdfs:label :package "Package"^^xsd:string)
+FunctionalObjectProperty(:package)
+ObjectPropertyDomain(:package :VirtualMachine)
+ObjectPropertyRange(:package :VirtualMachinePackage)
+
+# Object Property: :site (site)
+
+AnnotationAssertion(rdfs:label :site "site"^^xsd:string)
+FunctionalObjectProperty(:site)
+ObjectPropertyDomain(:site :InfrastructureElement)
+ObjectPropertyRange(:site :Site)
+
+
+############################
+#   Data Properties
+############################
+
+# Data Property: :apiVersion (:apiVersion)
+
+DataPropertyDomain(:apiVersion :Pod)
+DataPropertyRange(:apiVersion xsd:string)
+
+# Data Property: :containerPort (:containerPort)
+
+DataPropertyDomain(:containerPort :ApplicationContainer)
+DataPropertyRange(:containerPort xsd:int)
+
+# Data Property: :dns_name (DNS name)
+
+AnnotationAssertion(rdfs:label :dns_name "DNS name"^^xsd:string)
+DataPropertyDomain(:dns_name :NetworkElement)
+DataPropertyRange(:dns_name xsd:string)
+
+# Data Property: :image (:image)
+
+DataPropertyDomain(:image :ApplicationContainer)
+DataPropertyRange(:image xsd:string)
+
+# Data Property: :ip_address (:ip_address)
+
+FunctionalDataProperty(:ip_address)
+DataPropertyDomain(:ip_address :IPv4Network)
+DataPropertyRange(:ip_address xsd:string)
+
+# Data Property: :ip_mask (:ip_mask)
+
+FunctionalDataProperty(:ip_mask)
+DataPropertyDomain(:ip_mask :IPv4Network)
+DataPropertyRange(:ip_mask xsd:string)
+
+# Data Property: :login (:login)
+
+FunctionalDataProperty(:login)
+DataPropertyDomain(:login :LoginAndPasswordCredentials)
+DataPropertyRange(:login xsd:string)
+
+# Data Property: :name (:name)
+
+FunctionalDataProperty(:name)
+DataPropertyDomain(:name :Application)
+DataPropertyDomain(:name :ApplicationContainer)
+DataPropertyDomain(:name :ApplicationContainerGroup)
+DataPropertyDomain(:name :Cluster)
+DataPropertyDomain(:name :Node)
+DataPropertyDomain(:name :Pod)
+DataPropertyDomain(:name :VirtualMachine)
+DataPropertyDomain(:name :VirtualMachineGroup)
+DataPropertyRange(:name xsd:string)
+
+# Data Property: :password (:password)
+
+FunctionalDataProperty(:password)
+DataPropertyDomain(:password :LoginAndPasswordCredentials)
+DataPropertyRange(:password xsd:string)
+
+# Data Property: :replicas (:replicas)
+
+DataPropertyDomain(:replicas :Pod)
+DataPropertyRange(:replicas xsd:int)
+
+# Data Property: :server_cores (:server_cores)
+
+FunctionalDataProperty(:server_cores)
+DataPropertyDomain(:server_cores :Server)
+DataPropertyRange(:server_cores xsd:int)
+
+# Data Property: :server_ram (:server_ram)
+
+FunctionalDataProperty(:server_ram)
+DataPropertyDomain(:server_ram :Server)
+DataPropertyRange(:server_ram xsd:int)
+
 
 
 ############################
 #   Classes
 ############################
 
-# Class: <http://www.semanticweb.org/CNOnt#ApplicationContainer> (<http://www.semanticweb.org/CNOnt#ApplicationContainer>)
+# Class: :Application (:Application)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#ApplicationContainer> <http://www.semanticweb.org/CNOnt#CloudElement>)
-SubClassOf(<http://www.semanticweb.org/CNOnt#ApplicationContainer> <http://www.semanticweb.org/CNOnt#DockerContainer>)
+SubClassOf(:Application :Resource)
 
-# Class: <http://www.semanticweb.org/CNOnt#CPU> (<http://www.semanticweb.org/CNOnt#CPU>)
+# Class: :ApplicationContainer (:ApplicationContainer)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#CPU> <http://www.semanticweb.org/CNOnt#Resource>)
+SubClassOf(:ApplicationContainer :InfrastructureElement)
 
-# Class: <http://www.semanticweb.org/CNOnt#Cluster> (<http://www.semanticweb.org/CNOnt#Cluster>)
+# Class: :ApplicationContainerGroup (:ApplicationContainerGroup)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#Cluster> <http://www.semanticweb.org/CNOnt#NodeGroup>)
+SubClassOf(:ApplicationContainerGroup :InfrastructureElement)
 
-# Class: <http://www.semanticweb.org/CNOnt#ContainerGroup> (<http://www.semanticweb.org/CNOnt#ContainerGroup>)
+# Class: :Cluster (:Cluster)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#ContainerGroup> <http://www.semanticweb.org/CNOnt#CloudElement>)
-SubClassOf(<http://www.semanticweb.org/CNOnt#ContainerGroup> ObjectSomeValuesFrom(<http://www.semanticweb.org/CNOnt#hasContainer> <http://www.semanticweb.org/CNOnt#ApplicationContainer>))
+SubClassOf(:Cluster :VirtualMachineGroup)
 
-# Class: <http://www.semanticweb.org/CNOnt#DockerContainer> (<http://www.semanticweb.org/CNOnt#DockerContainer>)
+# Class: :Connectivity (:Connectivity)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#DockerContainer> <http://www.semanticweb.org/CNOnt#VirtualizationMethod>)
+SubClassOf(:Connectivity :InfrastructureElement)
 
-# Class: <http://www.semanticweb.org/CNOnt#KubernetesCluster> (<http://www.semanticweb.org/CNOnt#KubernetesCluster>)
+# Class: :Data (:Data)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#KubernetesCluster> <http://www.semanticweb.org/CNOnt#Cluster>)
+SubClassOf(:Data :Resource)
 
-# Class: <http://www.semanticweb.org/CNOnt#Memory> (<http://www.semanticweb.org/CNOnt#Memory>)
+# Class: :DockerContainer (:DockerContainer)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#Memory> <http://www.semanticweb.org/CNOnt#Resource>)
+SubClassOf(:DockerContainer :ApplicationContainer)
 
-# Class: <http://www.semanticweb.org/CNOnt#Network> (<http://www.semanticweb.org/CNOnt#Network>)
+# Class: :Firewall (:Firewall)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#Network> <http://www.semanticweb.org/CNOnt#Resource>)
+SubClassOf(:Firewall :Connectivity)
 
-# Class: <http://www.semanticweb.org/CNOnt#Node> (<http://www.semanticweb.org/CNOnt#Node>)
+# Class: :FullVirtualizationHypervisor (:FullVirtualizationHypervisor)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#Node> <http://www.semanticweb.org/CNOnt#CloudElement>)
-SubClassOf(<http://www.semanticweb.org/CNOnt#Node> <http://www.semanticweb.org/CNOnt#VirtualMachine>)
+SubClassOf(:FullVirtualizationHypervisor :HypervisorType)
 
-# Class: <http://www.semanticweb.org/CNOnt#NodeGroup> (<http://www.semanticweb.org/CNOnt#NodeGroup>)
+# Class: :IPAddress (:IPAddress)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#NodeGroup> <http://www.semanticweb.org/CNOnt#CloudElement>)
-SubClassOf(<http://www.semanticweb.org/CNOnt#NodeGroup> ObjectSomeValuesFrom(<http://www.semanticweb.org/CNOnt#hasNode> <http://www.semanticweb.org/CNOnt#Node>))
+SubClassOf(:IPAddress :NetworkAddress)
 
-# Class: <http://www.semanticweb.org/CNOnt#Pod> (<http://www.semanticweb.org/CNOnt#Pod>)
+# Class: :IPv4Network (:IPv4Network)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#Pod> <http://www.semanticweb.org/CNOnt#ContainerGroup>)
+SubClassOf(:IPv4Network :Network)
 
-# Class: <http://www.semanticweb.org/CNOnt#VirtualMachine> (<http://www.semanticweb.org/CNOnt#VirtualMachine>)
+# Class: :IaasCloud (:IaasCloud)
 
-SubClassOf(<http://www.semanticweb.org/CNOnt#VirtualMachine> <http://www.semanticweb.org/CNOnt#VirtualizationMethod>)
+AnnotationAssertion(rdfs:comment :IaasCloud "Infrastructure as a service cloud"^^xsd:string)
+SubClassOf(:IaasCloud :Cloud)
+
+# Class: :InfrastructureElement (:InfrastructureElement)
+
+AnnotationAssertion(rdfs:comment :InfrastructureElement "Element of site infrastructure"^^xsd:string)
+
+# Class: :InfrastructureFacility (:InfrastructureFacility)
+
+SubClassOf(:InfrastructureFacility :InfrastructureElement)
+
+# Class: :KVMHypervisor (:KVMHypervisor)
+
+SubClassOf(:KVMHypervisor :FullVirtualizationHypervisor)
+DisjointClasses(:KVMHypervisor :XenHypervisor)
+
+# Class: :KubernetesCluster (:KubernetesCluster)
+
+SubClassOf(:KubernetesCluster :Cluster)
+
+# Class: :LoadBallancer (:LoadBallancer)
+
+SubClassOf(:LoadBallancer :Connectivity)
+
+# Class: :LoginAndPasswordCredentials (:LoginAndPasswordCredentials)
+
+SubClassOf(:LoginAndPasswordCredentials :Credentials)
+
+# Class: :MachineRunningState (:MachineRunningState)
+
+SubClassOf(:MachineRunningState :MachineState)
+
+# Class: :MachineStoppedState (:MachineStoppedState)
+
+SubClassOf(:MachineStoppedState :MachineState)
+
+# Class: :Network (:Network)
+
+SubClassOf(:Network :InfrastructureElement)
+
+# Class: :NetworkElement (:NetworkElement)
+
+SubClassOf(:NetworkElement :InfrastructureElement)
+
+# Class: :Node (:Node)
+
+SubClassOf(:Node :VirtualMachine)
+
+# Class: :PaasCloud (:PaasCloud)
+
+AnnotationAssertion(rdfs:comment :PaasCloud "Platform as a service cloud"^^xsd:string)
+SubClassOf(:PaasCloud :Cloud)
+
+# Class: :ParavirtualizationHypervisor (:ParavirtualizationHypervisor)
+
+SubClassOf(:ParavirtualizationHypervisor :HypervisorType)
+
+# Class: :Pod (:Pod)
+
+SubClassOf(:Pod :ApplicationContainerGroup)
+
+# Class: :Proxy (:Proxy)
+
+SubClassOf(:Proxy :Connectivity)
+
+# Class: :Resource (:Resource)
+
+AnnotationAssertion(rdfs:comment :Resource "Cloud hosted resource"^^xsd:string)
+SubClassOf(:Resource :InfrastructureElement)
+
+# Class: :Router (:Router)
+
+SubClassOf(:Router :Connectivity)
+
+# Class: :SaasCloud (:SaasCloud)
+
+AnnotationAssertion(rdfs:comment :SaasCloud "Software as a service cloud"^^xsd:string)
+SubClassOf(:SaasCloud :Cloud)
+
+# Class: :Server (:Server)
+
+SubClassOf(:Server :ApplicationContainer)
+SubClassOf(:Server :InfrastructureElement)
+SubClassOf(:Server :NetworkElement)
+
+# Class: :Site (:Site)
+
+AnnotationAssertion(rdfs:comment :Site "Physical location of infrastructure elements"^^xsd:string)
+
+# Class: :VirtualMachine (:VirtualMachine)
+
+SubClassOf(:VirtualMachine :ApplicationContainer)
+SubClassOf(:VirtualMachine :InfrastructureElement)
+SubClassOf(:VirtualMachine :NetworkElement)
+
+# Class: :VirtualMachineContainer (:VirtualMachineContainer)
+
+AnnotationAssertion(rdfs:comment :VirtualMachineContainer "Container which physically hosts virtual machine"^^xsd:string)
+SubClassOf(:VirtualMachineContainer :InfrastructureElement)
+
+# Class: :VirtualMachineGroup (:VirtualMachineGroup)
+
+AnnotationAssertion(rdfs:comment :VirtualMachineGroup "Logical group of virtual machines"^^xsd:string)
+SubClassOf(:VirtualMachineGroup :InfrastructureElement)
+
+# Class: :VirtualizationServer (:VirtualizationServer)
+
+SubClassOf(:VirtualizationServer :Server)
+SubClassOf(:VirtualizationServer :VirtualMachineContainer)
+
+# Class: :XenHypervisor (:XenHypervisor)
+
+SubClassOf(:XenHypervisor :FullVirtualizationHypervisor)
+SubClassOf(:XenHypervisor :ParavirtualizationHypervisor)
+
+############################
+#   Named Individuals
+############################
+
+# Individual: :Cluster1 (:Cluster1)
+
+ClassAssertion(:KubernetesCluster :Cluster1)
+ObjectPropertyAssertion(:contains_node :Cluster1 :Node1)
+DataPropertyAssertion(:name :Cluster1 "kind")
+
+# Individual: :DockerContainer1 (:DockerContainer1)
+
+ClassAssertion(:DockerContainer :DockerContainer1)
+ObjectPropertyAssertion(:belongs_to_pod :DockerContainer1 :Pod1)
+DataPropertyAssertion(:image :DockerContainer1 "k8s.gcr.io/echoserver:1.4")
+DataPropertyAssertion(:name :DockerContainer1 "hello-kubernetes")
+
+# Individual: :Node1 (:Node1)
+
+ClassAssertion(:Node :Node1)
+ObjectPropertyAssertion(:belongs_to_cluster :Node1 :Cluster1)
+ObjectPropertyAssertion(:contains_pod :Node1 :Pod1)
+DataPropertyAssertion(:name :Node1 "kind-control-plane")
+
+# Individual: :Pod1 (:Pod1)
+
+ClassAssertion(:Pod :Pod1)
+ObjectPropertyAssertion(:belongs_to_node :Pod1 :Node1)
+ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer1)
+DataPropertyAssertion(:apiVersion :Pod1 "apps/v1")
+DataPropertyAssertion(:name :Pod1 "Pod1Name")
+DataPropertyAssertion(:replicas :Pod1 "3"^^xsd:integer)
+
+# Individual: :machine_running (running)
+
+AnnotationAssertion(rdfs:label :machine_running "running"^^xsd:string)
+ClassAssertion(:MachineRunningState :machine_running)
+
+# Individual: :machine_stopped (stopped)
+
+AnnotationAssertion(rdfs:label :machine_stopped "stopped"^^xsd:string)
+ClassAssertion(:MachineStoppedState :machine_stopped)
 
 
 )
