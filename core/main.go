@@ -49,6 +49,9 @@ func main() {
 	v1Router.GET("/hello", helloController.GetHello)
 	v1Router.GET("/hello/:id", helloController.EchoNumber)
 
+	v1Router.GET("/create-deployment", helloController.CreateDeployment)
+	v1Router.GET("/delete-deployment", helloController.DeleteDeployment)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

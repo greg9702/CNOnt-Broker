@@ -28,6 +28,26 @@ func (h *HelloController) GetHello(ctx *gin.Context) {
 	})
 }
 
+func (h *HelloController) CreateDeployment(ctx *gin.Context) {
+	res := h.kubernetesClient.CreateDeployment()
+
+	if res != nil {
+		ctx.JSON(500, gin.H{})
+		return
+	}
+	ctx.JSON(201, gin.H{})
+}
+
+func (h *HelloController) DeleteDeployment(ctx *gin.Context) {
+	res := h.kubernetesClient.DeleteDeployment()
+
+	if res != nil {
+		ctx.JSON(404, gin.H{})
+		return
+	}
+	ctx.JSON(204, gin.H{})
+}
+
 // EchoNumber responde with a number it received
 func (h *HelloController) EchoNumber(ctx *gin.Context) {
 	number := ctx.Param("id")
