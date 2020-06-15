@@ -131,6 +131,8 @@ github.com/peterbourgon/diskv v2.0.1+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/shful/gofp v0.0.1 h1:luN7YwyZNOoi24KPVvjsE41AgTbVWHSWbtQLPEocZv8=
 github.com/shful/gofp v0.0.1/go.mod h1:gsNuxa9zWSy2aioVwmnqiDto9WHxTuWw7D2CPBdyrg8=
+github.com/shful/gofp v0.0.2-0.20191127165125-acf906ccccad h1:N5eVqF4xlLpy5JGEyqjCDBkVQZjnvrEVlMl3r5C2pgQ=
+github.com/shful/gofp v0.0.2-0.20191127165125-acf906ccccad/go.mod h1:gsNuxa9zWSy2aioVwmnqiDto9WHxTuWw7D2CPBdyrg8=
 github.com/spf13/afero v1.2.2/go.mod h1:9ZxEEn6pIJ8Rxe320qSDBk6AsU0r9pR7Q4OcevTdifk=
 github.com/spf13/pflag v0.0.0-20170130214245-9ff6c6923cff/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
 github.com/spf13/pflag v1.0.1/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
