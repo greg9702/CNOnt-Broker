@@ -7,6 +7,8 @@ import (
 
 	"github.com/shful/gofp"
 	"github.com/shful/gofp/owlfunctional"
+	"github.com/shful/gofp/owlfunctional/assertions"
+	"github.com/shful/gofp/owlfunctional/decl"
 )
 
 type OntologyWrapper struct {
@@ -33,5 +35,26 @@ func (ow *OntologyWrapper) PrintClasses() {
 
 	for _, declaration := range ow.ontology.K.AllClassDecls() {
 		fmt.Println(declaration.IRI)
+	}
+}
+
+// ObjectPropertyAssertions returns ObjectPropertyAssertions that are about individual which declaration was passed
+func (ow *OntologyWrapper) ObjectPropertyAssertions(individualDecl *decl.NamedIndividualDecl) []assertions.ObjectPropertyAssertion {
+	allObjectPropertyAssertions := ow.ontology.K.AllObjectPropertyAssertions()
+
+	isAssertionAboutIndividual := func(s assertions.ObjectPropertyAssertion) bool {
+		return s.A1.Name == convertIRI2Name(individualDecl.IRI)
+	}
+
+	return filterObjPropAssertions(allObjectPropertyAssertions, isAssertionAboutIndividual)
+}
+
+func (ow *OntologyWrapper) BuildDeploymentConfiguration() {
+	log.Println("That's what we parsed: ", ow.ontology.About())
+
+	for _, declaration := range ow.ontology.K.AllNamedIndividualDecls() {
+		individualDecl := declaration
+		fmt.Println(convertIRI2Name(individualDecl.IRI))
+		fmt.Println("\t", ow.ObjectPropertyAssertions(individualDecl))
 	}
 }
