@@ -8,6 +8,7 @@ import (
 	"github.com/shful/gofp"
 	"github.com/shful/gofp/owlfunctional"
 	"github.com/shful/gofp/owlfunctional/assertions"
+	"github.com/shful/gofp/owlfunctional/axioms"
 	"github.com/shful/gofp/owlfunctional/decl"
 )
 
@@ -49,12 +50,35 @@ func (ow *OntologyWrapper) ObjectPropertyAssertions(individualDecl *decl.NamedIn
 	return filterObjPropAssertions(allObjectPropertyAssertions, isAssertionAboutIndividual)
 }
 
+func (ow *OntologyWrapper) IndividualsOfClass(classDecl *decl.ClassDecl) (individuals []string) {
+	allClassAssertions := ow.ontology.K.AllClassAssertions()
+
+	isAssertionAboutClass := func(s axioms.ClassAssertion) bool {
+		if !s.C.IsNamedClass() {
+			return false
+		}
+		return (s.C).(*decl.ClassDecl).IRI == classDecl.IRI
+	}
+
+	classAssertions := filterClassAssertions(allClassAssertions, isAssertionAboutClass)
+
+	for _, classAssertion := range classAssertions {
+		individuals = append(individuals, classAssertion.A.Name)
+	}
+
+	return individuals
+}
+
 func (ow *OntologyWrapper) BuildDeploymentConfiguration() {
 	log.Println("That's what we parsed: ", ow.ontology.About())
 
-	for _, declaration := range ow.ontology.K.AllNamedIndividualDecls() {
-		individualDecl := declaration
-		fmt.Println(convertIRI2Name(individualDecl.IRI))
-		fmt.Println("\t", ow.ObjectPropertyAssertions(individualDecl))
+	for _, individual := range ow.ontology.K.AllNamedIndividualDecls() {
+		fmt.Println(individual)
+	}
+
+	for _, declaration := range ow.ontology.K.AllClassDecls() {
+		classDecl := declaration
+		fmt.Println(convertIRI2Name(classDecl.IRI))
+		fmt.Println("\t", ow.IndividualsOfClass(classDecl))
 	}
 }
