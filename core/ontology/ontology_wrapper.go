@@ -1,9 +1,11 @@
 package ontology
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/shful/gofp"
 	"github.com/shful/gofp/owlfunctional"
@@ -16,7 +18,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const podClassName = ":Pod"
+const podClass = ":Pod"
+const podNameAssertion = ":name"
+const replicasAssertion = ":replicas"
+const belongsToNodeAssertion = ":belongs_to_node"
 
 type OntologyWrapper struct {
 	ontology *owlfunctional.Ontology
@@ -45,29 +50,43 @@ func (ow *OntologyWrapper) PrintClasses() {
 	}
 }
 
-// ObjectPropertyAssertionsByIndividual returns ObjectPropertyAssertions that are about individual which declaration was passed
-func (ow *OntologyWrapper) ObjectPropertyAssertionsByIndividual(individualDecl *decl.NamedIndividualDecl) []assertions.ObjectPropertyAssertion {
+// objectPropertyAssertionValue returns string value of particular ObjectPropertyAssertion about passed individual
+func (ow *OntologyWrapper) objectPropertyAssertionValue(assertionName string, individual string) (string, error) {
 	allObjectPropertyAssertions := ow.ontology.K.AllObjectPropertyAssertions()
 
 	isAssertionAboutIndividual := func(s assertions.ObjectPropertyAssertion) bool {
-		return s.A1.Name == convertIRI2Name(individualDecl.IRI)
+		return s.A1.Name == individual && convertIRI2Name(s.PN) == assertionName
 	}
 
-	return filterObjPropAssertions(allObjectPropertyAssertions, isAssertionAboutIndividual)
+	filteredAssrtions := filterObjPropAssertions(allObjectPropertyAssertions, isAssertionAboutIndividual)
+	if len(filteredAssrtions) == 0 {
+		return "", errors.New("No '" + assertionName + "' assertions found for " + individual)
+	} else if len(filteredAssrtions) > 1 {
+		return "", errors.New("Multiple '" + assertionName + "' assertions found for " + individual)
+	}
+
+	return filteredAssrtions[0].A2.Name, nil
 }
 
-// ObjectPropertyAssertionsByIndividual returns ObjectPropertyAssertions that are about individual which declaration was passed
-func (ow *OntologyWrapper) DataPropertyAssertionsByIndividual(individual string) []axioms.DataPropertyAssertion {
+// dataPropertyAssertionValue returns string value of particular DataPropertyAssertion about passed individual
+func (ow *OntologyWrapper) dataPropertyAssertionValue(assertionName string, individual string) (string, error) {
 	allDataPropertyAssertions := ow.ontology.K.AllDataPropertyAssertions()
 
 	isAssertionAboutIndividual := func(s axioms.DataPropertyAssertion) bool {
-		return s.A.Name == individual
+		return s.A.Name == individual && convertIRI2Name(s.R.(*decl.DataPropertyDecl).IRI) == assertionName
 	}
 
-	return filterDataPropAssertions(allDataPropertyAssertions, isAssertionAboutIndividual)
+	filteredAssrtions := filterDataPropAssertions(allDataPropertyAssertions, isAssertionAboutIndividual)
+	if len(filteredAssrtions) == 0 {
+		return "", errors.New("No '" + assertionName + "' assertions found for " + individual)
+	} else if len(filteredAssrtions) > 1 {
+		return "", errors.New("Multiple '" + assertionName + "' assertions found for " + individual)
+	}
+
+	return filteredAssrtions[0].V.Value, nil
 }
 
-func (ow *OntologyWrapper) IndividualsByClass(className string) (individuals []string) {
+func (ow *OntologyWrapper) individualsByClass(className string) (individuals []string) {
 	allClassAssertions := ow.ontology.K.AllClassAssertions()
 
 	isAssertionAboutClass := func(s axioms.ClassAssertion) bool {
@@ -86,55 +105,72 @@ func (ow *OntologyWrapper) IndividualsByClass(className string) (individuals []s
 }
 
 func (ow *OntologyWrapper) Pods() []string {
-	return ow.IndividualsByClass(podClassName)
+	return ow.individualsByClass(podClass)
 }
 
 func (ow *OntologyWrapper) BuildDeploymentConfiguration() *appsv1.Deployment {
-	log.Println("That's what we parsed: ", ow.ontology.About())
+	deploymentName := "demo-deployment"
 
+	// default values
+	replicas := int32Ptr(2)
+	podName := "demo"
+
+	containerName := "web"
+	image := "nginx:1.12"
+	protocol := apiv1.ProtocolTCP
+	var containerPort int32 = 80
+
+	// override default values if something was found in ontology
 	for _, pod := range ow.Pods() {
-		fmt.Println(pod)
-		for _, dataAssertion := range ow.DataPropertyAssertionsByIndividual(pod) {
-			fmt.Println(convertIRI2Name(dataAssertion.R.(*decl.DataPropertyDecl).IRI)) //TODO maybe is there a way to avoid casting...
+		fmt.Println("Pod: " + pod)
+		p, err := ow.dataPropertyAssertionValue(podNameAssertion, pod)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			podName = p
+		}
+
+		r, err := ow.dataPropertyAssertionValue(replicasAssertion, pod)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			i, err := strconv.Atoi(r)
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				replicas = int32Ptr(int32(i))
+				print(*replicas)
+			}
 		}
 	}
-	// for _, individual := range ow.ontology.K.AllNamedIndividualDecls() {
-	// 	fmt.Println(individual)
-	// }
-
-	// for _, declaration := range ow.ontology.K.AllClassDecls() {
-	// 	classDecl := declaration
-	// 	fmt.Println(convertIRI2Name(classDecl.IRI))
-	// 	fmt.Println("\t", ow.IndividualsByClass(convertIRI2Name(classDecl.IRI)))
-	// }
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "demo-deployment",
+			Name: deploymentName,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(2),
+			Replicas: replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": "demo",
+					"app": podName,
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "demo",
+						"app": podName,
 					},
 				},
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:  "web",
-							Image: "nginx:1.12",
+							Name:  containerName,
+							Image: image,
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: 80,
+									Protocol:      protocol,
+									ContainerPort: containerPort,
 								},
 							},
 						},
@@ -144,7 +180,7 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *appsv1.Deployment {
 		},
 	}
 
+	fmt.Println(*deployment)
+
 	return deployment
 }
-
-func int32Ptr(i int32) *int32 { return &i }
