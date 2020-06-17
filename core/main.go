@@ -32,12 +32,14 @@ func main() {
 	}
 
 	var cloudOntology = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
+	deployment := cloudOntology.BuildDeploymentConfiguration()
 
 	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	flag.Parse()
 
 	kuberenetesClient := client.NewKubernetesClient(kubeconfig)
 	kuberenetesClient.Init()
+	kuberenetesClient.SetDeployment(deployment)
 
 	helloController := controllers.NewHelloController(kuberenetesClient, cloudOntology)
 
