@@ -11,7 +11,6 @@ func convertIRI2Name(IRI string) string {
 	return ":" + strings.Split(IRI, "#")[1]
 }
 
-// TODO generic??
 func filterObjPropAssertions(assertions []assertions.ObjectPropertyAssertion, test func(assertions.ObjectPropertyAssertion) bool) (ret []assertions.ObjectPropertyAssertion) {
 	for _, assertion := range assertions {
 		if test(assertion) {

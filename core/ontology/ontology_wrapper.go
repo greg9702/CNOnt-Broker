@@ -86,6 +86,7 @@ func (ow *OntologyWrapper) dataPropertyAssertionValue(assertionName string, indi
 	return filteredAssrtions[0].V.Value, nil
 }
 
+// individualsByClass returns all individuals from a given class
 func (ow *OntologyWrapper) individualsByClass(className string) (individuals []string) {
 	allClassAssertions := ow.ontology.K.AllClassAssertions()
 
@@ -104,10 +105,37 @@ func (ow *OntologyWrapper) individualsByClass(className string) (individuals []s
 	return individuals
 }
 
-func (ow *OntologyWrapper) Pods() []string {
+// pods returns all pod individuals
+func (ow *OntologyWrapper) pods() []string {
 	return ow.individualsByClass(podClass)
 }
 
+// podName returns name of a given pod
+func (ow *OntologyWrapper) podName(pod string) (string, error) {
+	podName, err := ow.dataPropertyAssertionValue(podNameAssertion, pod)
+	if err != nil {
+		return "", err
+	} else {
+		return podName, nil
+	}
+}
+
+// podReplicas returns replicas of a given pod
+func (ow *OntologyWrapper) podReplicas(pod string) (*int32, error) {
+	replicas, err := ow.dataPropertyAssertionValue(replicasAssertion, pod)
+	if err != nil {
+		return nil, err
+	} else {
+		r, err := strconv.Atoi(replicas)
+		if err != nil {
+			return nil, err
+		} else {
+			return int32Ptr(int32(r)), nil // TODO make sure it's ok returning pointer here
+		}
+	}
+}
+
+// BuildDeploymentConfiguration returns Kubernetes Deployment basing on parsed ontology
 func (ow *OntologyWrapper) BuildDeploymentConfiguration() *appsv1.Deployment {
 	deploymentName := "demo-deployment"
 
@@ -121,26 +149,20 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *appsv1.Deployment {
 	var containerPort int32 = 80
 
 	// override default values if something was found in ontology
-	for _, pod := range ow.Pods() {
+	for _, pod := range ow.pods() {
 		fmt.Println("Pod: " + pod)
-		p, err := ow.dataPropertyAssertionValue(podNameAssertion, pod)
+		n, err := ow.podName(pod)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			podName = p
+			podName = n
 		}
 
-		r, err := ow.dataPropertyAssertionValue(replicasAssertion, pod)
+		r, err := ow.podReplicas(pod)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			i, err := strconv.Atoi(r)
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				replicas = int32Ptr(int32(i))
-				print(*replicas)
-			}
+			replicas = r
 		}
 	}
 
