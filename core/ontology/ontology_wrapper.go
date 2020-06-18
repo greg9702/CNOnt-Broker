@@ -14,8 +14,7 @@ import (
 	"github.com/shful/gofp/owlfunctional/decl"
 
 	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 const podClass = ":Pod"
@@ -137,19 +136,12 @@ func (ow *OntologyWrapper) podReplicas(pod string) (*int32, error) {
 
 // BuildDeploymentConfiguration returns Kubernetes Deployment basing on parsed ontology
 func (ow *OntologyWrapper) BuildDeploymentConfiguration() *appsv1.Deployment {
-	deploymentName := "demo-deployment"
 
-	// default values
-	replicas := int32Ptr(2)
-	podName := "demo"
-
-	containerName := "web"
-	image := "nginx:1.12"
-	protocol := apiv1.ProtocolTCP
-	var containerPort int32 = 80
+	podName := ""
 
 	// override default values if something was found in ontology
 	for _, pod := range ow.pods() {
+		
 		fmt.Println("Pod: " + pod)
 		n, err := ow.podName(pod)
 		if err != nil {
@@ -166,43 +158,18 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *appsv1.Deployment {
 		}
 	}
 
-	deployment := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: deploymentName,
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: replicas,
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": podName,
-				},
+	deployment := &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"apiVersion": "",
+			"kind":       "",
+			"metadata": map[string]interface{}{
+				"name": "",
 			},
-			Template: apiv1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": podName,
-					},
-				},
-				Spec: apiv1.PodSpec{
-					Containers: []apiv1.Container{
-						{
-							Name:  containerName,
-							Image: image,
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      protocol,
-									ContainerPort: containerPort,
-								},
-							},
-						},
-					},
-				},
-			},
+			"spec": map[string]interface{}{},
 		},
 	}
 
 	fmt.Println(*deployment)
 
-	return deployment
+	panic(2)
 }
