@@ -38,4 +38,11 @@ func filterDataPropAssertions(assertions []axioms.DataPropertyAssertion, test fu
 	return
 }
 
+func objectAssertions2String(assertions []assertions.ObjectPropertyAssertion) (ret []string) {
+	for _, assertion := range assertions {
+		ret = append(ret, assertion.A2.Name)
+	}
+	return
+}
+
 func int32Ptr(i int32) *int32 { return &i }

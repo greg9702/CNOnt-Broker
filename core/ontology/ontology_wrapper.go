@@ -13,14 +13,17 @@ import (
 	"github.com/shful/gofp/owlfunctional/axioms"
 	"github.com/shful/gofp/owlfunctional/decl"
 
-	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 const podClass = ":Pod"
 const podNameAssertion = ":name"
+const apiVersionAssertion = ":apiVersion"
+const kindAssertion = ":kind"
 const replicasAssertion = ":replicas"
+
 const belongsToNodeAssertion = ":belongs_to_node"
+const containsContainerAssertion = ":contains_container"
 
 type OntologyWrapper struct {
 	ontology *owlfunctional.Ontology
@@ -57,14 +60,30 @@ func (ow *OntologyWrapper) objectPropertyAssertionValue(assertionName string, in
 		return s.A1.Name == individual && convertIRI2Name(s.PN) == assertionName
 	}
 
-	filteredAssrtions := filterObjPropAssertions(allObjectPropertyAssertions, isAssertionAboutIndividual)
-	if len(filteredAssrtions) == 0 {
+	filteredAssertions := filterObjPropAssertions(allObjectPropertyAssertions, isAssertionAboutIndividual)
+	if len(filteredAssertions) == 0 {
 		return "", errors.New("No '" + assertionName + "' assertions found for " + individual)
-	} else if len(filteredAssrtions) > 1 {
+	} else if len(filteredAssertions) > 1 {
 		return "", errors.New("Multiple '" + assertionName + "' assertions found for " + individual)
 	}
 
-	return filteredAssrtions[0].A2.Name, nil
+	return filteredAssertions[0].A2.Name, nil
+}
+
+// objectPropertyAssertionValues returns slice of strings with values of particular ObjectPropertyAssertion about passed individual
+func (ow *OntologyWrapper) objectPropertyAssertionValues(assertionName string, individual string) ([]string, error) {
+	allObjectPropertyAssertions := ow.ontology.K.AllObjectPropertyAssertions()
+
+	isAssertionAboutIndividual := func(s assertions.ObjectPropertyAssertion) bool {
+		return s.A1.Name == individual && convertIRI2Name(s.PN) == assertionName
+	}
+
+	filteredAssertions := filterObjPropAssertions(allObjectPropertyAssertions, isAssertionAboutIndividual)
+	if len(filteredAssertions) == 0 {
+		return nil, errors.New("No '" + assertionName + "' assertions found for " + individual)
+	}
+
+	return objectAssertions2String(filteredAssertions), nil
 }
 
 // dataPropertyAssertionValue returns string value of particular DataPropertyAssertion about passed individual
@@ -75,14 +94,14 @@ func (ow *OntologyWrapper) dataPropertyAssertionValue(assertionName string, indi
 		return s.A.Name == individual && convertIRI2Name(s.R.(*decl.DataPropertyDecl).IRI) == assertionName
 	}
 
-	filteredAssrtions := filterDataPropAssertions(allDataPropertyAssertions, isAssertionAboutIndividual)
-	if len(filteredAssrtions) == 0 {
+	filteredAssertions := filterDataPropAssertions(allDataPropertyAssertions, isAssertionAboutIndividual)
+	if len(filteredAssertions) == 0 {
 		return "", errors.New("No '" + assertionName + "' assertions found for " + individual)
-	} else if len(filteredAssrtions) > 1 {
+	} else if len(filteredAssertions) > 1 {
 		return "", errors.New("Multiple '" + assertionName + "' assertions found for " + individual)
 	}
 
-	return filteredAssrtions[0].V.Value, nil
+	return filteredAssertions[0].V.Value, nil
 }
 
 // individualsByClass returns all individuals from a given class
@@ -111,12 +130,17 @@ func (ow *OntologyWrapper) pods() []string {
 
 // podName returns name of a given pod
 func (ow *OntologyWrapper) podName(pod string) (string, error) {
-	podName, err := ow.dataPropertyAssertionValue(podNameAssertion, pod)
-	if err != nil {
-		return "", err
-	} else {
-		return podName, nil
-	}
+	return ow.dataPropertyAssertionValue(podNameAssertion, pod)
+}
+
+// apiVersion returns apiVersion of a given pod
+func (ow *OntologyWrapper) apiVersion(pod string) (string, error) {
+	return ow.dataPropertyAssertionValue(apiVersionAssertion, pod)
+}
+
+// kind returns kind for a given pod (deployment, server etc.)
+func (ow *OntologyWrapper) kind(pod string) (string, error) {
+	return ow.dataPropertyAssertionValue(kindAssertion, pod)
 }
 
 // podReplicas returns replicas of a given pod
@@ -134,29 +158,13 @@ func (ow *OntologyWrapper) podReplicas(pod string) (*int32, error) {
 	}
 }
 
+// containers returns containers for a given pod
+func (ow *OntologyWrapper) containers(pod string) ([]string, error) {
+	return ow.objectPropertyAssertionValues(containsContainerAssertion, pod)
+}
+
 // BuildDeploymentConfiguration returns Kubernetes Deployment basing on parsed ontology
-func (ow *OntologyWrapper) BuildDeploymentConfiguration() *appsv1.Deployment {
-
-	podName := ""
-
-	// override default values if something was found in ontology
-	for _, pod := range ow.pods() {
-		
-		fmt.Println("Pod: " + pod)
-		n, err := ow.podName(pod)
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			podName = n
-		}
-
-		r, err := ow.podReplicas(pod)
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			replicas = r
-		}
-	}
+func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstructured {
 
 	deployment := &unstructured.Unstructured{
 		Object: map[string]interface{}{
@@ -169,7 +177,41 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *appsv1.Deployment {
 		},
 	}
 
+	// override default values if something was found in ontology
+	for _, pod := range ow.pods() {
+
+		fmt.Println("Pod: " + pod)
+
+		apiVersion, err := ow.apiVersion(pod)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			deployment.Object["apiVersion"] = apiVersion
+		}
+
+		kind, err := ow.kind(pod)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			deployment.Object["kind"] = kind
+		}
+
+		podName, err := ow.podName(pod)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			deployment.Object["metadata"].(map[string]interface{})["name"] = podName
+		}
+
+		containers, err := ow.containers(pod)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(containers)
+		}
+	}
+
 	fmt.Println(*deployment)
 
-	panic(2)
+	return deployment
 }
