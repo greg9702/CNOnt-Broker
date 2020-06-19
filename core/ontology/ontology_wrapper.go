@@ -17,10 +17,13 @@ import (
 )
 
 const podClass = ":Pod"
-const podNameAssertion = ":name"
+
+const nameAssertion = ":name"
 const apiVersionAssertion = ":apiVersion"
 const kindAssertion = ":kind"
 const replicasAssertion = ":replicas"
+const imageAssertion = ":image"
+const portAssertion = ":port"
 
 const belongsToNodeAssertion = ":belongs_to_node"
 const containsContainerAssertion = ":contains_container"
@@ -128,9 +131,9 @@ func (ow *OntologyWrapper) pods() []string {
 	return ow.individualsByClass(podClass)
 }
 
-// podName returns name of a given pod
-func (ow *OntologyWrapper) podName(pod string) (string, error) {
-	return ow.dataPropertyAssertionValue(podNameAssertion, pod)
+// name returns name of a given individual
+func (ow *OntologyWrapper) name(individual string) (string, error) {
+	return ow.dataPropertyAssertionValue(nameAssertion, individual)
 }
 
 // apiVersion returns apiVersion of a given pod
@@ -143,8 +146,8 @@ func (ow *OntologyWrapper) kind(pod string) (string, error) {
 	return ow.dataPropertyAssertionValue(kindAssertion, pod)
 }
 
-// podReplicas returns replicas of a given pod
-func (ow *OntologyWrapper) podReplicas(pod string) (*int32, error) {
+// replicas returns replicas of a given pod
+func (ow *OntologyWrapper) replicas(pod string) (*int32, error) {
 	replicas, err := ow.dataPropertyAssertionValue(replicasAssertion, pod)
 	if err != nil {
 		return nil, err
@@ -156,6 +159,16 @@ func (ow *OntologyWrapper) podReplicas(pod string) (*int32, error) {
 			return int32Ptr(int32(r)), nil // TODO make sure it's ok returning pointer here
 		}
 	}
+}
+
+// image returns image for a given container (deployment, server etc.)
+func (ow *OntologyWrapper) image(container string) (string, error) {
+	return ow.dataPropertyAssertionValue(imageAssertion, container)
+}
+
+// port returns port for a given container (deployment, server etc.)
+func (ow *OntologyWrapper) port(container string) (string, error) {
+	return ow.dataPropertyAssertionValue(portAssertion, container)
 }
 
 // containers returns containers for a given pod
@@ -177,7 +190,6 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstruct
 		},
 	}
 
-	// override default values if something was found in ontology
 	for _, pod := range ow.pods() {
 
 		fmt.Println("Pod: " + pod)
@@ -196,7 +208,7 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstruct
 			deployment.Object["kind"] = kind
 		}
 
-		podName, err := ow.podName(pod)
+		podName, err := ow.name(pod)
 		if err != nil {
 			fmt.Println(err)
 		} else {
@@ -207,7 +219,25 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstruct
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Println(containers)
+			// TODO change the map structure that each container is separate and add ports structure
+			for _, container := range containers {
+				fmt.Println(container)
+				deployment.Object["spec"].(map[string]interface{})["containers"] = map[string]interface{}{}
+
+				containerName, err := ow.name(container)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					deployment.Object["spec"].(map[string]interface{})["containers"].(map[string]interface{})["name"] = containerName
+				}
+
+				containerImage, err := ow.image(container)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					deployment.Object["spec"].(map[string]interface{})["containers"].(map[string]interface{})["image"] = containerImage
+				}
+			}
 		}
 	}
 
