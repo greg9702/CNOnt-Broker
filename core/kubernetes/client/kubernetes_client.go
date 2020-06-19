@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -18,16 +20,16 @@ import (
 type KubernetesClient struct {
 	kubeconfig *string
 	clientset  *kubernetes.Clientset
-	deployment *appsv1.Deployment
+	deployment *unstructured.Unstructured
 }
 
 // NewKubernetesClient creates new KubernetesClient instance
 func NewKubernetesClient(path *string) *KubernetesClient {
-	k := KubernetesClient{path, &kubernetes.Clientset{}, &appsv1.Deployment{}}
+	k := KubernetesClient{path, &kubernetes.Clientset{}, &unstructured.Unstructured{}}
 	return &k
 }
 
-func (k *KubernetesClient) SetDeployment(deployment *appsv1.Deployment) {
+func (k *KubernetesClient) SetDeployment(deployment *unstructured.Unstructured) {
 	k.deployment = deployment
 }
 
@@ -54,13 +56,33 @@ func (k *KubernetesClient) GetAllPods() {
 func (k *KubernetesClient) CreateDeployment() error {
 	fmt.Println("Create deployment...")
 
-	result, err := k.clientset.AppsV1().Deployments(apiv1.NamespaceDefault).Create(context.TODO(), k.deployment, metav1.CreateOptions{})
+	namespace := "default"
+
+	config, err := clientcmd.BuildConfigFromFlags("", *k.kubeconfig)
+	if err != nil {
+		panic(err)
+	}
+
+	client, err := dynamic.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+
+	deploymentRes := schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
+
+	fmt.Println("Creating deployment...")
+	result, err := client.Resource(deploymentRes).Namespace(namespace).Create(context.TODO(), k.deployment, metav1.CreateOptions{})
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Created deployment %q.\n", result.GetName())
 	if err != nil {
 		fmt.Printf("Creating deployment error, %s", err.Error)
 		return err
 	}
 
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 	return nil
 }
 
