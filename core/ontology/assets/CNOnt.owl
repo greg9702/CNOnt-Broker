@@ -536,7 +536,7 @@ ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer1)
 ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer2)
 DataPropertyAssertion(:apiVersion :Pod1 "apps/v1")
 DataPropertyAssertion(:kind :Pod1 "Deployment")
-DataPropertyAssertion(:name :Pod1 "Pod1Name")
+DataPropertyAssertion(:name :Pod1 "pod1name")
 DataPropertyAssertion(:replicas :Pod1 "3"^^xsd:integer)
 
 # Individual: :machine_running (running)

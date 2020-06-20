@@ -147,16 +147,16 @@ func (ow *OntologyWrapper) kind(pod string) (string, error) {
 }
 
 // replicas returns replicas of a given pod
-func (ow *OntologyWrapper) replicas(pod string) (*int32, error) {
+func (ow *OntologyWrapper) replicas(pod string) (int32, error) {
 	replicas, err := ow.dataPropertyAssertionValue(replicasAssertion, pod)
 	if err != nil {
-		return nil, err
+		return -1, err
 	} else {
 		r, err := strconv.Atoi(replicas)
 		if err != nil {
-			return nil, err
+			return -1, err
 		} else {
-			return int32Ptr(int32(r)), nil // TODO make sure it's ok returning pointer here
+			return int32(r), nil
 		}
 	}
 }
@@ -186,7 +186,20 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstruct
 			"metadata": map[string]interface{}{
 				"name": "",
 			},
-			"spec": map[string]interface{}{},
+			"spec": map[string]interface{}{
+				"selector": map[string]interface{}{
+					"matchLabels": map[string]interface{}{
+						"app": "demo", // TODO take from ontology
+					},
+				},
+				"template": map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"labels": map[string]interface{}{
+							"app": "demo", // TODO take from ontology
+						},
+					},
+				},
+			},
 		},
 	}
 
@@ -215,33 +228,42 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstruct
 			deployment.Object["metadata"].(map[string]interface{})["name"] = podName
 		}
 
+		replicas, err := ow.replicas(pod)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			deployment.Object["spec"].(map[string]interface{})["replicas"] = replicas
+		}
+
 		containers, err := ow.containers(pod)
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			// TODO change the map structure that each container is separate and add ports structure
+			deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"] = map[string]interface{}{}
+			deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] = []map[string]interface{}{}
+
 			for _, container := range containers {
 				fmt.Println(container)
-				deployment.Object["spec"].(map[string]interface{})["containers"] = map[string]interface{}{}
 
+				containerSpec := map[string]interface{}{}
 				containerName, err := ow.name(container)
 				if err != nil {
 					fmt.Println(err)
 				} else {
-					deployment.Object["spec"].(map[string]interface{})["containers"].(map[string]interface{})["name"] = containerName
+					containerSpec["name"] = containerName
 				}
 
 				containerImage, err := ow.image(container)
 				if err != nil {
 					fmt.Println(err)
 				} else {
-					deployment.Object["spec"].(map[string]interface{})["containers"].(map[string]interface{})["image"] = containerImage
+					containerSpec["image"] = containerImage
 				}
+				deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] =
+					append(deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]map[string]interface{}), containerSpec)
 			}
 		}
 	}
-
-	fmt.Println(*deployment)
 
 	return deployment
 }
