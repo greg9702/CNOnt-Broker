@@ -90,7 +90,7 @@ func (k *KubernetesClient) DeleteDeployment() error {
 	fmt.Println("Deleting deployment...")
 
 	deletePolicy := metav1.DeletePropagationForeground
-	if err := k.clientset.AppsV1().Deployments(apiv1.NamespaceDefault).Delete(context.TODO(), "demo-deployment", metav1.DeleteOptions{
+	if err := k.clientset.AppsV1().Deployments(apiv1.NamespaceDefault).Delete(context.TODO(), "pod1name", metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		fmt.Printf("Deleting deployment error, %s", err.Error)
