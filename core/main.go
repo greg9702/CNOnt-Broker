@@ -31,17 +31,14 @@ func main() {
 		time.Sleep(5 * time.Second)
 	}
 
-	var cloudOntology = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
-	deployment := cloudOntology.BuildDeploymentConfiguration()
-
 	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	flag.Parse()
 
 	kuberenetesClient := client.NewKubernetesClient(kubeconfig)
 	kuberenetesClient.Init()
-	kuberenetesClient.SetDeployment(deployment)
 
-	helloController := controllers.NewHelloController(kuberenetesClient, cloudOntology)
+	var ontologyWrapper = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
+	deploymentController := controllers.NewDeploymentController(kuberenetesClient, ontologyWrapper)
 
 	router := gin.Default()
 	router.Use(cors.Default())
