@@ -28,10 +28,12 @@ const portAssertion = ":port"
 const belongsToNodeAssertion = ":belongs_to_node"
 const containsContainerAssertion = ":contains_container"
 
+// OntologyWrapper functional OWL ontology wraper
 type OntologyWrapper struct {
 	ontology *owlfunctional.Ontology
 }
 
+// NewOntologyWrapper creates new OntologyWrapper instance
 func NewOntologyWrapper(path string) *OntologyWrapper {
 	f, err := os.Open(path)
 	if err != nil {
@@ -47,13 +49,13 @@ func NewOntologyWrapper(path string) *OntologyWrapper {
 	return &ow
 }
 
-func (ow *OntologyWrapper) PrintClasses() {
-	log.Println("That's what we parsed: ", ow.ontology.About())
+// func (ow *OntologyWrapper) PrintClasses() {
+// 	log.Println("That's what we parsed: ", ow.ontology.About())
 
-	for _, declaration := range ow.ontology.K.AllClassDecls() {
-		fmt.Println(declaration.IRI)
-	}
-}
+// 	for _, declaration := range ow.ontology.K.AllClassDecls() {
+// 		fmt.Println(declaration.IRI)
+// 	}
+// }
 
 // objectPropertyAssertionValue returns string value of particular ObjectPropertyAssertion about passed individual
 func (ow *OntologyWrapper) objectPropertyAssertionValue(assertionName string, individual string) (string, error) {
@@ -177,8 +179,9 @@ func (ow *OntologyWrapper) containers(pod string) ([]string, error) {
 }
 
 // BuildDeploymentConfiguration returns Kubernetes Deployment basing on parsed ontology
-func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstructured {
+func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstructured, error) {
 
+	// we will call this base structure
 	deployment := &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "",
@@ -205,7 +208,7 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstruct
 
 	for _, pod := range ow.pods() {
 
-		fmt.Println("Pod: " + pod)
+		// fmt.Println("Pod: " + pod)
 
 		apiVersion, err := ow.apiVersion(pod)
 		if err != nil {
@@ -243,7 +246,7 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstruct
 			deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] = []map[string]interface{}{}
 
 			for _, container := range containers {
-				fmt.Println(container)
+				// fmt.Println(container)
 
 				containerSpec := map[string]interface{}{}
 				containerName, err := ow.name(container)
@@ -265,5 +268,5 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() *unstructured.Unstruct
 		}
 	}
 
-	return deployment
+	return deployment, nil
 }
