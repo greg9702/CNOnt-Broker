@@ -20,17 +20,12 @@ import (
 type KubernetesClient struct {
 	kubeconfig *string
 	clientset  *kubernetes.Clientset
-	deployment *unstructured.Unstructured
 }
 
 // NewKubernetesClient creates new KubernetesClient instance
 func NewKubernetesClient(path *string) *KubernetesClient {
-	k := KubernetesClient{path, &kubernetes.Clientset{}, &unstructured.Unstructured{}}
+	k := KubernetesClient{path, &kubernetes.Clientset{}}
 	return &k
-}
-
-func (k *KubernetesClient) SetDeployment(deployment *unstructured.Unstructured) {
-	k.deployment = deployment
 }
 
 // Init initialize KubernetesClient kubeconfig
@@ -53,13 +48,8 @@ func (k *KubernetesClient) GetAllPods() {
 	fmt.Println(k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{}))
 }
 
-// PreviewDeployment returns created deployment in json format
-func (k *KubernetesClient) PreviewDeployment() (*unstructured.Unstructured, error) {
-	return k.deployment, nil
-}
-
-// CreateDeployment creates deployment
-func (k *KubernetesClient) CreateDeployment() error {
+// CreateDeployment creates deployment deployment passed in
+func (k *KubernetesClient) CreateDeployment(deployment *unstructured.Unstructured) error {
 	fmt.Println("Create deployment...")
 
 	namespace := "default"
@@ -77,29 +67,31 @@ func (k *KubernetesClient) CreateDeployment() error {
 	deploymentRes := schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
 
 	fmt.Println("Creating deployment...")
-	result, err := client.Resource(deploymentRes).Namespace(namespace).Create(context.TODO(), k.deployment, metav1.CreateOptions{})
+	result, err := client.Resource(deploymentRes).Namespace(namespace).Create(context.TODO(), deployment, metav1.CreateOptions{})
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return err
 	}
 
 	fmt.Printf("Created deployment %q.\n", result.GetName())
 	if err != nil {
-		fmt.Printf("Creating deployment error, %s", err.Error)
+		fmt.Printf("Creating deployment error, %s", err.Error())
 		return err
 	}
 
 	return nil
 }
 
-func (k *KubernetesClient) DeleteDeployment() error {
+// DeleteDeployment deletes deployment passed in
+func (k *KubernetesClient) DeleteDeployment(deploymentName string) error {
 	fmt.Println("Deleting deployment...")
 
 	deletePolicy := metav1.DeletePropagationForeground
-	if err := k.clientset.AppsV1().Deployments(apiv1.NamespaceDefault).Delete(context.TODO(), "pod1name", metav1.DeleteOptions{
+	if err := k.clientset.AppsV1().Deployments(apiv1.NamespaceDefault).Delete(context.TODO(), deploymentName, metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
-		fmt.Printf("Deleting deployment error, %s", err.Error)
+		fmt.Printf("Deleting deployment error, %s", err.Error())
 		return err
 	}
 	fmt.Printf("Deleted deployment")
