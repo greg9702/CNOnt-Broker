@@ -36,9 +36,30 @@ export default class DeploymentManager extends React.Component {
       })
     }
 
+    sendPreviewDeployment = () => {
+      fetch(this.state.serverUrl + "/api/v1/preview-deployment")
+      .then((response) => {
+        if (response.status == 200) {
+          console.log(response.body)
+        } else if (response.status == 404) {
+          this.setState({ message: "Deployment do not exists" });
+        } else {
+          throw Error(response.statusText)
+        }
+      }).catch(error => {
+        this.setState({ message: "Deployment preview error: " + error });
+      })
+    }
+
+
     render() {
       return (
         <div id="deployment-manager">
+          <button
+            onClick={this.sendPreviewDeployment}> 
+            Preview deployment
+          </button>
+
           <button
             onClick={this.sendCreateDeployment}> 
             Create deployment
