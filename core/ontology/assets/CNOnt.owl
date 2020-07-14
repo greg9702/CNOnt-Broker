@@ -21,6 +21,7 @@ Declaration(Class(:Data))
 Declaration(Class(:DockerContainer))
 Declaration(Class(:Firewall))
 Declaration(Class(:FullVirtualizationHypervisor))
+Declaration(Class(:Hardware))
 Declaration(Class(:HypervisorType))
 Declaration(Class(:IPAddress))
 Declaration(Class(:IPv4Network))
@@ -64,26 +65,35 @@ Declaration(ObjectProperty(:contains_machine))
 Declaration(ObjectProperty(:contains_node))
 Declaration(ObjectProperty(:contains_pod))
 Declaration(ObjectProperty(:from_network))
+Declaration(ObjectProperty(:has_limits))
 Declaration(ObjectProperty(:hypervisor))
 Declaration(ObjectProperty(:machine_container))
 Declaration(ObjectProperty(:machine_state))
 Declaration(ObjectProperty(:network_interface))
 Declaration(ObjectProperty(:package))
+Declaration(ObjectProperty(:requests))
 Declaration(ObjectProperty(:site))
 Declaration(DataProperty(:apiVersion))
 Declaration(DataProperty(:containerPort))
+Declaration(DataProperty(:cpu))
 Declaration(DataProperty(:dns_name))
 Declaration(DataProperty(:image))
 Declaration(DataProperty(:ip_address))
 Declaration(DataProperty(:ip_mask))
+Declaration(DataProperty(:kind))
 Declaration(DataProperty(:login))
+Declaration(DataProperty(:memory))
 Declaration(DataProperty(:name))
 Declaration(DataProperty(:password))
+Declaration(DataProperty(:port))
 Declaration(DataProperty(:replicas))
 Declaration(DataProperty(:server_cores))
 Declaration(DataProperty(:server_ram))
 Declaration(NamedIndividual(:Cluster1))
 Declaration(NamedIndividual(:DockerContainer1))
+Declaration(NamedIndividual(:DockerContainer2))
+Declaration(NamedIndividual(:Hardware1))
+Declaration(NamedIndividual(:Hardware2))
 Declaration(NamedIndividual(:Node1))
 Declaration(NamedIndividual(:Pod1))
 Declaration(NamedIndividual(:machine_running))
@@ -159,6 +169,11 @@ FunctionalObjectProperty(:from_network)
 ObjectPropertyDomain(:from_network :NetworkAddress)
 ObjectPropertyRange(:from_network :Network)
 
+# Object Property: :has_limits (:has_limits)
+
+ObjectPropertyDomain(:has_limits :DockerContainer)
+ObjectPropertyRange(:has_limits :Hardware)
+
 # Object Property: :hypervisor (:hypervisor)
 
 FunctionalObjectProperty(:hypervisor)
@@ -185,6 +200,11 @@ FunctionalObjectProperty(:package)
 ObjectPropertyDomain(:package :VirtualMachine)
 ObjectPropertyRange(:package :VirtualMachinePackage)
 
+# Object Property: :requests (:requests)
+
+ObjectPropertyDomain(:requests :DockerContainer)
+ObjectPropertyRange(:requests :Hardware)
+
 # Object Property: :site (site)
 
 AnnotationAssertion(rdfs:label :site "site"^^xsd:string)
@@ -206,6 +226,11 @@ DataPropertyRange(:apiVersion xsd:string)
 
 DataPropertyDomain(:containerPort :ApplicationContainer)
 DataPropertyRange(:containerPort xsd:int)
+
+# Data Property: :cpu (:cpu)
+
+DataPropertyDomain(:cpu :Hardware)
+DataPropertyRange(:cpu xsd:string)
 
 # Data Property: :dns_name (DNS name)
 
@@ -230,11 +255,21 @@ FunctionalDataProperty(:ip_mask)
 DataPropertyDomain(:ip_mask :IPv4Network)
 DataPropertyRange(:ip_mask xsd:string)
 
+# Data Property: :kind (:kind)
+
+DataPropertyDomain(:kind :Pod)
+DataPropertyRange(:kind xsd:string)
+
 # Data Property: :login (:login)
 
 FunctionalDataProperty(:login)
 DataPropertyDomain(:login :LoginAndPasswordCredentials)
 DataPropertyRange(:login xsd:string)
+
+# Data Property: :memory (:memory)
+
+DataPropertyDomain(:memory :Hardware)
+DataPropertyRange(:memory xsd:string)
 
 # Data Property: :name (:name)
 
@@ -254,6 +289,11 @@ DataPropertyRange(:name xsd:string)
 FunctionalDataProperty(:password)
 DataPropertyDomain(:password :LoginAndPasswordCredentials)
 DataPropertyRange(:password xsd:string)
+
+# Data Property: :port (:port)
+
+DataPropertyDomain(:port :DockerContainer)
+DataPropertyRange(:port xsd:int)
 
 # Data Property: :replicas (:replicas)
 
@@ -313,6 +353,10 @@ SubClassOf(:Firewall :Connectivity)
 # Class: :FullVirtualizationHypervisor (:FullVirtualizationHypervisor)
 
 SubClassOf(:FullVirtualizationHypervisor :HypervisorType)
+
+# Class: :Hardware (:Hardware)
+
+SubClassOf(:Hardware :Resource)
 
 # Class: :IPAddress (:IPAddress)
 
@@ -439,6 +483,7 @@ SubClassOf(:VirtualizationServer :VirtualMachineContainer)
 SubClassOf(:XenHypervisor :FullVirtualizationHypervisor)
 SubClassOf(:XenHypervisor :ParavirtualizationHypervisor)
 
+
 ############################
 #   Named Individuals
 ############################
@@ -453,8 +498,28 @@ DataPropertyAssertion(:name :Cluster1 "kind")
 
 ClassAssertion(:DockerContainer :DockerContainer1)
 ObjectPropertyAssertion(:belongs_to_pod :DockerContainer1 :Pod1)
+ObjectPropertyAssertion(:has_limits :DockerContainer1 :Hardware2)
+ObjectPropertyAssertion(:requests :DockerContainer1 :Hardware1)
 DataPropertyAssertion(:image :DockerContainer1 "k8s.gcr.io/echoserver:1.4")
-DataPropertyAssertion(:name :DockerContainer1 "hello-kubernetes")
+DataPropertyAssertion(:name :DockerContainer1 "hello-kubernetes1")
+
+# Individual: :DockerContainer2 (:DockerContainer2)
+
+ObjectPropertyAssertion(:belongs_to_pod :DockerContainer2 :Pod1)
+ObjectPropertyAssertion(:has_limits :DockerContainer2 :Hardware1)
+DataPropertyAssertion(:image :DockerContainer2 "k8s.gcr.io/echoserver:1.4")
+DataPropertyAssertion(:name :DockerContainer2 "hello-kubernetes2")
+DataPropertyAssertion(:port :DockerContainer2 "80"^^xsd:integer)
+
+# Individual: :Hardware1 (:Hardware1)
+
+DataPropertyAssertion(:cpu :Hardware1 "100m")
+DataPropertyAssertion(:memory :Hardware1 "500Mi")
+
+# Individual: :Hardware2 (:Hardware2)
+
+DataPropertyAssertion(:cpu :Hardware2 "500m")
+DataPropertyAssertion(:memory :Hardware2 "100Mi")
 
 # Individual: :Node1 (:Node1)
 
@@ -468,8 +533,10 @@ DataPropertyAssertion(:name :Node1 "kind-control-plane")
 ClassAssertion(:Pod :Pod1)
 ObjectPropertyAssertion(:belongs_to_node :Pod1 :Node1)
 ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer1)
+ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer2)
 DataPropertyAssertion(:apiVersion :Pod1 "apps/v1")
-DataPropertyAssertion(:name :Pod1 "Pod1Name")
+DataPropertyAssertion(:kind :Pod1 "Deployment")
+DataPropertyAssertion(:name :Pod1 "pod1name")
 DataPropertyAssertion(:replicas :Pod1 "3"^^xsd:integer)
 
 # Individual: :machine_running (running)

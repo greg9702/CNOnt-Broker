@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 
-	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -18,12 +20,17 @@ import (
 type KubernetesClient struct {
 	kubeconfig *string
 	clientset  *kubernetes.Clientset
+	deployment *unstructured.Unstructured
 }
 
 // NewKubernetesClient creates new KubernetesClient instance
 func NewKubernetesClient(path *string) *KubernetesClient {
-	k := KubernetesClient{path, &kubernetes.Clientset{}}
+	k := KubernetesClient{path, &kubernetes.Clientset{}, &unstructured.Unstructured{}}
 	return &k
+}
+
+func (k *KubernetesClient) SetDeployment(deployment *unstructured.Unstructured) {
+	k.deployment = deployment
 }
 
 // Init initialize KubernetesClient kubeconfig
@@ -49,49 +56,33 @@ func (k *KubernetesClient) GetAllPods() {
 func (k *KubernetesClient) CreateDeployment() error {
 	fmt.Println("Create deployment...")
 
-	deployment := &appsv1.Deployment{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "demo-deployment",
-		},
-		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(2),
-			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app": "demo",
-				},
-			},
-			Template: apiv1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{
-						"app": "demo",
-					},
-				},
-				Spec: apiv1.PodSpec{
-					Containers: []apiv1.Container{
-						{
-							Name:  "web",
-							Image: "nginx:1.12",
-							Ports: []apiv1.ContainerPort{
-								{
-									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: 80,
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+	namespace := "default"
+
+	config, err := clientcmd.BuildConfigFromFlags("", *k.kubeconfig)
+	if err != nil {
+		panic(err)
 	}
 
-	result, err := k.clientset.AppsV1().Deployments(apiv1.NamespaceDefault).Create(context.TODO(), deployment, metav1.CreateOptions{})
+	client, err := dynamic.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+
+	deploymentRes := schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
+
+	fmt.Println("Creating deployment...")
+	result, err := client.Resource(deploymentRes).Namespace(namespace).Create(context.TODO(), k.deployment, metav1.CreateOptions{})
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Created deployment %q.\n", result.GetName())
 	if err != nil {
 		fmt.Printf("Creating deployment error, %s", err.Error)
 		return err
 	}
 
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
 	return nil
 }
 
