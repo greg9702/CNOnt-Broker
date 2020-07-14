@@ -28,6 +28,18 @@ func (h *HelloController) GetHello(ctx *gin.Context) {
 	})
 }
 
+func (h *HelloController) PreviewDeployment(ctx *gin.Context) {
+	res, err := h.kubernetesClient.PreviewDeployment()
+
+	if err != nil {
+		ctx.JSON(500, gin.H{})
+		return
+	}
+	ctx.JSON(200, gin.H{
+		"deployment": res,
+	})
+}
+
 func (h *HelloController) CreateDeployment(ctx *gin.Context) {
 	res := h.kubernetesClient.CreateDeployment()
 

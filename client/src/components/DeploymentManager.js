@@ -40,7 +40,10 @@ export default class DeploymentManager extends React.Component {
       fetch(this.state.serverUrl + "/api/v1/preview-deployment")
       .then((response) => {
         if (response.status == 200) {
-          console.log(response.body)
+          response.json().then(data => {
+            console.log(data["deployment"])
+            this.setState({ message: "Deployment preview: " + JSON.stringify(data["deployment"]) })
+          });
         } else if (response.status == 404) {
           this.setState({ message: "Deployment do not exists" });
         } else {

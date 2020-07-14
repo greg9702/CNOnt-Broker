@@ -53,6 +53,12 @@ func (k *KubernetesClient) GetAllPods() {
 	fmt.Println(k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{}))
 }
 
+// PreviewDeployment returns created deployment in json format
+func (k *KubernetesClient) PreviewDeployment() (*unstructured.Unstructured, error) {
+	return k.deployment, nil
+}
+
+// CreateDeployment creates deployment
 func (k *KubernetesClient) CreateDeployment() error {
 	fmt.Println("Create deployment...")
 

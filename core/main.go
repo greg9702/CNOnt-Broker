@@ -53,6 +53,7 @@ func main() {
 
 	v1Router.GET("/create-deployment", helloController.CreateDeployment)
 	v1Router.GET("/delete-deployment", helloController.DeleteDeployment)
+	v1Router.GET("/preview-deployment", helloController.PreviewDeployment)
 
 	port := os.Getenv("PORT")
 	if port == "" {
