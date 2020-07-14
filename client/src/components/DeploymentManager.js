@@ -1,7 +1,7 @@
 import React from 'react';
 import './DeploymentManager.css';
 
-export default class EchoSender extends React.Component {
+export default class DeploymentManager extends React.Component {
   
     state = {
       serverUrl: "http://localhost:8080",
