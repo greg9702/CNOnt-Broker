@@ -48,12 +48,9 @@ func main() {
 
 	v1Router := router.Group("/api/v1")
 
-	v1Router.GET("/hello", helloController.GetHello)
-	v1Router.GET("/hello/:id", helloController.EchoNumber)
-
-	v1Router.GET("/create-deployment", helloController.CreateDeployment)
-	v1Router.GET("/delete-deployment", helloController.DeleteDeployment)
-	v1Router.GET("/preview-deployment", helloController.PreviewDeployment)
+	v1Router.GET("/create-deployment", deploymentController.CreateDeployment)
+	v1Router.GET("/delete-deployment", deploymentController.DeleteDeployment)
+	v1Router.GET("/preview-deployment", deploymentController.PreviewDeployment)
 
 	port := os.Getenv("PORT")
 	if port == "" {
