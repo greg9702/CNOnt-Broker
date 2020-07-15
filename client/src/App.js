@@ -7,7 +7,12 @@ export default class App extends React.Component {
     
     render() {
       return (
-        <DeploymentManager />
+        <div id="app">
+          <div id="header" className="eye-catching">
+              CNOnt Broker App
+          </div>
+          <DeploymentManager />
+        </div>
       );
     }
 }
