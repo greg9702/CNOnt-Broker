@@ -153,14 +153,12 @@ func (ow *OntologyWrapper) replicas(pod string) (int32, error) {
 	replicas, err := ow.dataPropertyAssertionValue(replicasAssertion, pod)
 	if err != nil {
 		return -1, err
-	} else {
-		r, err := strconv.Atoi(replicas)
-		if err != nil {
-			return -1, err
-		} else {
-			return int32(r), nil
-		}
 	}
+	r, err := strconv.Atoi(replicas)
+	if err != nil {
+		return -1, err
+	}
+	return int32(r), nil
 }
 
 // image returns image for a given container (deployment, server etc.)
