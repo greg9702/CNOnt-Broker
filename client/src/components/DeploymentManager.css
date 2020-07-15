@@ -1,3 +1,32 @@
 #echo-sender {
   margin-top: 30px;
 }
+
+#deployment-manager {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#deployment-creator {
+  height: 40%;
+  margin: 5px;
+}
+
+#command-buttons {
+  display: flex;
+  flex-direction: row;
+  margin: 5px;
+}
+
+#status-logger {
+  height: 10%;
+}
+
+#deployment-preview {
+  overflow-y: auto;
+  height: 100%;
+  background-color: black;
+  text-align: left;
+  margin: 5px;
+}

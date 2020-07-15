@@ -1,17 +1,19 @@
 import React from 'react';
+import ReactJson from 'react-json-view'
 import './DeploymentManager.css';
 
 export default class DeploymentManager extends React.Component {
   
     state = {
       serverUrl: "http://localhost:8080",
-      message: null
+      message: null,
+      preview: null
     }
 
     sendCreateDeployment = () => {
       fetch(this.state.serverUrl + "/api/v1/create-deployment")
       .then((response) => {
-        if (response.status == 201) {
+        if (response.status === 201) {
           this.setState({ message: "Created sucessfully" });
         } else {
           throw Error(response.statusText)
@@ -24,9 +26,9 @@ export default class DeploymentManager extends React.Component {
     sendDeleteDeployment = () => {
       fetch(this.state.serverUrl + "/api/v1/delete-deployment")
       .then((response) => {
-        if (response.status == 204) {
+        if (response.status === 204) {
           this.setState({ message: "Deployment deleted sucessfully" });
-        } else if (response.status == 404) {
+        } else if (response.status === 404) {
           this.setState({ message: "Deployment do not exists" });
         } else {
           throw Error(response.statusText)
@@ -39,12 +41,13 @@ export default class DeploymentManager extends React.Component {
     sendPreviewDeployment = () => {
       fetch(this.state.serverUrl + "/api/v1/preview-deployment")
       .then((response) => {
-        if (response.status == 200) {
+        if (response.status === 200) {
           response.json().then(data => {
             console.log(data["deployment"])
-            this.setState({ message: "Deployment preview: " + JSON.stringify(data["deployment"]) })
+            this.setState({ message: "Deployment preview available",
+                            preview: data["deployment"] })
           });
-        } else if (response.status == 404) {
+        } else if (response.status === 404) {
           this.setState({ message: "Deployment do not exists" });
         } else {
           throw Error(response.statusText)
@@ -58,26 +61,38 @@ export default class DeploymentManager extends React.Component {
     render() {
       return (
         <div id="deployment-manager">
-          <button
-            onClick={this.sendPreviewDeployment}> 
-            Preview deployment
-          </button>
+          <div id="deployment-creator">
+          </div>
+          <div id="command-buttons">
+            <button
+              onClick={this.sendPreviewDeployment}> 
+              Preview deployment
+            </button>
 
-          <button
-            onClick={this.sendCreateDeployment}> 
-            Create deployment
-          </button>
+            <button
+              onClick={this.sendCreateDeployment}> 
+              Create deployment
+            </button>
 
-          <button 
-            onClick={this.sendDeleteDeployment}> 
-            Delete deployment
-          </button>
-          
-          <div>
+            <button 
+              onClick={this.sendDeleteDeployment}> 
+              Delete deployment
+            </button>
+          </div>
+          <div id="status-logger">
             {this.state.message === null ? "" : this.state.message }
+          </div>
+          <div id="deployment-preview">
+            {this.state.preview === null ? "" :
+              <ReactJson src={this.state.preview}
+                         name="Deployment preview"
+                         theme="pop"
+                         iconStyle="square"
+                         indentWidth={10} 
+                         displayObjectSize={false}
+                         displayDataTypes={false}/> }
           </div>
         </div>
       );
     }
   }
-  
