@@ -1,9 +1,6 @@
-#echo-sender {
-  margin-top: 30px;
-}
-
 #deployment-manager {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -17,6 +14,7 @@
   display: flex;
   flex-direction: row;
   margin: 5px;
+  justify-content: center;
 }
 
 #status-logger {
