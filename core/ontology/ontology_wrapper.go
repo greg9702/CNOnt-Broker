@@ -20,6 +20,7 @@ const podClass = ":Pod"
 
 const nameAssertion = ":name"
 const apiVersionAssertion = ":apiVersion"
+const appAssertion = ":app"
 const kindAssertion = ":kind"
 const replicasAssertion = ":replicas"
 const imageAssertion = ":image"
@@ -49,13 +50,14 @@ func NewOntologyWrapper(path string) *OntologyWrapper {
 	return &ow
 }
 
-// func (ow *OntologyWrapper) PrintClasses() {
-// 	log.Println("That's what we parsed: ", ow.ontology.About())
+// PrintClasses prints to console all classes in ontology
+func (ow *OntologyWrapper) PrintClasses() {
+	log.Println("That's what we parsed: ", ow.ontology.About())
 
-// 	for _, declaration := range ow.ontology.K.AllClassDecls() {
-// 		fmt.Println(declaration.IRI)
-// 	}
-// }
+	for _, declaration := range ow.ontology.K.AllClassDecls() {
+		fmt.Println(declaration.IRI)
+	}
+}
 
 // objectPropertyAssertionValue returns string value of particular ObjectPropertyAssertion about passed individual
 func (ow *OntologyWrapper) objectPropertyAssertionValue(assertionName string, individual string) (string, error) {
@@ -143,6 +145,11 @@ func (ow *OntologyWrapper) apiVersion(pod string) (string, error) {
 	return ow.dataPropertyAssertionValue(apiVersionAssertion, pod)
 }
 
+// app returns app of a given pod
+func (ow *OntologyWrapper) app(pod string) (string, error) {
+	return ow.dataPropertyAssertionValue(appAssertion, pod)
+}
+
 // kind returns kind for a given pod (deployment, server etc.)
 func (ow *OntologyWrapper) kind(pod string) (string, error) {
 	return ow.dataPropertyAssertionValue(kindAssertion, pod)
@@ -179,24 +186,24 @@ func (ow *OntologyWrapper) containers(pod string) ([]string, error) {
 // BuildDeploymentConfiguration returns Kubernetes Deployment basing on parsed ontology
 func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstructured, error) {
 
-	// we will call this base structure
+	// we will call this base deployment structure in the future
 	deployment := &unstructured.Unstructured{
 		Object: map[string]interface{}{
-			"apiVersion": "",
-			"kind":       "",
+			"apiVersion": "apps/v1",
+			"kind":       "Deployment",
 			"metadata": map[string]interface{}{
 				"name": "",
 			},
 			"spec": map[string]interface{}{
 				"selector": map[string]interface{}{
 					"matchLabels": map[string]interface{}{
-						"app": "demo", // TODO take from ontology
+						"app": "",
 					},
 				},
 				"template": map[string]interface{}{
 					"metadata": map[string]interface{}{
 						"labels": map[string]interface{}{
-							"app": "demo", // TODO take from ontology
+							"app": "",
 						},
 					},
 				},
@@ -204,37 +211,36 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 		},
 	}
 
+	// TODO first get names from all Pods - this will specify how many different deployment would we need to create
+	// now we create only one deployment and if all Pods have the same value set it makes no problem
+
 	for _, pod := range ow.pods() {
-
-		// fmt.Println("Pod: " + pod)
-
-		apiVersion, err := ow.apiVersion(pod)
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			deployment.Object["apiVersion"] = apiVersion
-		}
-
-		kind, err := ow.kind(pod)
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			deployment.Object["kind"] = kind
-		}
 
 		podName, err := ow.name(pod)
 		if err != nil {
-			fmt.Println(err)
-		} else {
-			deployment.Object["metadata"].(map[string]interface{})["name"] = podName
+			fmt.Println("Could not get 'name' for Pod, error " + err.Error())
+			return nil, errors.New("Could not get 'name' for Pod, error " + err.Error())
 		}
+
+		// set deployment name, but all Pods from this deployment will use this name too
+		deployment.Object["metadata"].(map[string]interface{})["name"] = podName
+
+		app, err := ow.app(pod)
+		if err != nil {
+			fmt.Println("Could not get 'app' for Pod " + podName + ", error: " + err.Error())
+			return nil, errors.New("Could not get 'app' for Pod " + podName + ", error: " + err.Error())
+		}
+
+		deployment.Object["spec"].(map[string]interface{})["selector"].(map[string]interface{})["matchLabels"].(map[string]interface{})["app"] = app
+		deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})["app"] = app
 
 		replicas, err := ow.replicas(pod)
 		if err != nil {
-			fmt.Println(err)
-		} else {
-			deployment.Object["spec"].(map[string]interface{})["replicas"] = replicas
+			fmt.Println("Could not get 'replicas' for Pod " + podName + ", error: " + err.Error())
+			return nil, errors.New("Could not get 'replicas' for Pod " + podName + ", error: " + err.Error())
 		}
+
+		deployment.Object["spec"].(map[string]interface{})["replicas"] = replicas
 
 		containers, err := ow.containers(pod)
 		if err != nil {
@@ -244,22 +250,23 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 			deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] = []map[string]interface{}{}
 
 			for _, container := range containers {
-				// fmt.Println(container)
 
 				containerSpec := map[string]interface{}{}
+
 				containerName, err := ow.name(container)
 				if err != nil {
-					fmt.Println(err)
-				} else {
-					containerSpec["name"] = containerName
+					fmt.Println("Could not get 'name' for container in Pod " + podName + ", error: " + err.Error())
+					return nil, errors.New("Could not get 'name' for container in Pod " + podName + ", error: " + err.Error())
 				}
+				containerSpec["name"] = containerName
 
 				containerImage, err := ow.image(container)
 				if err != nil {
-					fmt.Println(err)
-				} else {
-					containerSpec["image"] = containerImage
+					fmt.Println("Could not get 'image' for container in Pod " + podName + ", error: " + err.Error())
+					return nil, errors.New("Could not get 'image' for container in Pod " + podName + ", error: " + err.Error())
 				}
+				containerSpec["image"] = containerImage
+
 				deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] =
 					append(deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]map[string]interface{}), containerSpec)
 			}
