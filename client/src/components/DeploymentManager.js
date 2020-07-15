@@ -38,7 +38,7 @@ export default class DeploymentManager extends React.Component {
       })
     }
 
-    sendPreviewDeployment = () => {
+    fetchDeploymentPreview = () => {
       fetch(this.state.serverUrl + "/api/v1/preview-deployment")
       .then((response) => {
         if (response.status === 200) {
@@ -57,6 +57,10 @@ export default class DeploymentManager extends React.Component {
       })
     }
 
+    closeDeploymentPreview = () => {
+      this.setState({ message: "Deployment preview hidden",
+                      preview: null })
+    }
 
     render() {
       return (
@@ -65,8 +69,8 @@ export default class DeploymentManager extends React.Component {
           </div>
           <div id="command-buttons">
             <button
-              onClick={this.sendPreviewDeployment}> 
-              Preview deployment
+              onClick={this.state.preview === null ? this.fetchDeploymentPreview : this.closeDeploymentPreview}> 
+              {this.state.preview === null ? "Show deployment preview" : "Close deployment preview"}
             </button>
 
             <button
@@ -82,7 +86,7 @@ export default class DeploymentManager extends React.Component {
           <div id="status-logger">
             {this.state.message === null ? "" : this.state.message }
           </div>
-          <div id="deployment-preview">
+          <div id="deployment-preview" style={ this.state.preview === null ? {opacity: '0%'} : {opacity: '100%'}}>
             {this.state.preview === null ? "" :
               <ReactJson src={this.state.preview}
                          name="Deployment preview"
