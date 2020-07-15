@@ -73,14 +73,13 @@ Declaration(ObjectProperty(:network_interface))
 Declaration(ObjectProperty(:package))
 Declaration(ObjectProperty(:requests))
 Declaration(ObjectProperty(:site))
-Declaration(DataProperty(:apiVersion))
+Declaration(DataProperty(:app))
 Declaration(DataProperty(:containerPort))
 Declaration(DataProperty(:cpu))
 Declaration(DataProperty(:dns_name))
 Declaration(DataProperty(:image))
 Declaration(DataProperty(:ip_address))
 Declaration(DataProperty(:ip_mask))
-Declaration(DataProperty(:kind))
 Declaration(DataProperty(:login))
 Declaration(DataProperty(:memory))
 Declaration(DataProperty(:name))
@@ -217,11 +216,6 @@ ObjectPropertyRange(:site :Site)
 #   Data Properties
 ############################
 
-# Data Property: :apiVersion (:apiVersion)
-
-DataPropertyDomain(:apiVersion :Pod)
-DataPropertyRange(:apiVersion xsd:string)
-
 # Data Property: :containerPort (:containerPort)
 
 DataPropertyDomain(:containerPort :ApplicationContainer)
@@ -254,11 +248,6 @@ DataPropertyRange(:ip_address xsd:string)
 FunctionalDataProperty(:ip_mask)
 DataPropertyDomain(:ip_mask :IPv4Network)
 DataPropertyRange(:ip_mask xsd:string)
-
-# Data Property: :kind (:kind)
-
-DataPropertyDomain(:kind :Pod)
-DataPropertyRange(:kind xsd:string)
 
 # Data Property: :login (:login)
 
@@ -534,8 +523,7 @@ ClassAssertion(:Pod :Pod1)
 ObjectPropertyAssertion(:belongs_to_node :Pod1 :Node1)
 ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer1)
 ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer2)
-DataPropertyAssertion(:apiVersion :Pod1 "apps/v1")
-DataPropertyAssertion(:kind :Pod1 "Deployment")
+DataPropertyAssertion(:app :Pod1 "pod1")
 DataPropertyAssertion(:name :Pod1 "pod1name")
 DataPropertyAssertion(:replicas :Pod1 "3"^^xsd:integer)
 
