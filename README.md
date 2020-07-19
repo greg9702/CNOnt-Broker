@@ -5,10 +5,7 @@ Application expose web API which is used by a client application. <br>
 
 ![Image description](docs/assets/system_overview.png)
 
-### __v1.0 version features__
-- visualize ontology
-- apply ontology to a Kubernetes cluster
-- create ontology based on a Kubernetes cluster
+---
 
 ### __How to run__
 
@@ -18,13 +15,13 @@ cd CNOnt-Broker
 docker-compose up --build
 ```
 
-If you would like to run directly on your machine run:
+If you would like to run server directly on your machine run:
 ```
 export GO111MODULE=on
 cd core
 go run main.go
 ```
-Make sure to set _GO111MODULE_ to on. Without this issues with dependencies can occur.
+> Make sure to set _GO111MODULE_ to on. Without this issues with dependencies can occur.
 
 
 #### __Cluster setup__
@@ -66,21 +63,20 @@ kubectl -n kube-system delete pod -l k8s-app=kube-dns
 
 ---
 
-### __v1.0 ROADMAP__
+### __System functionality and architecture__
 
-__v0.1__
-- [x] Add docker-compose
-- [x] Communicate client and core application
-- [x] Elaborate concept of the "top" ontology
+System is able to create deployment based on the ontology file. 
 
+Every system element runs in its own docker container. <br> There are three of them:
+- `core` - Web API server
+- `cluster` - Kubernetes cluster
+- `client` - client application created in React
 
-__v0.2__
-- [ ] Add cluster setup scripts
-- [ ] Design and implement API
-- [ ] Add config file
-- [ ] Add parser to the project
-- [ ] Add kubernetes client to the project
-- [ ] Create MVP using kuberenets client and parser
+Kubernetes cluster creates proxy on port `8001` and can be accessed from other containers and host machine. Client application exposes port `3000` on `localhost`. Server application exposes port `8080`.
 
-__v0.4__
-- [ ] Finish client application
+Deployment is created based on file `core/ontology/asssets/CNOnt.owl` which is OWL file with functional syntax. If file is incorrect in some way, deployment won't be created and API would return error code and message.
+
+Server exposes three enpoints:
+- `api/v1/create-deployment` - creates deployment
+- `api/v1/delete-deployment` - delete deployment if exists
+- `api/v1/preview-deployment` - returns preview of deployment
