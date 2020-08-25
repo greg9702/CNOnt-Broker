@@ -10,14 +10,17 @@ Ontology(<http://www.unifiedcloud.org/2009/2/26/uci.owl>
 Annotation(rdfs:comment "Unified Cloud Ontology"^^xsd:string)
 Annotation(owl:versionInfo "0.1"^^xsd:string)
 
-Declaration(Class(:Application))
 Declaration(Class(:ApplicationContainer))
 Declaration(Class(:ApplicationContainerGroup))
+Declaration(Class(:ApplicationLayerElement))
 Declaration(Class(:Cloud))
+Declaration(Class(:CloudNativeApplication))
 Declaration(Class(:Cluster))
+Declaration(Class(:ConcreteOS))
 Declaration(Class(:Connectivity))
+Declaration(Class(:ContainerEngine))
+Declaration(Class(:ContenerizationLayerElement))
 Declaration(Class(:Credentials))
-Declaration(Class(:Data))
 Declaration(Class(:DockerContainer))
 Declaration(Class(:Firewall))
 Declaration(Class(:FullVirtualizationHypervisor))
@@ -26,8 +29,9 @@ Declaration(Class(:HypervisorType))
 Declaration(Class(:IPAddress))
 Declaration(Class(:IPv4Network))
 Declaration(Class(:IaasCloud))
-Declaration(Class(:InfrastructureElement))
 Declaration(Class(:InfrastructureFacility))
+Declaration(Class(:InfrastructureLayerElement))
+Declaration(Class(:InfrastructureResource))
 Declaration(Class(:KVMHypervisor))
 Declaration(Class(:KubernetesCluster))
 Declaration(Class(:LoadBallancer))
@@ -35,44 +39,58 @@ Declaration(Class(:LoginAndPasswordCredentials))
 Declaration(Class(:MachineRunningState))
 Declaration(Class(:MachineState))
 Declaration(Class(:MachineStoppedState))
+Declaration(Class(:MasterNode))
+Declaration(Class(:Microservice))
 Declaration(Class(:Network))
 Declaration(Class(:NetworkAddress))
 Declaration(Class(:NetworkElement))
 Declaration(Class(:Node))
+Declaration(Class(:Orchestrator))
 Declaration(Class(:PaasCloud))
 Declaration(Class(:ParavirtualizationHypervisor))
 Declaration(Class(:Pod))
+Declaration(Class(:ProprietaryMicroservice))
 Declaration(Class(:Proxy))
-Declaration(Class(:Resource))
 Declaration(Class(:Router))
 Declaration(Class(:SaasCloud))
-Declaration(Class(:Server))
 Declaration(Class(:Site))
+Declaration(Class(:ThirdPartyMicroservice))
 Declaration(Class(:VirtualMachine))
 Declaration(Class(:VirtualMachineContainer))
 Declaration(Class(:VirtualMachineGroup))
 Declaration(Class(:VirtualMachinePackage))
-Declaration(Class(:VirtualizationServer))
+Declaration(Class(:WorkerNode))
 Declaration(Class(:XenHypervisor))
 Declaration(ObjectProperty(:address))
 Declaration(ObjectProperty(:application_container))
 Declaration(ObjectProperty(:belongs_to_cluster))
+Declaration(ObjectProperty(:belongs_to_group))
 Declaration(ObjectProperty(:belongs_to_node))
-Declaration(ObjectProperty(:belongs_to_pod))
+Declaration(ObjectProperty(:consists_of))
 Declaration(ObjectProperty(:contains_application))
 Declaration(ObjectProperty(:contains_container))
 Declaration(ObjectProperty(:contains_machine))
 Declaration(ObjectProperty(:contains_node))
 Declaration(ObjectProperty(:contains_pod))
+Declaration(ObjectProperty(:controls))
+Declaration(ObjectProperty(:forms))
 Declaration(ObjectProperty(:from_network))
 Declaration(ObjectProperty(:has_limits))
 Declaration(ObjectProperty(:hypervisor))
+Declaration(ObjectProperty(:is_controlled_by))
+Declaration(ObjectProperty(:is_installed_on))
+Declaration(ObjectProperty(:is_managed_by))
 Declaration(ObjectProperty(:machine_container))
 Declaration(ObjectProperty(:machine_state))
 Declaration(ObjectProperty(:network_interface))
 Declaration(ObjectProperty(:package))
+Declaration(ObjectProperty(:provides_resources))
 Declaration(ObjectProperty(:requests))
+Declaration(ObjectProperty(:runs))
+Declaration(ObjectProperty(:runs_inside))
+Declaration(ObjectProperty(:runs_on))
 Declaration(ObjectProperty(:site))
+Declaration(ObjectProperty(:supports_lifecycle))
 Declaration(DataProperty(:app))
 Declaration(DataProperty(:containerPort))
 Declaration(DataProperty(:cpu))
@@ -111,7 +129,6 @@ ObjectPropertyRange(:address :NetworkAddress)
 
 InverseObjectProperties(:application_container :contains_application)
 FunctionalObjectProperty(:application_container)
-ObjectPropertyDomain(:application_container :Application)
 ObjectPropertyRange(:application_container :ApplicationContainer)
 
 # Object Property: :belongs_to_cluster (:belongs_to_cluster)
@@ -121,24 +138,29 @@ InverseObjectProperties(:belongs_to_cluster :contains_node)
 ObjectPropertyDomain(:belongs_to_cluster :VirtualMachine)
 ObjectPropertyRange(:belongs_to_cluster :VirtualMachineGroup)
 
+# Object Property: :belongs_to_group (:belongs_to_group)
+
+SubObjectPropertyOf(:belongs_to_group owl:topObjectProperty)
+InverseObjectProperties(:belongs_to_group :contains_container)
+ObjectPropertyDomain(:belongs_to_group :ApplicationContainer)
+ObjectPropertyRange(:belongs_to_group :ApplicationContainerGroup)
+
 # Object Property: :belongs_to_node (:belongs_to_node)
 
 InverseObjectProperties(:belongs_to_node :contains_pod)
 ObjectPropertyDomain(:belongs_to_node :ApplicationContainerGroup)
 ObjectPropertyRange(:belongs_to_node :VirtualMachine)
 
-# Object Property: :belongs_to_pod (:belongs_to_pod)
+# Object Property: :consists_of (:consists_of)
 
-SubObjectPropertyOf(:belongs_to_pod owl:topObjectProperty)
-InverseObjectProperties(:belongs_to_pod :contains_container)
-ObjectPropertyDomain(:belongs_to_pod :ApplicationContainer)
-ObjectPropertyRange(:belongs_to_pod :ApplicationContainerGroup)
+InverseObjectProperties(:consists_of :forms)
+ObjectPropertyDomain(:consists_of :CloudNativeApplication)
+ObjectPropertyRange(:consists_of :Microservice)
 
 # Object Property: :contains_application (:contains_application)
 
 InverseFunctionalObjectProperty(:contains_application)
 ObjectPropertyDomain(:contains_application :ApplicationContainer)
-ObjectPropertyRange(:contains_application :Application)
 
 # Object Property: :contains_container (:contains_container)
 
@@ -162,6 +184,17 @@ ObjectPropertyRange(:contains_node :VirtualMachine)
 ObjectPropertyDomain(:contains_pod :VirtualMachine)
 ObjectPropertyRange(:contains_pod :ApplicationContainerGroup)
 
+# Object Property: :controls (:controls)
+
+InverseObjectProperties(:controls :is_controlled_by)
+ObjectPropertyDomain(:controls :Orchestrator)
+ObjectPropertyRange(:controls :ContainerEngine)
+
+# Object Property: :forms (:forms)
+
+ObjectPropertyDomain(:forms :Microservice)
+ObjectPropertyRange(:forms :CloudNativeApplication)
+
 # Object Property: :from_network (:from_network)
 
 FunctionalObjectProperty(:from_network)
@@ -178,6 +211,23 @@ ObjectPropertyRange(:has_limits :Hardware)
 FunctionalObjectProperty(:hypervisor)
 ObjectPropertyDomain(:hypervisor :VirtualMachineContainer)
 ObjectPropertyRange(:hypervisor :HypervisorType)
+
+# Object Property: :is_controlled_by (:is_controlled_by)
+
+ObjectPropertyDomain(:is_controlled_by :ContainerEngine)
+ObjectPropertyRange(:is_controlled_by :Orchestrator)
+
+# Object Property: :is_installed_on (:is_installed_on)
+
+InverseObjectProperties(:is_installed_on :provides_resources)
+ObjectPropertyDomain(:is_installed_on :ConcreteOS)
+ObjectPropertyRange(:is_installed_on :InfrastructureResource)
+
+# Object Property: :is_managed_by (:is_managed_by)
+
+InverseObjectProperties(:is_managed_by :supports_lifecycle)
+ObjectPropertyDomain(:is_managed_by :ApplicationContainer)
+ObjectPropertyRange(:is_managed_by :ContainerEngine)
 
 # Object Property: :machine_container (:machine_container)
 
@@ -199,17 +249,43 @@ FunctionalObjectProperty(:package)
 ObjectPropertyDomain(:package :VirtualMachine)
 ObjectPropertyRange(:package :VirtualMachinePackage)
 
+# Object Property: :provides_resources (:provides_resources)
+
+ObjectPropertyDomain(:provides_resources :InfrastructureResource)
+ObjectPropertyRange(:provides_resources :ConcreteOS)
+
 # Object Property: :requests (:requests)
 
 ObjectPropertyDomain(:requests :DockerContainer)
 ObjectPropertyRange(:requests :Hardware)
 
+# Object Property: :runs (:runs)
+
+InverseObjectProperties(:runs :runs_on)
+ObjectPropertyDomain(:runs :ConcreteOS)
+ObjectPropertyRange(:runs :ContainerEngine)
+
+# Object Property: :runs_inside (:runs_inside)
+
+ObjectPropertyDomain(:runs_inside :ApplicationContainerGroup)
+ObjectPropertyRange(:runs_inside :Microservice)
+
+# Object Property: :runs_on (:runs_on)
+
+ObjectPropertyDomain(:runs_on :ContainerEngine)
+ObjectPropertyRange(:runs_on :ConcreteOS)
+
 # Object Property: :site (site)
 
 AnnotationAssertion(rdfs:label :site "site"^^xsd:string)
 FunctionalObjectProperty(:site)
-ObjectPropertyDomain(:site :InfrastructureElement)
+ObjectPropertyDomain(:site :InfrastructureLayerElement)
 ObjectPropertyRange(:site :Site)
+
+# Object Property: :supports_lifecycle (:supports_lifecycle)
+
+ObjectPropertyDomain(:supports_lifecycle :ContainerEngine)
+ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
 
 
 ############################
@@ -263,7 +339,6 @@ DataPropertyRange(:memory xsd:string)
 # Data Property: :name (:name)
 
 FunctionalDataProperty(:name)
-DataPropertyDomain(:name :Application)
 DataPropertyDomain(:name :ApplicationContainer)
 DataPropertyDomain(:name :ApplicationContainerGroup)
 DataPropertyDomain(:name :Cluster)
@@ -292,13 +367,11 @@ DataPropertyRange(:replicas xsd:int)
 # Data Property: :server_cores (:server_cores)
 
 FunctionalDataProperty(:server_cores)
-DataPropertyDomain(:server_cores :Server)
 DataPropertyRange(:server_cores xsd:int)
 
 # Data Property: :server_ram (:server_ram)
 
 FunctionalDataProperty(:server_ram)
-DataPropertyDomain(:server_ram :Server)
 DataPropertyRange(:server_ram xsd:int)
 
 
@@ -307,29 +380,33 @@ DataPropertyRange(:server_ram xsd:int)
 #   Classes
 ############################
 
-# Class: :Application (:Application)
-
-SubClassOf(:Application :Resource)
-
 # Class: :ApplicationContainer (:ApplicationContainer)
 
-SubClassOf(:ApplicationContainer :InfrastructureElement)
+SubClassOf(:ApplicationContainer :ContenerizationLayerElement)
 
 # Class: :ApplicationContainerGroup (:ApplicationContainerGroup)
 
-SubClassOf(:ApplicationContainerGroup :InfrastructureElement)
+SubClassOf(:ApplicationContainerGroup :ContenerizationLayerElement)
+
+# Class: :CloudNativeApplication (:CloudNativeApplication)
+
+SubClassOf(:CloudNativeApplication :ApplicationLayerElement)
 
 # Class: :Cluster (:Cluster)
 
 SubClassOf(:Cluster :VirtualMachineGroup)
 
+# Class: :ConcreteOS (:ConcreteOS)
+
+SubClassOf(:ConcreteOS :InfrastructureLayerElement)
+
 # Class: :Connectivity (:Connectivity)
 
-SubClassOf(:Connectivity :InfrastructureElement)
+SubClassOf(:Connectivity :InfrastructureLayerElement)
 
-# Class: :Data (:Data)
+# Class: :ContainerEngine (:ContainerEngine)
 
-SubClassOf(:Data :Resource)
+SubClassOf(:ContainerEngine :ContenerizationLayerElement)
 
 # Class: :DockerContainer (:DockerContainer)
 
@@ -345,7 +422,7 @@ SubClassOf(:FullVirtualizationHypervisor :HypervisorType)
 
 # Class: :Hardware (:Hardware)
 
-SubClassOf(:Hardware :Resource)
+SubClassOf(:Hardware :InfrastructureLayerElement)
 
 # Class: :IPAddress (:IPAddress)
 
@@ -360,13 +437,18 @@ SubClassOf(:IPv4Network :Network)
 AnnotationAssertion(rdfs:comment :IaasCloud "Infrastructure as a service cloud"^^xsd:string)
 SubClassOf(:IaasCloud :Cloud)
 
-# Class: :InfrastructureElement (:InfrastructureElement)
-
-AnnotationAssertion(rdfs:comment :InfrastructureElement "Element of site infrastructure"^^xsd:string)
-
 # Class: :InfrastructureFacility (:InfrastructureFacility)
 
-SubClassOf(:InfrastructureFacility :InfrastructureElement)
+SubClassOf(:InfrastructureFacility :InfrastructureLayerElement)
+
+# Class: :InfrastructureLayerElement (:InfrastructureLayerElement)
+
+AnnotationAssertion(rdfs:comment :InfrastructureLayerElement "Element of site infrastructure"^^xsd:string)
+
+# Class: :InfrastructureResource (:InfrastructureResource)
+
+AnnotationAssertion(rdfs:comment :InfrastructureResource "Cloud hosted resource"^^xsd:string)
+SubClassOf(:InfrastructureResource :InfrastructureLayerElement)
 
 # Class: :KVMHypervisor (:KVMHypervisor)
 
@@ -393,17 +475,29 @@ SubClassOf(:MachineRunningState :MachineState)
 
 SubClassOf(:MachineStoppedState :MachineState)
 
+# Class: :MasterNode (:MasterNode)
+
+SubClassOf(:MasterNode :Node)
+
+# Class: :Microservice (:Microservice)
+
+SubClassOf(:Microservice :ApplicationLayerElement)
+
 # Class: :Network (:Network)
 
-SubClassOf(:Network :InfrastructureElement)
+SubClassOf(:Network :InfrastructureLayerElement)
 
 # Class: :NetworkElement (:NetworkElement)
 
-SubClassOf(:NetworkElement :InfrastructureElement)
+SubClassOf(:NetworkElement :InfrastructureLayerElement)
 
 # Class: :Node (:Node)
 
-SubClassOf(:Node :VirtualMachine)
+SubClassOf(:Node :ContenerizationLayerElement)
+
+# Class: :Orchestrator (:Orchestrator)
+
+SubClassOf(:Orchestrator :ContenerizationLayerElement)
 
 # Class: :PaasCloud (:PaasCloud)
 
@@ -418,14 +512,13 @@ SubClassOf(:ParavirtualizationHypervisor :HypervisorType)
 
 SubClassOf(:Pod :ApplicationContainerGroup)
 
+# Class: :ProprietaryMicroservice (:ProprietaryMicroservice)
+
+SubClassOf(:ProprietaryMicroservice :Microservice)
+
 # Class: :Proxy (:Proxy)
 
 SubClassOf(:Proxy :Connectivity)
-
-# Class: :Resource (:Resource)
-
-AnnotationAssertion(rdfs:comment :Resource "Cloud hosted resource"^^xsd:string)
-SubClassOf(:Resource :InfrastructureElement)
 
 # Class: :Router (:Router)
 
@@ -436,36 +529,32 @@ SubClassOf(:Router :Connectivity)
 AnnotationAssertion(rdfs:comment :SaasCloud "Software as a service cloud"^^xsd:string)
 SubClassOf(:SaasCloud :Cloud)
 
-# Class: :Server (:Server)
-
-SubClassOf(:Server :ApplicationContainer)
-SubClassOf(:Server :InfrastructureElement)
-SubClassOf(:Server :NetworkElement)
-
 # Class: :Site (:Site)
 
 AnnotationAssertion(rdfs:comment :Site "Physical location of infrastructure elements"^^xsd:string)
 
+# Class: :ThirdPartyMicroservice (:ThirdPartyMicroservice)
+
+SubClassOf(:ThirdPartyMicroservice :Microservice)
+
 # Class: :VirtualMachine (:VirtualMachine)
 
 SubClassOf(:VirtualMachine :ApplicationContainer)
-SubClassOf(:VirtualMachine :InfrastructureElement)
 SubClassOf(:VirtualMachine :NetworkElement)
 
 # Class: :VirtualMachineContainer (:VirtualMachineContainer)
 
 AnnotationAssertion(rdfs:comment :VirtualMachineContainer "Container which physically hosts virtual machine"^^xsd:string)
-SubClassOf(:VirtualMachineContainer :InfrastructureElement)
+SubClassOf(:VirtualMachineContainer :InfrastructureLayerElement)
 
 # Class: :VirtualMachineGroup (:VirtualMachineGroup)
 
 AnnotationAssertion(rdfs:comment :VirtualMachineGroup "Logical group of virtual machines"^^xsd:string)
-SubClassOf(:VirtualMachineGroup :InfrastructureElement)
+SubClassOf(:VirtualMachineGroup :InfrastructureLayerElement)
 
-# Class: :VirtualizationServer (:VirtualizationServer)
+# Class: :WorkerNode (:WorkerNode)
 
-SubClassOf(:VirtualizationServer :Server)
-SubClassOf(:VirtualizationServer :VirtualMachineContainer)
+SubClassOf(:WorkerNode :Node)
 
 # Class: :XenHypervisor (:XenHypervisor)
 
@@ -486,7 +575,7 @@ DataPropertyAssertion(:name :Cluster1 "kind")
 # Individual: :DockerContainer1 (:DockerContainer1)
 
 ClassAssertion(:DockerContainer :DockerContainer1)
-ObjectPropertyAssertion(:belongs_to_pod :DockerContainer1 :Pod1)
+ObjectPropertyAssertion(:belongs_to_group :DockerContainer1 :Pod1)
 ObjectPropertyAssertion(:has_limits :DockerContainer1 :Hardware2)
 ObjectPropertyAssertion(:requests :DockerContainer1 :Hardware1)
 DataPropertyAssertion(:image :DockerContainer1 "k8s.gcr.io/echoserver:1.4")
@@ -494,7 +583,7 @@ DataPropertyAssertion(:name :DockerContainer1 "hello-kubernetes1")
 
 # Individual: :DockerContainer2 (:DockerContainer2)
 
-ObjectPropertyAssertion(:belongs_to_pod :DockerContainer2 :Pod1)
+ObjectPropertyAssertion(:belongs_to_group :DockerContainer2 :Pod1)
 ObjectPropertyAssertion(:has_limits :DockerContainer2 :Hardware1)
 DataPropertyAssertion(:image :DockerContainer2 "k8s.gcr.io/echoserver:1.4")
 DataPropertyAssertion(:name :DockerContainer2 "hello-kubernetes2")
