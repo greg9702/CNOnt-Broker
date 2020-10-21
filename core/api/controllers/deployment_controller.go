@@ -3,7 +3,6 @@ package controllers
 import (
 	"CNOnt-Broker/core/kubernetes/client"
 	"CNOnt-Broker/core/ontology"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,11 +10,12 @@ import (
 type DeploymentController struct {
 	kubernetesClient *client.KubernetesClient
 	ontologyWrapper  *ontology.OntologyWrapper
+	ontologyBuilder  *ontology.OntologyBuilder
 }
 
 // NewDeploymentController creates new DeploymentController instance
-func NewDeploymentController(client *client.KubernetesClient, ontology *ontology.OntologyWrapper) *DeploymentController {
-	d := DeploymentController{client, ontology}
+func NewDeploymentController(client *client.KubernetesClient, ontology *ontology.OntologyWrapper, ontologyBuilder *ontology.OntologyBuilder) *DeploymentController {
+	d := DeploymentController{client, ontology, ontologyBuilder}
 	return &d
 }
 
@@ -114,4 +114,20 @@ func (d *DeploymentController) DeleteDeployment(ctx *gin.Context) {
 		"name": deploymentName,
 	})
 	return
+}
+
+// TODO call OntologyBuilder properly when ready
+// SerializeClusterConf serializes cluster configuration and stores it in the ontology
+func (d *DeploymentController) SerializeClusterConf(ctx *gin.Context) {
+	pods, err := d.kubernetesClient.GetAllPods()
+
+	if err != nil {
+		ctx.JSON(422, gin.H{
+			"error":   "Error during obtaining pods",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	d.ontologyBuilder.WithPods(pods)
 }

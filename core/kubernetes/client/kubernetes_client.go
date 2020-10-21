@@ -43,9 +43,9 @@ func (k *KubernetesClient) Init() {
 	k.clientset = clientset
 }
 
-// GetAllPods prints pods from default namespace
-func (k *KubernetesClient) GetAllPods() {
-	fmt.Println(k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{}))
+// GetAllPods returns pods from default namespace
+func (k *KubernetesClient) GetAllPods() (*apiv1.PodList, error) {
+	return k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{})
 }
 
 // CreateDeployment creates deployment deployment passed in

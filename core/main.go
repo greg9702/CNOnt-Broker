@@ -38,7 +38,8 @@ func main() {
 	kuberenetesClient.Init()
 
 	var ontologyWrapper = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
-	deploymentController := controllers.NewDeploymentController(kuberenetesClient, ontologyWrapper)
+	var ontologyBuilder = ontology.NewOntologyBuilder()
+	deploymentController := controllers.NewDeploymentController(kuberenetesClient, ontologyWrapper, ontologyBuilder)
 
 	router := gin.Default()
 	router.Use(cors.Default())
@@ -48,6 +49,7 @@ func main() {
 	v1Router.GET("/create-deployment", deploymentController.CreateDeployment)
 	v1Router.GET("/delete-deployment", deploymentController.DeleteDeployment)
 	v1Router.GET("/preview-deployment", deploymentController.PreviewDeployment)
+	v1Router.GET("/serialize-cluster-conf", deploymentController.SerializeClusterConf)
 
 	port := os.Getenv("PORT")
 	if port == "" {
