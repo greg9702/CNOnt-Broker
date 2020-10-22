@@ -119,15 +119,5 @@ func (d *DeploymentController) DeleteDeployment(ctx *gin.Context) {
 // TODO call OntologyBuilder properly when ready
 // SerializeClusterConf serializes cluster configuration and stores it in the ontology
 func (d *DeploymentController) SerializeClusterConf(ctx *gin.Context) {
-	pods, err := d.kubernetesClient.GetAllPods()
-
-	if err != nil {
-		ctx.JSON(422, gin.H{
-			"error":   "Error during obtaining pods",
-			"details": err.Error(),
-		})
-		return
-	}
-
-	d.ontologyBuilder.WithPods(pods)
+	d.ontologyBuilder.GenerateCollection()
 }

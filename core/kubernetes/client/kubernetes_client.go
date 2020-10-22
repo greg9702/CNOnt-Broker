@@ -48,6 +48,11 @@ func (k *KubernetesClient) GetAllPods() (*apiv1.PodList, error) {
 	return k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{})
 }
 
+// TODO generalize
+func (k *KubernetesClient) ExecuteCommand(command string) (*apiv1.PodList, error) {
+	return k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{})
+}
+
 // CreateDeployment creates deployment deployment passed in
 func (k *KubernetesClient) CreateDeployment(deployment *unstructured.Unstructured) error {
 	fmt.Println("Create deployment...")

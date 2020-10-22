@@ -38,7 +38,7 @@ func main() {
 	kuberenetesClient.Init()
 
 	var ontologyWrapper = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
-	var ontologyBuilder = ontology.NewOntologyBuilder()
+	var ontologyBuilder = ontology.NewOntologyBuilder(kuberenetesClient)
 	deploymentController := controllers.NewDeploymentController(kuberenetesClient, ontologyWrapper, ontologyBuilder)
 
 	router := gin.Default()

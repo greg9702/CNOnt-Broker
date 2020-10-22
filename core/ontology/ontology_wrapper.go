@@ -29,7 +29,7 @@ const portAssertion = ":port"
 const belongsToNodeAssertion = ":belongs_to_node"
 const containsContainerAssertion = ":contains_container"
 
-// OntologyWrapper functional OWL ontology wraper
+// OntologyWrapper functional OWL ontology wrapper
 type OntologyWrapper struct {
 	ontology *owlfunctional.Ontology
 }
