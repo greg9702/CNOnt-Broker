@@ -53,6 +53,13 @@ func (o *KubernetesClient) Mock() error {
 	}
 
 	fmt.Println("----------NODES----------")
+
+	for ix := range nodes.Items {
+		node := &nodes.Items[ix]
+		fmt.Println(node)
+		fmt.Println("-----------------------")
+	}
+
 	fmt.Println(nodes)
 
 	var namespaces []string
@@ -65,54 +72,40 @@ func (o *KubernetesClient) Mock() error {
 		namespaces = append(namespaces, namespaceList.Items[ix].Name)
 	}
 
+	fmt.Println("----------NAMESPACES----------")
+	for ix := range namespaceList.Items {
+		namespace := &namespaceList.Items[ix]
+		fmt.Println(namespace)
+		fmt.Println("-----------------------")
+	}
+
 	for _, namespace := range namespaces {
-		// TODO: this is repetitive in the extreme.  Use reflection or
-		// something to make this a for loop.
-
-		// events, err := coreClient.Events(namespace).List(context.TODO(), metav1.ListOptions{})
-		// if err != nil {
-		// 	return err
-		// }
-
-		// fmt.Println("----------EVENTS----------")
-		// fmt.Println(events)
-
-		// rcs, err := coreClient.ReplicationControllers(namespace).List(context.TODO(), metav1.ListOptions{})
-		// if err != nil {
-		// 	return err
-		// }
-
-		// svcs, err := coreClient.Services(namespace).List(context.TODO(), metav1.ListOptions{})
-		// if err != nil {
-		// 	return err
-		// }
-
-		// sets, err := appsClient.DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
-		// if err != nil {
-		// 	return err
-		// }
-
-		// deps, err := appsClient.Deployments(namespace).List(context.TODO(), metav1.ListOptions{})
-		// if err != nil {
-		// 	return err
-		// }
-
-		// rps, err := appsClient.ReplicaSets(namespace).List(context.TODO(), metav1.ListOptions{})
-		// if err != nil {
-		// 	return err
-		// }
 
 		pods, err := coreClient.Pods(namespace).List(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			return err
-		}
 
-		for ix := range pods.Items {
-			pod := &pods.Items[ix]
-			containers := pod.Spec.Containers
+		if len(pods.Items) != 0 {
+			if err != nil {
+				return err
+			}
 
-			for i := range containers {
-				fmt.Println(containers[i])
+			fmt.Println("----------PODS----------")
+
+			for ix := range pods.Items {
+				pod := &pods.Items[ix]
+				fmt.Println(pod)
+				fmt.Println("-----------------------")
+			}
+
+			fmt.Println("----------CONTAINERS----------")
+
+			for ix := range pods.Items {
+				pod := &pods.Items[ix]
+				containers := pod.Spec.Containers
+
+				for i := range containers {
+					fmt.Println(containers[i])
+					fmt.Println("-----------------------")
+				}
 			}
 		}
 	}
