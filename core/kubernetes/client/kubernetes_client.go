@@ -43,6 +43,82 @@ func (k *KubernetesClient) Init() {
 	k.clientset = clientset
 }
 
+func (o *KubernetesClient) Mock() error {
+
+	coreClient := o.clientset.CoreV1()
+
+	nodes, err := coreClient.Nodes().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("----------NODES----------")
+	fmt.Println(nodes)
+
+	var namespaces []string
+	namespaceList, err := coreClient.Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+
+	for ix := range namespaceList.Items {
+		namespaces = append(namespaces, namespaceList.Items[ix].Name)
+	}
+
+	for _, namespace := range namespaces {
+		// TODO: this is repetitive in the extreme.  Use reflection or
+		// something to make this a for loop.
+
+		// events, err := coreClient.Events(namespace).List(context.TODO(), metav1.ListOptions{})
+		// if err != nil {
+		// 	return err
+		// }
+
+		// fmt.Println("----------EVENTS----------")
+		// fmt.Println(events)
+
+		// rcs, err := coreClient.ReplicationControllers(namespace).List(context.TODO(), metav1.ListOptions{})
+		// if err != nil {
+		// 	return err
+		// }
+
+		// svcs, err := coreClient.Services(namespace).List(context.TODO(), metav1.ListOptions{})
+		// if err != nil {
+		// 	return err
+		// }
+
+		// sets, err := appsClient.DaemonSets(namespace).List(context.TODO(), metav1.ListOptions{})
+		// if err != nil {
+		// 	return err
+		// }
+
+		// deps, err := appsClient.Deployments(namespace).List(context.TODO(), metav1.ListOptions{})
+		// if err != nil {
+		// 	return err
+		// }
+
+		// rps, err := appsClient.ReplicaSets(namespace).List(context.TODO(), metav1.ListOptions{})
+		// if err != nil {
+		// 	return err
+		// }
+
+		pods, err := coreClient.Pods(namespace).List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return err
+		}
+
+		for ix := range pods.Items {
+			pod := &pods.Items[ix]
+			containers := pod.Spec.Containers
+
+			for i := range containers {
+				fmt.Println(containers[i])
+			}
+		}
+	}
+	return nil
+}
+
 // GetAllPods returns pods from default namespace
 func (k *KubernetesClient) GetAllPods() (*apiv1.PodList, error) {
 	return k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{})
