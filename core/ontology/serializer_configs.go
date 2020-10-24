@@ -1,9 +1,10 @@
 package ontology
 
 import (
-	v1 "k8s.io/api/core/v1"
 	"strconv"
 	"strings"
+
+	v1 "k8s.io/api/core/v1"
 )
 
 type DataProperties = map[string]string
@@ -14,6 +15,11 @@ type ClassName = string
 
 // TODO generate basing on ontology file and use in OntologyBuilder.GenerateCollection
 //const classNamesList[] := {":Cluster", ":Node"}
+
+const clusterClassName string = "KubernetesCluster"
+const containersClassName string = "DockerContainer"
+const podsClassName string = "Pod"
+const nodesClassName string = "Node"
 
 type DataPropertiesFinder struct {
 	command    string

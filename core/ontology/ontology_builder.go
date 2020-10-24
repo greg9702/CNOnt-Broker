@@ -9,10 +9,7 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
-const clusterClassName string = "KubernetesCluster"
-const containersClassName string = "DockerContainer"
-const podsClassName string = "Pod"
-const nodesClassName string = "Node"
+// TODO move it to configs
 
 // TODO get this from ontology
 var allTypesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
@@ -164,10 +161,19 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 			for ix := range allNodes {
 				node := allNodes[ix].(*apiv1.Node)
 
+				fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, "name")
+
+				if err != nil {
+					fn = func(interface{}) string {
+						return ""
+					}
+				}
+
 				dataProperties := make(map[string]string)
-				dataProperties["name"] = node.Name
+				dataProperties["name"] = fn(node)
 
 				obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
+				fmt.Println(obj)
 				ow.objectsToDump.Add(obj)
 			}
 
@@ -178,21 +184,32 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 			// all pods of the same kind (from the same deployment)
 			// are just treated as next replicas
 
-			// int value is redundant here
+			// TODO implement logic for removing redundant Pods
 			namesOfProcessedPods := make(map[string]int)
 
+			// we use temp list to avoid writing tons of getters and setters for ObjectsToDumpCollection
+			// we have local list and we can easily modify previously written elements - for example
+			// incrementing its replicas number
 			var tempObjectList []*ObjectToDump
 
 			for ix := range allPods {
 				pod := allPods[ix].(*apiv1.Pod)
 
-				podName := trimPodsIDs(pod.Name)
-				fmt.Println(podName)
+				fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, "name")
 
+				if err != nil {
+					fn = func(interface{}) string {
+						return ""
+					}
+				}
+
+				podName := fn(pod)
+				podName = trimPodsIDs(podName)
+
+				// check if pod with the same name already exists
 				if val, ok := namesOfProcessedPods[podName]; ok {
 					//do something here
 					val++
-
 					// update existing pod
 					for index := range tempObjectList {
 						if tempObjectList[index].dataPropertyAssertions["name"] == podName {
@@ -209,12 +226,28 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 					namesOfProcessedPods[podName] = 1
 				}
 
+				// get pod data properties
 				dataProperties := make(map[string]string)
+
+				// this two are very special for Pod
 				dataProperties["name"] = podName
-				dataProperties["app"] = "TODOapp"
 				dataProperties["replicas"] = "1"
 
+				// TODO we will iteratate through list of data properties retreived
+				// from ontology instead of using hard coded values "app" etc
+
+				fn, err = BuilderHelpersInstance().GetDataPropertyFunction(className, "app")
+
+				if err != nil {
+					fn = func(interface{}) string {
+						return ""
+					}
+				}
+
+				dataProperties["app"] = fn(pod)
+
 				obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
+				fmt.Println(obj)
 				tempObjectList = append(tempObjectList, obj)
 			}
 

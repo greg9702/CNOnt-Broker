@@ -7,6 +7,8 @@ import (
 
 	"github.com/shful/gofp/owlfunctional/assertions"
 	"github.com/shful/gofp/owlfunctional/axioms"
+
+	apiv1 "k8s.io/api/core/v1"
 )
 
 func convertIRI2Name(IRI string) string {
@@ -66,8 +68,38 @@ type builderHelper struct {
 
 func newBuilderHelpers() *builderHelper {
 
-	// TODO init dataPropertyFunctions here
-	bh := builderHelper{}
+	// TODO move it somwhere?
+	dataPropertyFunctions := make(map[string]map[string]func(interface{}) string)
+
+	// node
+	tmpMap := make(map[string]func(interface{}) string)
+
+	tmpMap["name"] = func(object interface{}) string {
+		nodeObject := object.(*apiv1.Node)
+		return nodeObject.Name
+	}
+
+	dataPropertyFunctions[nodesClassName] = tmpMap
+	tmpMap = nil
+
+	// pod
+	tmpMap = make(map[string]func(interface{}) string)
+
+	tmpMap["name"] = func(object interface{}) string {
+		nodeObject := object.(*apiv1.Pod)
+		return nodeObject.Name
+	}
+	tmpMap["app"] = func(object interface{}) string {
+		return "MOCK APP"
+	}
+	tmpMap["app"] = func(object interface{}) string {
+		return "MOCK APP"
+	}
+
+	dataPropertyFunctions[podsClassName] = tmpMap
+	tmpMap = nil
+
+	bh := builderHelper{dataPropertyFunctions}
 	return &bh
 }
 
@@ -75,10 +107,15 @@ func newBuilderHelpers() *builderHelper {
 // for given className and dataPropertyName
 func (bh *builderHelper) GetDataPropertyFunction(className string, dataPropertyName string) (func(interface{}) string, error) {
 
+	var errorMessage string
 	if m, ok := bh.dataPropertyFunctions[className]; ok {
 		if fn, ok := m[dataPropertyName]; ok {
 			return fn, nil
+
 		}
+		errorMessage = "For classname " + className + " data property " + dataPropertyName + " not found"
+	} else {
+		errorMessage = "Classname " + className + " not found"
 	}
-	return nil, errors.New("Classname " + className + " or data property name" + dataPropertyName + " not found")
+	return nil, errors.New(errorMessage)
 }
