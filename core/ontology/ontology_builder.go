@@ -8,13 +8,17 @@ import (
 	apiv1 "k8s.io/api/core/v1"
 )
 
+type ClusterStruct struct {
+	Name string
+}
+
 // ReplicasNumberForPods TODO do something with this...
 var ReplicasNumberForPods map[string]int
 
 // TODO move it to configs
 
 // TODO get this from ontology
-var allTypesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
+var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
 
 // ObjectToDump contains all required data for dumping object
 // in functionl OWL ontology format
@@ -73,6 +77,13 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 	var tempList []interface{}
 
+	// cluster
+	cs := ClusterStruct{"TEST_CLUSTER"}
+	tempList = append(tempList, &cs)
+
+	ow.apiData[clusterClassName] = tempList
+	tempList = nil
+
 	// nodes
 	nodes, err := ow.k8sClient.GetAllNodes()
 	if err != nil {
@@ -125,7 +136,7 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 		containers := pod.Spec.Containers
 		for i := range containers {
-			tempList = append(tempList, containers[i])
+			tempList = append(tempList, &containers[i])
 		}
 	}
 
@@ -154,20 +165,40 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 	// and its dataPropertyAssertions
 
 	// TODO we need to get all dataProperties names (keys) from ontology
-	for ix := range allTypesKeys {
+	for ix := range allClassesKeys {
 
-		className := allTypesKeys[ix]
+		className := allClassesKeys[ix]
+
 		objectName := className + "RANDOMSTRING"
 
 		if className == clusterClassName {
 
-			dataProperties := make(map[string]string)
-			dataProperties["name"] = "TOBEREMOVED"
+			allObjects := ow.apiData[className]
 
-			// can we use make in constructor?
-			obj := &ObjectToDump{clusterClassName, objectName, dataProperties, make(map[string]string)}
-			ow.objectsToDump.Add(obj)
+			for ix := range allObjects {
+				cluster := allObjects[ix].(*ClusterStruct)
 
+				clusterProperties := []string{"name"}
+
+				for propertyIx := range clusterProperties {
+					property := clusterProperties[propertyIx]
+
+					fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
+
+					if err != nil {
+						fn = func(interface{}) string {
+							return ""
+						}
+					}
+
+					dataProperties := make(map[string]string)
+					dataProperties["name"] = fn(cluster)
+
+					obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
+					ow.objectsToDump.Add(obj)
+					fmt.Println(obj)
+				}
+			}
 		} else if className == nodesClassName {
 			allNodes := ow.apiData[className]
 
@@ -224,8 +255,36 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 				fmt.Println(obj)
 				ow.objectsToDump.Add(obj)
 			}
+		} else if className == containersClassName {
+			allContainers := ow.apiData[className]
+
+			for ix := range allContainers {
+				container := allContainers[ix].(*apiv1.Container)
+
+				// // get pod data properties
+				dataProperties := make(map[string]string)
+
+				containersProperties := []string{"name", "image", "port"}
+
+				for propertyIx := range containersProperties {
+					property := containersProperties[propertyIx]
+
+					fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
+
+					if err != nil {
+						fn = func(interface{}) string {
+							return ""
+						}
+					}
+
+					dataProperties[property] = fn(container)
+				}
+				obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
+				fmt.Println(obj)
+				ow.objectsToDump.Add(obj)
+			}
 		} else {
-			fmt.Printf("[OntologyBuilder] GenerateCollection: Skipping class %s\n", allTypesKeys[ix])
+			fmt.Printf("[OntologyBuilder] GenerateCollection: Skipping class %s\n", allClassesKeys[ix])
 		}
 	}
 
@@ -247,6 +306,11 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 func (ow *OntologyBuilder) dumpData() error {
 
 	return nil
+}
+
+//getDataPropertiesNames returns list of data properties for given class
+func (ow *OntologyBuilder) getDataPropertiesNames(className string) ([]string, error) {
+	return nil, nil
 }
 
 func trimPodsIDs(podName string) string {

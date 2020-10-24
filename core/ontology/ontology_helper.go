@@ -69,7 +69,6 @@ type builderHelper struct {
 
 func newBuilderHelpers() *builderHelper {
 
-	// TODO move it somwhere?
 	dataPropertyFunctions := make(map[string]map[string]func(interface{}) string)
 
 	// node
@@ -103,6 +102,39 @@ func newBuilderHelpers() *builderHelper {
 	}
 
 	dataPropertyFunctions[podsClassName] = tmpMap
+	tmpMap = nil
+
+	// containers
+	tmpMap = make(map[string]func(interface{}) string)
+
+	tmpMap["name"] = func(object interface{}) string {
+		containerObject := object.(*apiv1.Container)
+		return containerObject.Name
+	}
+	tmpMap["image"] = func(object interface{}) string {
+		containerObject := object.(*apiv1.Container)
+		return containerObject.Image
+	}
+	tmpMap["port"] = func(object interface{}) string {
+		containerObject := object.(*apiv1.Container)
+		// TODO we assume we have only 1 port...
+		if len(containerObject.Ports) != 0 {
+			return containerObject.Ports[0].Name
+		}
+		return ""
+	}
+
+	dataPropertyFunctions[containersClassName] = tmpMap
+	tmpMap = nil
+
+	// cluster
+	tmpMap = make(map[string]func(interface{}) string)
+
+	tmpMap["name"] = func(object interface{}) string {
+		return "MOCKCLUSTERNAME"
+	}
+
+	dataPropertyFunctions[clusterClassName] = tmpMap
 	tmpMap = nil
 
 	bh := builderHelper{dataPropertyFunctions}
