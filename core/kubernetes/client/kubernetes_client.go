@@ -44,13 +44,40 @@ func (k *KubernetesClient) Init() {
 }
 
 // GetAllPods returns pods from default namespace
-func (k *KubernetesClient) GetAllPods() (*apiv1.PodList, error) {
-	return k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{})
+// If empty string provided as namespace argument, "default" namespace is used
+func (k *KubernetesClient) GetAllPods(namespace string) (*apiv1.PodList, error) {
+
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	return k.clientset.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{})
 }
 
-// TODO generalize
-func (k *KubernetesClient) ExecuteCommand(command string) (*apiv1.PodList, error) {
-	return k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{})
+// GetAllNodes returns list of all nodes in cluster
+func (k *KubernetesClient) GetAllNodes() (*apiv1.NodeList, error) {
+	return k.clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+}
+
+// GetContainersFromPod returns list of all nodes in cluster
+func (k *KubernetesClient) GetContainersFromPod(pod apiv1.Pod) ([]*apiv1.Container, error) {
+
+	// TODO errors checks?
+
+	containers := pod.Spec.Containers
+
+	var containersList []*apiv1.Container
+
+	for i := range containers {
+		containersList = append(containersList, &containers[i])
+	}
+
+	return containersList, nil
+}
+
+// GetAllNamespaces returns list of all namespaces
+func (k *KubernetesClient) GetAllNamespaces() (*apiv1.NamespaceList, error) {
+	return k.clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 }
 
 // CreateDeployment creates deployment deployment passed in
