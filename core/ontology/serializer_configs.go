@@ -16,6 +16,8 @@ type ClassName = string
 // TODO generate basing on ontology file and use in OntologyBuilder.GenerateCollection
 //const classNamesList[] := {":Cluster", ":Node"}
 
+const podReplicas = "PodReplicas"
+
 const clusterClassName string = "KubernetesCluster"
 const containersClassName string = "DockerContainer"
 const podsClassName string = "Pod"

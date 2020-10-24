@@ -3,11 +3,13 @@ package ontology
 import (
 	"CNOnt-Broker/core/kubernetes/client"
 	"fmt"
-	"strconv"
 	"strings"
 
 	apiv1 "k8s.io/api/core/v1"
 )
+
+// ReplicasNumberForPods TODO do something with this...
+var ReplicasNumberForPods map[string]int
 
 // TODO move it to configs
 
@@ -93,10 +95,24 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 		return err
 	}
 
+	// here we have cut out Pods which are only replicas, we will create seperate
+	// map for it and save it too
+	ReplicasNumberForPods = make(map[string]int)
+
 	for ix := range pods.Items {
 		pod := &pods.Items[ix]
+		podName := trimPodsIDs(pod.Name)
+
+		if val, alreadyExists := ReplicasNumberForPods[podName]; alreadyExists {
+			val++
+			ReplicasNumberForPods[podName] = val
+			continue
+		}
+		ReplicasNumberForPods[podName] = 1
+		pod.Name = podName // use trimmed name for this pod
 		tempList = append(tempList, pod)
 	}
+
 	ow.apiData[podsClassName] = tempList
 
 	fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d pods\n", len(tempList))
@@ -104,10 +120,10 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 	tempList = nil
 
 	// containers
-	for ix := range pods.Items {
-		pod := &pods.Items[ix]
-		containers := pod.Spec.Containers
+	for ix := range ow.apiData[podsClassName] {
+		pod := ow.apiData[podsClassName][ix].(*apiv1.Pod)
 
+		containers := pod.Spec.Containers
 		for i := range containers {
 			tempList = append(tempList, containers[i])
 		}
@@ -137,9 +153,6 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 	// first we create all ObjectToDump objects with its className, objectName
 	// and its dataPropertyAssertions
 
-	// how to get all object properties of
-
-	// TODO we need to unify retreiving elements for different classes
 	// TODO we need to get all dataProperties names (keys) from ontology
 	for ix := range allTypesKeys {
 
@@ -161,102 +174,58 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 			for ix := range allNodes {
 				node := allNodes[ix].(*apiv1.Node)
 
-				fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, "name")
+				podsProperties := []string{"name"}
 
-				if err != nil {
-					fn = func(interface{}) string {
-						return ""
+				for propertyIx := range podsProperties {
+					property := podsProperties[propertyIx]
+
+					fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
+
+					if err != nil {
+						fn = func(interface{}) string {
+							return ""
+						}
 					}
+
+					dataProperties := make(map[string]string)
+					dataProperties[property] = fn(node)
+
+					obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
+					fmt.Println(obj)
+					ow.objectsToDump.Add(obj)
 				}
-
-				dataProperties := make(map[string]string)
-				dataProperties["name"] = fn(node)
-
-				obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
-				fmt.Println(obj)
-				ow.objectsToDump.Add(obj)
 			}
 
 		} else if className == podsClassName {
 			allPods := ow.apiData[className]
 
-			// we have to take all pods take only the unique one
-			// all pods of the same kind (from the same deployment)
-			// are just treated as next replicas
-
-			// TODO implement logic for removing redundant Pods
-			namesOfProcessedPods := make(map[string]int)
-
-			// we use temp list to avoid writing tons of getters and setters for ObjectsToDumpCollection
-			// we have local list and we can easily modify previously written elements - for example
-			// incrementing its replicas number
-			var tempObjectList []*ObjectToDump
-
 			for ix := range allPods {
 				pod := allPods[ix].(*apiv1.Pod)
-
-				fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, "name")
-
-				if err != nil {
-					fn = func(interface{}) string {
-						return ""
-					}
-				}
-
-				podName := fn(pod)
-				podName = trimPodsIDs(podName)
-
-				// check if pod with the same name already exists
-				if val, ok := namesOfProcessedPods[podName]; ok {
-					//do something here
-					val++
-					// update existing pod
-					for index := range tempObjectList {
-						if tempObjectList[index].dataPropertyAssertions["name"] == podName {
-							val, err := strconv.ParseInt(tempObjectList[index].dataPropertyAssertions["replicas"], 10, 64)
-							if err != nil {
-								panic("!!!!!!!!!")
-							}
-							val++
-							tempObjectList[index].dataPropertyAssertions["replicas"] = strconv.Itoa(int(val))
-						}
-					}
-					continue
-				} else {
-					namesOfProcessedPods[podName] = 1
-				}
 
 				// get pod data properties
 				dataProperties := make(map[string]string)
 
-				// this two are very special for Pod
-				dataProperties["name"] = podName
-				dataProperties["replicas"] = "1"
+				podsProperties := []string{"name", "app", "replicas"}
 
-				// TODO we will iteratate through list of data properties retreived
-				// from ontology instead of using hard coded values "app" etc
+				for propertyIx := range podsProperties {
+					property := podsProperties[propertyIx]
 
-				fn, err = BuilderHelpersInstance().GetDataPropertyFunction(className, "app")
+					fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
 
-				if err != nil {
-					fn = func(interface{}) string {
-						return ""
+					if err != nil {
+						fn = func(interface{}) string {
+							return ""
+						}
 					}
+
+					dataProperties[property] = fn(pod)
 				}
-
-				dataProperties["app"] = fn(pod)
-
 				obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
 				fmt.Println(obj)
-				tempObjectList = append(tempObjectList, obj)
-			}
-
-			// save obj from tempObjectList to ow.objectsToDump
-			for ix := range tempObjectList {
-				ow.objectsToDump.Add(tempObjectList[ix])
+				ow.objectsToDump.Add(obj)
 			}
 		} else {
-			fmt.Printf("[OntologyBuilder] GenerateCollection: Omtiting class %s\n", allTypesKeys[ix])
+			fmt.Printf("[OntologyBuilder] GenerateCollection: Skipping class %s\n", allTypesKeys[ix])
 		}
 	}
 

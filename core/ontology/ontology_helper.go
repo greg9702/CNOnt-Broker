@@ -2,6 +2,7 @@ package ontology
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -86,14 +87,19 @@ func newBuilderHelpers() *builderHelper {
 	tmpMap = make(map[string]func(interface{}) string)
 
 	tmpMap["name"] = func(object interface{}) string {
-		nodeObject := object.(*apiv1.Pod)
-		return nodeObject.Name
+		podObject := object.(*apiv1.Pod)
+		return podObject.Name
 	}
 	tmpMap["app"] = func(object interface{}) string {
 		return "MOCK APP"
 	}
-	tmpMap["app"] = func(object interface{}) string {
-		return "MOCK APP"
+	tmpMap["replicas"] = func(object interface{}) string {
+		podObject := object.(*apiv1.Pod)
+
+		if value, exists := ReplicasNumberForPods[podObject.Name]; exists {
+			return strconv.Itoa(value)
+		}
+		return ""
 	}
 
 	dataPropertyFunctions[podsClassName] = tmpMap
