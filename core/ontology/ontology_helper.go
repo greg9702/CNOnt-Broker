@@ -1,7 +1,9 @@
 package ontology
 
 import (
+	"errors"
 	"strings"
+	"sync"
 
 	"github.com/shful/gofp/owlfunctional/assertions"
 	"github.com/shful/gofp/owlfunctional/axioms"
@@ -46,3 +48,37 @@ func objectAssertions2String(assertions []assertions.ObjectPropertyAssertion) (r
 }
 
 func int32Ptr(i int32) *int32 { return &i }
+
+var buildHelperInstance *builderHelper
+var once sync.Once
+
+// BuilderHelpersInstance return instance of builderHelper singleton class
+func BuilderHelpersInstance() *builderHelper {
+	once.Do(func() {
+		buildHelperInstance = newBuilderHelpers()
+	})
+	return buildHelperInstance
+}
+
+type builderHelper struct {
+	dataPropertyFunctions map[string]map[string]func(interface{}) string
+}
+
+func newBuilderHelpers() *builderHelper {
+
+	// TODO init dataPropertyFunctions here
+	bh := builderHelper{}
+	return &bh
+}
+
+// GetDataPropertyFunction return function for retreiving dataProperty value
+// for given className and dataPropertyName
+func (bh *builderHelper) GetDataPropertyFunction(className string, dataPropertyName string) (func(interface{}) string, error) {
+
+	if m, ok := bh.dataPropertyFunctions[className]; ok {
+		if fn, ok := m[dataPropertyName]; ok {
+			return fn, nil
+		}
+	}
+	return nil, errors.New("Classname " + className + " or data property name" + dataPropertyName + " not found")
+}
