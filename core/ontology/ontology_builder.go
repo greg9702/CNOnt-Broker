@@ -2,6 +2,7 @@ package ontology
 
 import (
 	"CNOnt-Broker/core/kubernetes/client"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -14,8 +15,6 @@ type ClusterStruct struct {
 
 // ReplicasNumberForPods TODO do something with this...
 var ReplicasNumberForPods map[string]int
-
-// TODO move it to configs
 
 // TODO get this from ontology
 var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
@@ -156,6 +155,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 	err := ow.fetchDataFromAPI()
 
 	if err != nil {
+		fmt.Printf("[OntologyBuilder] GenerateCollection: fetchDataFromAPI error: %s\n", err.Error())
 		return err
 	}
 
@@ -164,127 +164,45 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 	// first we create all ObjectToDump objects with its className, objectName
 	// and its dataPropertyAssertions
 
-	// TODO we need to get all dataProperties names (keys) from ontology
 	for ix := range allClassesKeys {
-
 		className := allClassesKeys[ix]
-
 		objectName := className + "RANDOMSTRING"
 
-		if className == clusterClassName {
+		allObjects := ow.apiData[className]
 
-			allObjects := ow.apiData[className]
+		if len(allObjects) == 0 {
+			fmt.Printf("[OntologyBuilder] GenerateCollection: No data found for classname %s\n", className)
+			continue
+		}
 
-			for ix := range allObjects {
-				cluster := allObjects[ix].(*ClusterStruct)
+		for ix := range allObjects {
+			object := allObjects[ix]
 
-				clusterProperties := []string{"name"}
-
-				for propertyIx := range clusterProperties {
-					property := clusterProperties[propertyIx]
-
-					fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
-
-					if err != nil {
-						fn = func(interface{}) string {
-							return ""
-						}
-					}
-
-					dataProperties := make(map[string]string)
-					dataProperties["name"] = fn(cluster)
-
-					obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
-					ow.objectsToDump.Add(obj)
-					fmt.Println(obj)
-				}
-			}
-		} else if className == nodesClassName {
-			allNodes := ow.apiData[className]
-
-			for ix := range allNodes {
-				node := allNodes[ix].(*apiv1.Node)
-
-				podsProperties := []string{"name"}
-
-				for propertyIx := range podsProperties {
-					property := podsProperties[propertyIx]
-
-					fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
-
-					if err != nil {
-						fn = func(interface{}) string {
-							return ""
-						}
-					}
-
-					dataProperties := make(map[string]string)
-					dataProperties[property] = fn(node)
-
-					obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
-					fmt.Println(obj)
-					ow.objectsToDump.Add(obj)
-				}
+			properitesList, err := ow.getDataPropertiesList(className)
+			if err != nil {
+				fmt.Printf("[OntologyBuilder] GenerateCollection: %s", err.Error())
+				continue
 			}
 
-		} else if className == podsClassName {
-			allPods := ow.apiData[className]
+			dataProperties := make(map[string]string)
 
-			for ix := range allPods {
-				pod := allPods[ix].(*apiv1.Pod)
+			for propertyIx := range properitesList {
+				property := properitesList[propertyIx]
 
-				// get pod data properties
-				dataProperties := make(map[string]string)
+				fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
 
-				podsProperties := []string{"name", "app", "replicas"}
+				if err != nil {
+					fn = func(interface{}) string {
 
-				for propertyIx := range podsProperties {
-					property := podsProperties[propertyIx]
-
-					fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
-
-					if err != nil {
-						fn = func(interface{}) string {
-							return ""
-						}
+						return ""
 					}
-
-					dataProperties[property] = fn(pod)
 				}
-				obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
-				fmt.Println(obj)
-				ow.objectsToDump.Add(obj)
+				dataProperties[property] = fn(object)
 			}
-		} else if className == containersClassName {
-			allContainers := ow.apiData[className]
 
-			for ix := range allContainers {
-				container := allContainers[ix].(*apiv1.Container)
-
-				// // get pod data properties
-				dataProperties := make(map[string]string)
-
-				containersProperties := []string{"name", "image", "port"}
-
-				for propertyIx := range containersProperties {
-					property := containersProperties[propertyIx]
-
-					fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
-
-					if err != nil {
-						fn = func(interface{}) string {
-							return ""
-						}
-					}
-
-					dataProperties[property] = fn(container)
-				}
-				obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
-				fmt.Println(obj)
-				ow.objectsToDump.Add(obj)
-			}
-		} else {
-			fmt.Printf("[OntologyBuilder] GenerateCollection: Skipping class %s\n", allClassesKeys[ix])
+			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
+			ow.objectsToDump.Add(obj)
+			fmt.Println(obj)
 		}
 	}
 
@@ -308,9 +226,21 @@ func (ow *OntologyBuilder) dumpData() error {
 	return nil
 }
 
-//getDataPropertiesNames returns list of data properties for given class
-func (ow *OntologyBuilder) getDataPropertiesNames(className string) ([]string, error) {
-	return nil, nil
+//getDataPropertiesList returns list of data properties for given class
+func (ow *OntologyBuilder) getDataPropertiesList(className string) ([]string, error) {
+
+	// TODO we need to get all dataProperties names (keys) from ontology
+	if className == clusterClassName {
+		return []string{"name"}, nil
+	} else if className == nodesClassName {
+		return []string{"name"}, nil
+	} else if className == podsClassName {
+		return []string{"name", "app", "replicas"}, nil
+	} else if className == containersClassName {
+		return []string{"name", "image", "port"}, nil
+	}
+	errorMessage := "Class " + className + " not found"
+	return nil, errors.New(errorMessage)
 }
 
 func trimPodsIDs(podName string) string {
