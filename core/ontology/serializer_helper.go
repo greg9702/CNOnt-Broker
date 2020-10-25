@@ -3,55 +3,22 @@ package ontology
 import (
 	"errors"
 	appsv1 "k8s.io/api/apps/v1"
-	"strconv"
-	"strings"
-	"sync"
-
-	"github.com/shful/gofp/owlfunctional/assertions"
-	"github.com/shful/gofp/owlfunctional/axioms"
-
 	apiv1 "k8s.io/api/core/v1"
+	"strconv"
+	"sync"
 )
 
-func convertIRI2Name(IRI string) string {
-	return ":" + strings.Split(IRI, "#")[1]
-}
+const clusterClassName string = "KubernetesCluster"
+const containersClassName string = "DockerContainer"
+const podsClassName string = "Pod"
+const nodesClassName string = "Node"
 
-func filterObjPropAssertions(assertions []assertions.ObjectPropertyAssertion, test func(assertions.ObjectPropertyAssertion) bool) (ret []assertions.ObjectPropertyAssertion) {
-	for _, assertion := range assertions {
-		if test(assertion) {
-			ret = append(ret, assertion)
-		}
-	}
-	return
-}
+// TODO get this from ontology
+var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
 
-func filterClassAssertions(assertions []axioms.ClassAssertion, test func(axioms.ClassAssertion) bool) (ret []axioms.ClassAssertion) {
-	for _, assertion := range assertions {
-		if test(assertion) {
-			ret = append(ret, assertion)
-		}
-	}
-	return
+type ClusterStruct struct {
+	Name string
 }
-
-func filterDataPropAssertions(assertions []axioms.DataPropertyAssertion, test func(axioms.DataPropertyAssertion) bool) (ret []axioms.DataPropertyAssertion) {
-	for _, assertion := range assertions {
-		if test(assertion) {
-			ret = append(ret, assertion)
-		}
-	}
-	return
-}
-
-func objectAssertions2String(assertions []assertions.ObjectPropertyAssertion) (ret []string) {
-	for _, assertion := range assertions {
-		ret = append(ret, assertion.A2.Name)
-	}
-	return
-}
-
-func int32Ptr(i int32) *int32 { return &i }
 
 var buildHelperInstance *builderHelper
 var once sync.Once
@@ -139,15 +106,14 @@ func newBuilderHelpers() *builderHelper {
 	return &bh
 }
 
-// GetDataPropertyFunction return function for retreiving dataProperty value
+// DataPropertyFunction return function for retrieving dataProperty value
 // for given className and dataPropertyName
-func (bh *builderHelper) GetDataPropertyFunction(className string, dataPropertyName string) (func(interface{}) string, error) {
+func (bh *builderHelper) DataPropertyFunction(className string, dataPropertyName string) (func(interface{}) string, error) {
 
 	var errorMessage string
 	if m, ok := bh.dataPropertyFunctions[className]; ok {
 		if fn, ok := m[dataPropertyName]; ok {
 			return fn, nil
-
 		}
 		errorMessage = "For classname " + className + " data property " + dataPropertyName + " not found"
 	} else {

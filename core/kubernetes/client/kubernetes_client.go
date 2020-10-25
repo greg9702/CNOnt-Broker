@@ -44,9 +44,9 @@ func (k *KubernetesClient) Init() {
 	k.clientset = clientset
 }
 
-// GetAllPods returns pods from default namespace
+// AllPods returns pods from default namespace
 // If empty string provided as namespace argument, "default" namespace is used
-func (k *KubernetesClient) GetAllPods(namespace string) (*apiv1.PodList, error) {
+func (k *KubernetesClient) AllPods(namespace string) (*apiv1.PodList, error) {
 
 	if namespace == "" {
 		namespace = "default"
@@ -55,7 +55,7 @@ func (k *KubernetesClient) GetAllPods(namespace string) (*apiv1.PodList, error) 
 	return k.clientset.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{})
 }
 
-func (k *KubernetesClient) GetAllReplicaSets(namespace string) (*appsv1.ReplicaSetList, error) {
+func (k *KubernetesClient) AllReplicaSets(namespace string) (*appsv1.ReplicaSetList, error) {
 
 	if namespace == "" {
 		namespace = "default"
@@ -64,13 +64,13 @@ func (k *KubernetesClient) GetAllReplicaSets(namespace string) (*appsv1.ReplicaS
 	return k.clientset.AppsV1().ReplicaSets(namespace).List(context.TODO(), v1.ListOptions{})
 }
 
-// GetAllNodes returns list of all nodes in cluster
-func (k *KubernetesClient) GetAllNodes() (*apiv1.NodeList, error) {
+// AllNodes returns list of all nodes in cluster
+func (k *KubernetesClient) AllNodes() (*apiv1.NodeList, error) {
 	return k.clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 }
 
-// GetContainersFromPod returns list of all nodes in cluster
-func (k *KubernetesClient) GetContainersFromPod(pod apiv1.Pod) ([]*apiv1.Container, error) {
+// ContainersFromPod returns list of all nodes in cluster
+func (k *KubernetesClient) ContainersFromPod(pod apiv1.Pod) ([]*apiv1.Container, error) {
 
 	// TODO errors checks?
 
@@ -85,8 +85,8 @@ func (k *KubernetesClient) GetContainersFromPod(pod apiv1.Pod) ([]*apiv1.Contain
 	return containersList, nil
 }
 
-// GetAllNamespaces returns list of all namespaces
-func (k *KubernetesClient) GetAllNamespaces() (*apiv1.NamespaceList, error) {
+// AllNamespaces returns list of all namespaces
+func (k *KubernetesClient) AllNamespaces() (*apiv1.NamespaceList, error) {
 	return k.clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 }
 

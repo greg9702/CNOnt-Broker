@@ -7,13 +7,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 )
 
-type ClusterStruct struct {
-	Name string
-}
-
-// TODO get this from ontology
-var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
-
 // ObjectToDump contains all required data for dumping object
 // in functional OWL ontology format
 type ObjectToDump struct {
@@ -28,14 +21,14 @@ type ObjectsToDumpCollection struct {
 	collection []*ObjectToDump
 }
 
-// Add insert new element into ObjectsToDumpCollection
-func (oc *ObjectsToDumpCollection) Add(object *ObjectToDump) {
+// add inserts new element into ObjectsToDumpCollection
+func (oc *ObjectsToDumpCollection) add(object *ObjectToDump) {
 	oc.collection = append(oc.collection, object)
-	fmt.Printf("[ObjectsToDumpCollection] Add: Added new element: %s\n", object.objectName)
+	fmt.Printf("[ObjectsToDumpCollection] add: Added new element: %s\n", object.objectName)
 }
 
-// GetObjectsByClassName returns list of objects of className given type
-func (oc *ObjectsToDumpCollection) GetObjectsByClassName(className string) []*ObjectToDump {
+// ObjectsByClassName returns list of objects of className given type
+func (oc *ObjectsToDumpCollection) ObjectsByClassName(className string) []*ObjectToDump {
 
 	var tempList []*ObjectToDump
 
@@ -55,7 +48,7 @@ type OntologyBuilder struct {
 	apiData       map[string][]interface{}
 }
 
-// NewOntologyBuilder creates new NewOntologyBuilder instance
+// NewOntologyBuilder creates new OntologyBuilder instance
 func NewOntologyBuilder(kubernetesClient *client.KubernetesClient) *OntologyBuilder {
 	objectCollection := ObjectsToDumpCollection{}
 	apiData := make(map[string][]interface{})
@@ -63,7 +56,7 @@ func NewOntologyBuilder(kubernetesClient *client.KubernetesClient) *OntologyBuil
 	return &ob
 }
 
-// fetchDataFromAPI obtains all required data from API and save it in
+// fetchDataFromAPI obtains all required data from API and saves it in
 // ow.apiData, this approach  will significantly reduce API calls
 func (ow *OntologyBuilder) fetchDataFromAPI() error {
 	// this are only 3-4 calls, if some of them will be redundant it wont change much
@@ -79,7 +72,7 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 	tempList = nil
 
 	// nodes
-	nodes, err := ow.k8sClient.GetAllNodes()
+	nodes, err := ow.k8sClient.AllNodes()
 	if err != nil {
 		return err
 	}
@@ -95,14 +88,13 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 	tempList = nil
 
 	// pods
-	replicaSets, err := ow.k8sClient.GetAllReplicaSets("default")
+	replicaSets, err := ow.k8sClient.AllReplicaSets("default")
 	if err != nil {
 		return err
 	}
 
 	for _, rs := range replicaSets.Items {
 		rsSpec := &rs.Spec
-
 		tempList = append(tempList, rsSpec)
 	}
 
@@ -149,7 +141,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 
 	for ix := range allClassesKeys {
 		className := allClassesKeys[ix]
-		objectName := className + "RANDOMSTRING"
+		objectName := className + "RANDOMSTRING" // TODO random string
 
 		allObjects := ow.apiData[className]
 
@@ -172,7 +164,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 			for propertyIx := range propertiesList {
 				property := propertiesList[propertyIx]
 
-				fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
+				fn, err := BuilderHelpersInstance().DataPropertyFunction(className, property)
 
 				if err != nil {
 					fn = func(interface{}) string {
@@ -184,12 +176,12 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 			}
 
 			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
-			ow.objectsToDump.Add(obj)
+			ow.objectsToDump.add(obj)
 			fmt.Println(obj)
 		}
 	}
 
-	// second, we have to link all objects with each other setting proper objectPropertyAssertions
+	// TODO second, we have to link all objects with each other setting proper objectPropertyAssertions
 	// for every of them
 
 	err = ow.dumpData()
@@ -202,7 +194,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 	return nil
 }
 
-// dumpData dumps all objects from ObjectsToDumpCollection
+// TODO dumpData dumps all objects from ObjectsToDumpCollection
 // into the file
 func (ow *OntologyBuilder) dumpData() error {
 
