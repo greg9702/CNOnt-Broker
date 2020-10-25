@@ -37,6 +37,15 @@ func filterDataPropAssertions(assertions []axioms.DataPropertyAssertion, test fu
 	return
 }
 
+func filterDataProperties(dataProps []axioms.DataPropertyDomain, test func(axioms.DataPropertyDomain) bool) (ret []axioms.DataPropertyDomain) {
+	for _, dataProp := range dataProps {
+		if test(dataProp) {
+			ret = append(ret, dataProp)
+		}
+	}
+	return
+}
+
 func objectAssertions2String(assertions []assertions.ObjectPropertyAssertion) (ret []string) {
 	for _, assertion := range assertions {
 		ret = append(ret, assertion.A2.Name)

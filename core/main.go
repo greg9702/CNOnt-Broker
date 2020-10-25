@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"CNOnt-Broker/core/kubernetes/client"
@@ -27,12 +28,12 @@ func main() {
 	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	flag.Parse()
 
-	kuberenetesClient := client.NewKubernetesClient(kubeconfig)
-	kuberenetesClient.Init()
+	kubernetesClient := client.NewKubernetesClient(kubeconfig)
+	kubernetesClient.Init()
 
-	// var ontologyWrapper = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
-	var ontologyBuilder = ontology.NewOntologyBuilder(kuberenetesClient)
-	// deploymentController := controllers.NewDeploymentController(kuberenetesClient, ontologyWrapper, ontologyBuilder)
+	var ontologyWrapper = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
+	var ontologyBuilder = ontology.NewOntologyBuilder(kubernetesClient, ontologyWrapper)
+	// deploymentController := controllers.NewDeploymentController(kubernetesClient, ontologyWrapper, ontologyBuilder)
 
 	ontologyBuilder.GenerateCollection()
 

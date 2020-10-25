@@ -2,7 +2,6 @@ package ontology
 
 import (
 	"CNOnt-Broker/core/kubernetes/client"
-	"errors"
 	"fmt"
 	appsv1 "k8s.io/api/apps/v1"
 )
@@ -46,13 +45,14 @@ type OntologyBuilder struct {
 	k8sClient     *client.KubernetesClient
 	objectsToDump *ObjectsToDumpCollection
 	apiData       map[string][]interface{}
+	wrapper       *OntologyWrapper
 }
 
 // NewOntologyBuilder creates new OntologyBuilder instance
-func NewOntologyBuilder(kubernetesClient *client.KubernetesClient) *OntologyBuilder {
+func NewOntologyBuilder(kubernetesClient *client.KubernetesClient, wrapper *OntologyWrapper) *OntologyBuilder {
 	objectCollection := ObjectsToDumpCollection{}
 	apiData := make(map[string][]interface{})
-	ob := OntologyBuilder{kubernetesClient, &objectCollection, apiData}
+	ob := OntologyBuilder{kubernetesClient, &objectCollection, apiData, wrapper}
 	return &ob
 }
 
@@ -153,7 +153,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 		for ix := range allObjects {
 			object := allObjects[ix]
 
-			propertiesList, err := ow.getDataPropertiesList(className)
+			propertiesList, err := ow.dataPropertiesList(className)
 			if err != nil {
 				fmt.Printf("[OntologyBuilder] GenerateCollection: %s", err.Error())
 				continue
@@ -201,19 +201,7 @@ func (ow *OntologyBuilder) dumpData() error {
 	return nil
 }
 
-//getDataPropertiesList returns list of data properties for given class
-func (ow *OntologyBuilder) getDataPropertiesList(className string) ([]string, error) {
-
-	// TODO we need to get all dataProperties names (keys) from ontology
-	if className == clusterClassName {
-		return []string{"name"}, nil
-	} else if className == nodesClassName {
-		return []string{"name"}, nil
-	} else if className == podsClassName {
-		return []string{"name", "app", "replicas"}, nil
-	} else if className == containersClassName {
-		return []string{"name", "image", "port"}, nil
-	}
-	errorMessage := "Class " + className + " not found"
-	return nil, errors.New(errorMessage)
+//dataPropertiesList returns list of data properties for given class
+func (ow *OntologyBuilder) dataPropertiesList(className string) ([]string, error) {
+	return ow.wrapper.DataPropertyNamesByClass(className)
 }

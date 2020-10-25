@@ -8,10 +8,10 @@ import (
 	"sync"
 )
 
-const clusterClassName string = "KubernetesCluster"
-const containersClassName string = "DockerContainer"
-const podsClassName string = "Pod"
-const nodesClassName string = "Node"
+const clusterClassName string = ":KubernetesCluster"
+const containersClassName string = ":DockerContainer"
+const podsClassName string = ":Pod"
+const nodesClassName string = ":Node"
 
 // TODO get this from ontology
 var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
@@ -42,7 +42,7 @@ func newBuilderHelpers() *builderHelper {
 	// node
 	tmpMap := make(map[string]func(interface{}) string)
 
-	tmpMap["name"] = func(object interface{}) string {
+	tmpMap[":name"] = func(object interface{}) string {
 		nodeObject := object.(*apiv1.Node)
 		return nodeObject.Name
 	}
@@ -53,14 +53,14 @@ func newBuilderHelpers() *builderHelper {
 	// pod
 	tmpMap = make(map[string]func(interface{}) string)
 
-	tmpMap["name"] = func(object interface{}) string {
+	tmpMap[":name"] = func(object interface{}) string {
 		rsObject := object.(*appsv1.ReplicaSetSpec)
 		return rsObject.Template.Name
 	}
-	tmpMap["app"] = func(object interface{}) string {
+	tmpMap[":app"] = func(object interface{}) string {
 		return "MOCK APP"
 	}
-	tmpMap["replicas"] = func(object interface{}) string {
+	tmpMap[":replicas"] = func(object interface{}) string {
 		rsObject := object.(*appsv1.ReplicaSetSpec)
 
 		return strconv.Itoa(int(*rsObject.Replicas))
@@ -72,15 +72,15 @@ func newBuilderHelpers() *builderHelper {
 	// containers
 	tmpMap = make(map[string]func(interface{}) string)
 
-	tmpMap["name"] = func(object interface{}) string {
+	tmpMap[":name"] = func(object interface{}) string {
 		containerObject := object.(*apiv1.Container)
 		return containerObject.Name
 	}
-	tmpMap["image"] = func(object interface{}) string {
+	tmpMap[":image"] = func(object interface{}) string {
 		containerObject := object.(*apiv1.Container)
 		return containerObject.Image
 	}
-	tmpMap["port"] = func(object interface{}) string {
+	tmpMap[":port"] = func(object interface{}) string {
 		containerObject := object.(*apiv1.Container)
 		// TODO we assume we have only 1 port...
 		if len(containerObject.Ports) != 0 {
@@ -95,7 +95,7 @@ func newBuilderHelpers() *builderHelper {
 	// cluster
 	tmpMap = make(map[string]func(interface{}) string)
 
-	tmpMap["name"] = func(object interface{}) string {
+	tmpMap[":name"] = func(object interface{}) string {
 		return "MOCKCLUSTERNAME"
 	}
 

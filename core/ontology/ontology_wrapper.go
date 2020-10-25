@@ -111,6 +111,29 @@ func (ow *OntologyWrapper) dataPropertyAssertionValue(assertionName string, indi
 	return filteredAssertions[0].V.Value, nil
 }
 
+// dataPropertyAssertionValue returns string value of particular DataPropertyAssertion about passed individual
+func (ow *OntologyWrapper) DataPropertyNamesByClass(className string) ([]string, error) {
+	allDataProperties := ow.ontology.K.AllDataPropertyDomains()
+
+	hasDomain := func(dataProp axioms.DataPropertyDomain) bool {
+		return convertIRI2Name(dataProp.C.(*decl.ClassDecl).IRI) == className
+	}
+
+	filteredDataProperties := filterDataProperties(allDataProperties, hasDomain)
+
+	if len(filteredDataProperties) == 0 {
+		return []string{}, errors.New("No data properties found for " + className)
+	}
+
+	var dataPropertyNames []string
+
+	for _, dp := range filteredDataProperties {
+		dataPropertyNames = append(dataPropertyNames, convertIRI2Name(dp.R.(*decl.DataPropertyDecl).IRI))
+	}
+
+	return dataPropertyNames, nil
+}
+
 // individualsByClass returns all individuals from a given class
 func (ow *OntologyWrapper) individualsByClass(className string) (individuals []string) {
 	allClassAssertions := ow.ontology.K.AllClassAssertions()

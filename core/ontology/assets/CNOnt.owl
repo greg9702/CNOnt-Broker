@@ -292,6 +292,11 @@ ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
 #   Data Properties
 ############################
 
+# Data Property: :app (:app)
+
+DataPropertyDomain(:app :Pod)
+DataPropertyRange(:app xsd:string)
+
 # Data Property: :containerPort (:containerPort)
 
 DataPropertyDomain(:containerPort :ApplicationContainer)
