@@ -4,23 +4,18 @@ import (
 	"CNOnt-Broker/core/kubernetes/client"
 	"errors"
 	"fmt"
-	"strings"
-
-	apiv1 "k8s.io/api/core/v1"
+	appsv1 "k8s.io/api/apps/v1"
 )
 
 type ClusterStruct struct {
 	Name string
 }
 
-// ReplicasNumberForPods TODO do something with this...
-var ReplicasNumberForPods map[string]int
-
 // TODO get this from ontology
 var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
 
 // ObjectToDump contains all required data for dumping object
-// in functionl OWL ontology format
+// in functional OWL ontology format
 type ObjectToDump struct {
 	className                string
 	objectName               string
@@ -100,27 +95,15 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 	tempList = nil
 
 	// pods
-	pods, err := ow.k8sClient.GetAllPods("default")
+	replicaSets, err := ow.k8sClient.GetAllReplicaSets("default")
 	if err != nil {
 		return err
 	}
 
-	// here we have cut out Pods which are only replicas, we will create seperate
-	// map for it and save it too
-	ReplicasNumberForPods = make(map[string]int)
+	for _, rs := range replicaSets.Items {
+		rsSpec := &rs.Spec
 
-	for ix := range pods.Items {
-		pod := &pods.Items[ix]
-		podName := trimPodsIDs(pod.Name)
-
-		if val, alreadyExists := ReplicasNumberForPods[podName]; alreadyExists {
-			val++
-			ReplicasNumberForPods[podName] = val
-			continue
-		}
-		ReplicasNumberForPods[podName] = 1
-		pod.Name = podName // use trimmed name for this pod
-		tempList = append(tempList, pod)
+		tempList = append(tempList, rsSpec)
 	}
 
 	ow.apiData[podsClassName] = tempList
@@ -131,9 +114,9 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 	// containers
 	for ix := range ow.apiData[podsClassName] {
-		pod := ow.apiData[podsClassName][ix].(*apiv1.Pod)
+		pod := ow.apiData[podsClassName][ix].(*appsv1.ReplicaSetSpec)
 
-		containers := pod.Spec.Containers
+		containers := pod.Template.Spec.Containers
 		for i := range containers {
 			tempList = append(tempList, &containers[i])
 		}
@@ -178,7 +161,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 		for ix := range allObjects {
 			object := allObjects[ix]
 
-			properitesList, err := ow.getDataPropertiesList(className)
+			propertiesList, err := ow.getDataPropertiesList(className)
 			if err != nil {
 				fmt.Printf("[OntologyBuilder] GenerateCollection: %s", err.Error())
 				continue
@@ -186,8 +169,8 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 
 			dataProperties := make(map[string]string)
 
-			for propertyIx := range properitesList {
-				property := properitesList[propertyIx]
+			for propertyIx := range propertiesList {
+				property := propertiesList[propertyIx]
 
 				fn, err := BuilderHelpersInstance().GetDataPropertyFunction(className, property)
 
@@ -241,20 +224,4 @@ func (ow *OntologyBuilder) getDataPropertiesList(className string) ([]string, er
 	}
 	errorMessage := "Class " + className + " not found"
 	return nil, errors.New(errorMessage)
-}
-
-func trimPodsIDs(podName string) string {
-
-	// we trim it from the beginning to the 2nd last "-" character
-	// Example: example-deployment-58fd8d47cd-5ggz4
-	// Output: example-deployment
-
-	for i := 0; i < 2; i++ {
-		if ix := strings.LastIndex(podName, "-"); ix != -1 {
-			podName = podName[:ix]
-		} else {
-			break
-		}
-	}
-	return podName
 }

@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -52,6 +53,15 @@ func (k *KubernetesClient) GetAllPods(namespace string) (*apiv1.PodList, error) 
 	}
 
 	return k.clientset.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{})
+}
+
+func (k *KubernetesClient) GetAllReplicaSets(namespace string) (*appsv1.ReplicaSetList, error) {
+
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	return k.clientset.AppsV1().ReplicaSets(namespace).List(context.TODO(), v1.ListOptions{})
 }
 
 // GetAllNodes returns list of all nodes in cluster

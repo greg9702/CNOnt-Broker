@@ -2,6 +2,7 @@ package ontology
 
 import (
 	"errors"
+	appsv1 "k8s.io/api/apps/v1"
 	"strconv"
 	"strings"
 	"sync"
@@ -86,19 +87,16 @@ func newBuilderHelpers() *builderHelper {
 	tmpMap = make(map[string]func(interface{}) string)
 
 	tmpMap["name"] = func(object interface{}) string {
-		podObject := object.(*apiv1.Pod)
-		return podObject.Name
+		rsObject := object.(*appsv1.ReplicaSetSpec)
+		return rsObject.Template.Name
 	}
 	tmpMap["app"] = func(object interface{}) string {
 		return "MOCK APP"
 	}
 	tmpMap["replicas"] = func(object interface{}) string {
-		podObject := object.(*apiv1.Pod)
+		rsObject := object.(*appsv1.ReplicaSetSpec)
 
-		if value, exists := ReplicasNumberForPods[podObject.Name]; exists {
-			return strconv.Itoa(value)
-		}
-		return ""
+		return strconv.Itoa(int(*rsObject.Replicas))
 	}
 
 	dataPropertyFunctions[podsClassName] = tmpMap
