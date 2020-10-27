@@ -111,7 +111,7 @@ func (ow *OntologyWrapper) dataPropertyAssertionValue(assertionName string, indi
 	return filteredAssertions[0].V.Value, nil
 }
 
-// dataPropertyAssertionValue returns string value of particular DataPropertyAssertion about passed individual
+// DataPropertyNamesByClass returns string value of particular DataPropertyAssertion about passed individual
 func (ow *OntologyWrapper) DataPropertyNamesByClass(className string) ([]string, error) {
 	allDataProperties := ow.ontology.K.AllDataPropertyDomains()
 

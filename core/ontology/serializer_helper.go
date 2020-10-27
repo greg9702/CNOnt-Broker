@@ -2,10 +2,11 @@ package ontology
 
 import (
 	"errors"
-	appsv1 "k8s.io/api/apps/v1"
-	apiv1 "k8s.io/api/core/v1"
 	"strconv"
 	"sync"
+
+	appsv1 "k8s.io/api/apps/v1"
+	apiv1 "k8s.io/api/core/v1"
 )
 
 const clusterClassName string = ":KubernetesCluster"

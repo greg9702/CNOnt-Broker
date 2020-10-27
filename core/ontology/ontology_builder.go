@@ -157,7 +157,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 
 			propertiesList, err := ow.dataPropertiesList(className)
 			if err != nil {
-				fmt.Printf("[OntologyBuilder] GenerateCollection: %s", err.Error())
+				fmt.Printf("[OntologyBuilder] GenerateCollection: %s\n", err.Error())
 				continue
 			}
 
@@ -177,14 +177,47 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 				dataProperties[property] = fn(object)
 			}
 
-			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string]string)}
+			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string][]string)}
 			ow.objectsToDump.add(obj)
 			fmt.Println(obj)
 		}
 	}
 
-	// TODO second, we have to link all objects with each other setting proper objectPropertyAssertions
+	// we have to link all objects with each other setting proper objectPropertyAssertions
 	// for every of them
+
+	for ix := range allClassesKeys {
+		className := allClassesKeys[ix]
+		allObjectPropertiesForClass, err := ow.objectPropertiesList(className)
+
+		if err != nil {
+			fmt.Printf("[OntologyBuilder] GenerateCollection: objectPropertiesList error: %s", err.Error())
+			return err
+		}
+
+		objectsToSet := ow.objectsToDump.ObjectsByClassName(className)
+
+		for i := range objectsToSet {
+			object := objectsToSet[i]
+
+			for it := range allObjectPropertiesForClass {
+
+				singlePropertyTuple := allObjectPropertiesForClass[it]
+				relatedObjects := ow.objectsToDump.ObjectsByClassName(singlePropertyTuple.RelatedClassName)
+
+				for iter := range relatedObjects {
+					relatedObject := relatedObjects[iter]
+					object.objectPropertyAssertions[singlePropertyTuple.PropertyName] = append(object.objectPropertyAssertions[singlePropertyTuple.PropertyName], relatedObject.objectName)
+				}
+
+			}
+		}
+		for it := range objectsToSet {
+			obj := objectsToSet[it]
+			fmt.Println(obj.objectName, obj.objectPropertyAssertions)
+		}
+		fmt.Println("-----------")
+	}
 
 	err = ow.dumpData()
 
@@ -206,4 +239,34 @@ func (ow *OntologyBuilder) dumpData() error {
 //dataPropertiesList returns list of data properties for given class
 func (ow *OntologyBuilder) dataPropertiesList(className string) ([]string, error) {
 	return ow.wrapper.DataPropertyNamesByClass(className)
+}
+
+//objectPropertiesList returns list of data properties for given class
+func (ow *OntologyBuilder) objectPropertiesList(className string) ([]*ObjectPropertyTuple, error) {
+
+	var returnMap []*ObjectPropertyTuple
+	// TODO we need to get all dataProperties names (keys) from ontology
+	if className == clusterClassName {
+		returnMap = append(returnMap, &ObjectPropertyTuple{"contains_node", nodesClassName})
+	} else if className == nodesClassName {
+		returnMap = append(returnMap, &ObjectPropertyTuple{"belongs_to_cluster", clusterClassName})
+		returnMap = append(returnMap, &ObjectPropertyTuple{"contains_pod", podsClassName})
+	} else if className == podsClassName {
+		returnMap = append(returnMap, &ObjectPropertyTuple{"belongs_to_node", nodesClassName})
+		returnMap = append(returnMap, &ObjectPropertyTuple{"contains_container", containersClassName})
+	} else if className == containersClassName {
+		returnMap = append(returnMap, &ObjectPropertyTuple{"belongs_to_group", podsClassName})
+		// TODO add &ObjectPropertyTuple{"has_limits", hardwareClassName}
+	} else {
+		errorMessage := "Class " + className + " not found"
+		return returnMap, errors.New(errorMessage)
+	}
+	return returnMap, nil
+}
+
+// ObjectPropertyTuple contains pair of object property name
+// and related class to it
+type ObjectPropertyTuple struct {
+	PropertyName     string
+	RelatedClassName string
 }
