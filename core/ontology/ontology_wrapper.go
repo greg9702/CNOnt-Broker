@@ -111,26 +111,44 @@ func (ow *OntologyWrapper) dataPropertyAssertionValue(assertionName string, indi
 	return filteredAssertions[0].V.Value, nil
 }
 
-// DataPropertyNamesByClass returns string value of particular DataPropertyAssertion about passed individual
+// isC1C2OrSubclassOfC2 returns true if c1 is c2 or its child class, false otherwise
+func (ow *OntologyWrapper) isC1C2OrSubclassOfC2(c1 string, c2 string) bool {
+	allInheritanceRelations := ow.ontology.K.AllSubClassOfs()
+	if c1 == c2 {
+		return true
+	}
+	for _, rel := range allInheritanceRelations {
+		if ((convertIRI2Name(rel.C1.(*decl.ClassDecl).IRI)) == c1) &&
+			(convertIRI2Name(rel.C2.(*decl.ClassDecl).IRI)) == c2 {
+			return true
+		}
+	}
+	return false
+}
+
+// DataPropertyNamesByClass returns string slice with data property names of a given class
 func (ow *OntologyWrapper) DataPropertyNamesByClass(className string) ([]string, error) {
 	allDataProperties := ow.ontology.K.AllDataPropertyDomains()
 
-	hasDomain := func(dataProp axioms.DataPropertyDomain) bool {
-		return convertIRI2Name(dataProp.C.(*decl.ClassDecl).IRI) == className
+	isClassDomainOfProp := func(dataProp axioms.DataPropertyDomain) bool {
+		return ow.isC1C2OrSubclassOfC2(className, convertIRI2Name(dataProp.C.(*decl.ClassDecl).IRI))
 	}
 
-	filteredDataProperties := filterDataProperties(allDataProperties, hasDomain)
+	filteredDataProperties := filterDataProperties(allDataProperties, isClassDomainOfProp)
 
 	if len(filteredDataProperties) == 0 {
 		return []string{}, errors.New("No data properties found for " + className)
 	}
 
-	var dataPropertyNames []string
+	dataPropertyNamesSet := make(map[string]struct{})
 
 	for _, dp := range filteredDataProperties {
-		dataPropertyNames = append(dataPropertyNames, convertIRI2Name(dp.R.(*decl.DataPropertyDecl).IRI))
+		dataPropertyNamesSet[convertIRI2Name(dp.R.(*decl.DataPropertyDecl).IRI)] = struct{}{}
 	}
-
+	dataPropertyNames := make([]string, 0, len(dataPropertyNamesSet))
+	for dp := range dataPropertyNamesSet {
+		dataPropertyNames = append(dataPropertyNames, dp)
+	}
 	return dataPropertyNames, nil
 }
 

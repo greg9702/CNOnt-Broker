@@ -92,7 +92,6 @@ Declaration(ObjectProperty(:runs_on))
 Declaration(ObjectProperty(:site))
 Declaration(ObjectProperty(:supports_lifecycle))
 Declaration(DataProperty(:app))
-Declaration(DataProperty(:containerPort))
 Declaration(DataProperty(:cpu))
 Declaration(DataProperty(:dns_name))
 Declaration(DataProperty(:image))
@@ -297,11 +296,6 @@ ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
 DataPropertyDomain(:app :Pod)
 DataPropertyRange(:app xsd:string)
 
-# Data Property: :containerPort (:containerPort)
-
-DataPropertyDomain(:containerPort :ApplicationContainer)
-DataPropertyRange(:containerPort xsd:int)
-
 # Data Property: :cpu (:cpu)
 
 DataPropertyDomain(:cpu :Hardware)
@@ -361,7 +355,7 @@ DataPropertyRange(:password xsd:string)
 
 # Data Property: :port (:port)
 
-DataPropertyDomain(:port :DockerContainer)
+DataPropertyDomain(:port :ApplicationContainer)
 DataPropertyRange(:port xsd:int)
 
 # Data Property: :replicas (:replicas)
