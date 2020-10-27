@@ -2,7 +2,9 @@ package ontology
 
 import (
 	"CNOnt-Broker/core/kubernetes/client"
+	"errors"
 	"fmt"
+
 	appsv1 "k8s.io/api/apps/v1"
 )
 
@@ -12,7 +14,7 @@ type ObjectToDump struct {
 	className                string
 	objectName               string
 	dataPropertyAssertions   map[string]string
-	objectPropertyAssertions map[string]string
+	objectPropertyAssertions map[string][]string
 }
 
 // ObjectsToDumpCollection stores all ObjectToDump objects
