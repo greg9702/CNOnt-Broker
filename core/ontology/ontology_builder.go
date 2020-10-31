@@ -219,6 +219,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 		fmt.Println("-----------")
 	}
 
+	fmt.Println("---------------DUMPING DATA---------------")
 	err = ow.dumpData()
 
 	if err != nil {
@@ -229,10 +230,41 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 	return nil
 }
 
+// saveToFile saves passed data stream into the target file
+func (ow *OntologyBuilder) saveToFile(stream []string) error {
+	for ix := range stream {
+		fmt.Printf(stream[ix])
+	}
+	fmt.Printf("\n")
+	return nil
+}
+
 // TODO dumpData dumps all objects from ObjectsToDumpCollection
 // into the file
 func (ow *OntologyBuilder) dumpData() error {
 
+	for ix := range ow.objectsToDump.collection {
+		ind := ow.objectsToDump.collection[ix]
+
+		individualHeader := fmt.Sprintf("# Individual: %s (%s)\n\n", ind.objectName, ind.objectName)
+		classAssertion := fmt.Sprintf("ClassAssertion(%s %s)\n", ind.className, ind.objectName)
+
+		// object properties
+		var objectPropertyAssertions string
+		for key := range ind.objectPropertyAssertions {
+			oaList := ind.objectPropertyAssertions[key]
+			for id := range oaList {
+				objectPropertyAssertions += fmt.Sprintf("ObjectPropertyAssertion(%s %s %s)\n", key, ind.objectName, oaList[id])
+			}
+		}
+
+		// data properties
+		var dataPropertyAssertions string
+		for key := range ind.dataPropertyAssertions {
+			dataPropertyAssertions += fmt.Sprintf("DataPropertyAssertion(%s %s \"%s\")\n", key, ind.objectName, ind.dataPropertyAssertions[key])
+		}
+		ow.saveToFile([]string{individualHeader, classAssertion, objectPropertyAssertions, dataPropertyAssertions})
+	}
 	return nil
 }
 
