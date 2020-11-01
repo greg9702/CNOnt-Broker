@@ -46,6 +46,24 @@ func filterDataProperties(dataProps []axioms.DataPropertyDomain, test func(axiom
 	return
 }
 
+func filterObjectPropertyDomains(objProps []axioms.ObjectPropertyDomain, test func(domain axioms.ObjectPropertyDomain) bool) (ret []axioms.ObjectPropertyDomain) {
+	for _, objProp := range objProps {
+		if test(objProp) {
+			ret = append(ret, objProp)
+		}
+	}
+	return
+}
+
+func filterObjectPropertyRanges(objProps []axioms.ObjectPropertyRange, test func(domain axioms.ObjectPropertyRange) bool) (ret []axioms.ObjectPropertyRange) {
+	for _, objProp := range objProps{
+		if test(objProp) {
+			ret = append(ret, objProp)
+		}
+	}
+	return
+}
+
 func objectAssertions2String(assertions []assertions.ObjectPropertyAssertion) (ret []string) {
 	for _, assertion := range assertions {
 		ret = append(ret, assertion.A2.Name)

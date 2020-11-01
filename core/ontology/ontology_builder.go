@@ -2,7 +2,6 @@ package ontology
 
 import (
 	"CNOnt-Broker/core/kubernetes/client"
-	"errors"
 	"fmt"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -196,7 +195,6 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 		}
 
 		objectsToSet := ow.objectsToDump.ObjectsByClassName(className)
-
 		for i := range objectsToSet {
 			object := objectsToSet[i]
 
@@ -275,25 +273,7 @@ func (ow *OntologyBuilder) dataPropertiesList(className string) ([]string, error
 
 //objectPropertiesList returns list of data properties for given class
 func (ow *OntologyBuilder) objectPropertiesList(className string) ([]*ObjectPropertyTuple, error) {
-
-	var returnMap []*ObjectPropertyTuple
-	// TODO we need to get all dataProperties names (keys) from ontology
-	if className == clusterClassName {
-		returnMap = append(returnMap, &ObjectPropertyTuple{"contains_node", nodesClassName})
-	} else if className == nodesClassName {
-		returnMap = append(returnMap, &ObjectPropertyTuple{"belongs_to_cluster", clusterClassName})
-		returnMap = append(returnMap, &ObjectPropertyTuple{"contains_pod", podsClassName})
-	} else if className == podsClassName {
-		returnMap = append(returnMap, &ObjectPropertyTuple{"belongs_to_node", nodesClassName})
-		returnMap = append(returnMap, &ObjectPropertyTuple{"contains_container", containersClassName})
-	} else if className == containersClassName {
-		returnMap = append(returnMap, &ObjectPropertyTuple{"belongs_to_group", podsClassName})
-		// TODO add &ObjectPropertyTuple{"has_limits", hardwareClassName}
-	} else {
-		errorMessage := "Class " + className + " not found"
-		return returnMap, errors.New(errorMessage)
-	}
-	return returnMap, nil
+	return ow.wrapper.ObjectPropertiesByClass(className)
 }
 
 // ObjectPropertyTuple contains pair of object property name

@@ -113,13 +113,23 @@ func (ow *OntologyWrapper) dataPropertyAssertionValue(assertionName string, indi
 
 // isC1C2OrSubclassOfC2 returns true if c1 is c2 or its child class, false otherwise
 func (ow *OntologyWrapper) isC1C2OrSubclassOfC2(c1 string, c2 string) bool {
-	allInheritanceRelations := ow.ontology.K.AllSubClassOfs()
 	if c1 == c2 {
 		return true
 	}
+
+	allInheritanceRelations := ow.ontology.K.AllSubClassOfs()
+	var parents []string
 	for _, rel := range allInheritanceRelations {
-		if ((convertIRI2Name(rel.C1.(*decl.ClassDecl).IRI)) == c1) &&
-			(convertIRI2Name(rel.C2.(*decl.ClassDecl).IRI)) == c2 {
+		if convertIRI2Name(rel.C1.(*decl.ClassDecl).IRI) == c1 {
+			parent := convertIRI2Name(rel.C2.(*decl.ClassDecl).IRI)
+			if parent == c2 {
+				return true
+			}
+			parents = append(parents, convertIRI2Name(rel.C2.(*decl.ClassDecl).IRI))
+		}
+	}
+	for _, p := range parents {
+		if ow.isC1C2OrSubclassOfC2(p, c2) {
 			return true
 		}
 	}
@@ -150,6 +160,53 @@ func (ow *OntologyWrapper) DataPropertyNamesByClass(className string) ([]string,
 		dataPropertyNames = append(dataPropertyNames, dp)
 	}
 	return dataPropertyNames, nil
+}
+
+func (ow *OntologyWrapper) objectPropertyByName(name string) (ObjectPropertyTuple, error) {
+	allObjectPropertyRanges := ow.ontology.K.AllObjectPropertyRanges()
+
+	isClassRangeOfProp := func(objProp axioms.ObjectPropertyRange) bool {
+		return convertIRI2Name(objProp.P.(*decl.ObjectPropertyDecl).IRI) == name
+	}
+
+	filteredObjectProperties := filterObjectPropertyRanges(allObjectPropertyRanges, isClassRangeOfProp)
+
+	if len(filteredObjectProperties) == 0 {
+		return ObjectPropertyTuple{}, errors.New("No '" + name + "' object properties found")
+	} else if len(filteredObjectProperties) > 1 {
+		return ObjectPropertyTuple{}, errors.New("Multiple '" + name + "' object properties found")
+	}
+
+	return ObjectPropertyTuple{name, convertIRI2Name(filteredObjectProperties[0].C.(*decl.ClassDecl).IRI)}, nil
+}
+
+// ObjectPropertiesByClass returns ObjectPropertyTuple slice with object properties of a given class
+func (ow *OntologyWrapper) ObjectPropertiesByClass(className string) ([]*ObjectPropertyTuple, error) {
+
+	allObjectProperties := ow.ontology.K.AllObjectPropertyDomains()
+
+	isClassDomainOfProp := func(objProp axioms.ObjectPropertyDomain) bool {
+		return ow.isC1C2OrSubclassOfC2(className, convertIRI2Name(objProp.C.(*decl.ClassDecl).IRI))
+	}
+
+	filteredObjProperties := filterObjectPropertyDomains(allObjectProperties, isClassDomainOfProp)
+
+	objectPropertyNamesSet := make(map[string]struct{})
+	for _, dp := range filteredObjProperties {
+		objectPropertyNamesSet[convertIRI2Name(dp.P.(*decl.ObjectPropertyDecl).IRI)] = struct{}{}
+	}
+
+	objectProperties := make([]*ObjectPropertyTuple, 0, len(objectPropertyNamesSet))
+	for name := range objectPropertyNamesSet {
+		op, err := ow.objectPropertyByName(name)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
+		objectProperties = append(objectProperties, &op)
+	}
+
+	return objectProperties, nil
 }
 
 // individualsByClass returns all individuals from a given class

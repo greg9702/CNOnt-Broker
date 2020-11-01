@@ -11,8 +11,13 @@ import (
 
 const clusterClassName string = ":KubernetesCluster"
 const containersClassName string = ":DockerContainer"
+const applicationContainersClassName string = ":ApplicationContainer"
+const applicationContainerGroupClassName string = ":ApplicationContainerGroup"
 const podsClassName string = ":Pod"
 const nodesClassName string = ":Node"
+const microservicesClassName string = ":Microservice"
+const hardwareClassName string = ":Hardware"
+const containerEngineClassName string = ":ContainerEngine"
 
 // TODO get this from ontology
 var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
