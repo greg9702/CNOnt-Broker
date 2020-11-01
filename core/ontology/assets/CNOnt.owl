@@ -132,21 +132,21 @@ ObjectPropertyRange(:application_container :ApplicationContainer)
 
 SubObjectPropertyOf(:belongs_to_cluster owl:topObjectProperty)
 InverseObjectProperties(:belongs_to_cluster :contains_node)
-ObjectPropertyDomain(:belongs_to_cluster :VirtualMachine)
-ObjectPropertyRange(:belongs_to_cluster :VirtualMachineGroup)
+ObjectPropertyDomain(:belongs_to_cluster :Node)
+ObjectPropertyRange(:belongs_to_cluster :KubernetesCluster)
 
 # Object Property: :belongs_to_group (:belongs_to_group)
 
 SubObjectPropertyOf(:belongs_to_group owl:topObjectProperty)
 InverseObjectProperties(:belongs_to_group :contains_container)
 ObjectPropertyDomain(:belongs_to_group :ApplicationContainer)
-ObjectPropertyRange(:belongs_to_group :ApplicationContainerGroup)
+ObjectPropertyRange(:belongs_to_group :Pod)
 
 # Object Property: :belongs_to_node (:belongs_to_node)
 
 InverseObjectProperties(:belongs_to_node :contains_pod)
 ObjectPropertyDomain(:belongs_to_node :ApplicationContainerGroup)
-ObjectPropertyRange(:belongs_to_node :VirtualMachine)
+ObjectPropertyRange(:belongs_to_node :Node)
 
 # Object Property: :consists_of (:consists_of)
 
@@ -162,7 +162,7 @@ ObjectPropertyDomain(:contains_application :ApplicationContainer)
 # Object Property: :contains_container (:contains_container)
 
 ObjectPropertyDomain(:contains_container :ApplicationContainerGroup)
-ObjectPropertyRange(:contains_container :ApplicationContainer)
+ObjectPropertyRange(:contains_container :DockerContainer)
 
 # Object Property: :contains_machine (:contains_machine)
 
@@ -174,12 +174,12 @@ ObjectPropertyRange(:contains_machine :VirtualMachine)
 # Object Property: :contains_node (:contains_node)
 
 ObjectPropertyDomain(:contains_node :VirtualMachineGroup)
-ObjectPropertyRange(:contains_node :VirtualMachine)
+ObjectPropertyRange(:contains_node :Node)
 
 # Object Property: :contains_pod (:contains_pod)
 
-ObjectPropertyDomain(:contains_pod :VirtualMachine)
-ObjectPropertyRange(:contains_pod :ApplicationContainerGroup)
+ObjectPropertyDomain(:contains_pod :Node)
+ObjectPropertyRange(:contains_pod :Pod)
 
 # Object Property: :controls (:controls)
 
