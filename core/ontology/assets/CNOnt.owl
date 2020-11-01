@@ -53,7 +53,6 @@ Declaration(Class(:ProprietaryMicroservice))
 Declaration(Class(:Proxy))
 Declaration(Class(:Router))
 Declaration(Class(:SaasCloud))
-Declaration(Class(:Site))
 Declaration(Class(:ThirdPartyMicroservice))
 Declaration(Class(:VirtualMachine))
 Declaration(Class(:VirtualMachineContainer))
@@ -89,7 +88,6 @@ Declaration(ObjectProperty(:requests))
 Declaration(ObjectProperty(:runs))
 Declaration(ObjectProperty(:runs_inside))
 Declaration(ObjectProperty(:runs_on))
-Declaration(ObjectProperty(:site))
 Declaration(ObjectProperty(:supports_lifecycle))
 Declaration(DataProperty(:app))
 Declaration(DataProperty(:cpu))
@@ -273,13 +271,6 @@ ObjectPropertyRange(:runs_inside :Microservice)
 
 ObjectPropertyDomain(:runs_on :ContainerEngine)
 ObjectPropertyRange(:runs_on :ConcreteOS)
-
-# Object Property: :site (site)
-
-AnnotationAssertion(rdfs:label :site "site"^^xsd:string)
-FunctionalObjectProperty(:site)
-ObjectPropertyDomain(:site :InfrastructureLayerElement)
-ObjectPropertyRange(:site :Site)
 
 # Object Property: :supports_lifecycle (:supports_lifecycle)
 
@@ -527,10 +518,6 @@ SubClassOf(:Router :Connectivity)
 
 AnnotationAssertion(rdfs:comment :SaasCloud "Software as a service cloud"^^xsd:string)
 SubClassOf(:SaasCloud :Cloud)
-
-# Class: :Site (:Site)
-
-AnnotationAssertion(rdfs:comment :Site "Physical location of infrastructure elements"^^xsd:string)
 
 # Class: :ThirdPartyMicroservice (:ThirdPartyMicroservice)
 
