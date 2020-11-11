@@ -3,6 +3,7 @@ package ontology
 import (
 	"CNOnt-Broker/core/kubernetes/client"
 	"fmt"
+	"strconv"
 
 	appsv1 "k8s.io/api/apps/v1"
 )
@@ -94,9 +95,10 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 		return err
 	}
 
-	for _, rs := range replicaSets.Items {
-		rsSpec := &rs.Spec
-		tempList = append(tempList, rsSpec)
+	for ix := range replicaSets.Items {
+		rs := &replicaSets.Items[ix]
+		tempList = append(tempList, rs)
+		fmt.Println(rs.Name)
 	}
 
 	ow.apiData[podsClassName] = tempList
@@ -107,9 +109,8 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 	// containers
 	for ix := range ow.apiData[podsClassName] {
-		pod := ow.apiData[podsClassName][ix].(*appsv1.ReplicaSetSpec)
-
-		containers := pod.Template.Spec.Containers
+		pod := ow.apiData[podsClassName][ix].(*appsv1.ReplicaSet)
+		containers := pod.Spec.Template.Spec.Containers
 		for i := range containers {
 			tempList = append(tempList, &containers[i])
 		}
@@ -142,7 +143,6 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 
 	for ix := range allClassesKeys {
 		className := allClassesKeys[ix]
-		objectName := className + "RANDOMSTRING" // TODO random string
 
 		allObjects := ow.apiData[className]
 
@@ -151,7 +151,15 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 			continue
 		}
 
+		var objectCounter int = 1
+
 		for ix := range allObjects {
+
+			// this should never happen, but if we exceed integer limit
+			// everything will blow up
+			objectName := className + strconv.Itoa(objectCounter)
+			objectCounter++
+
 			object := allObjects[ix]
 
 			propertiesList, err := ow.dataPropertiesList(className)
@@ -207,13 +215,14 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 					relatedObject := relatedObjects[iter]
 					object.objectPropertyAssertions[singlePropertyTuple.PropertyName] = append(object.objectPropertyAssertions[singlePropertyTuple.PropertyName], relatedObject.objectName)
 				}
-
 			}
 		}
+
 		for it := range objectsToSet {
 			obj := objectsToSet[it]
 			fmt.Println(obj.objectName, obj.objectPropertyAssertions)
 		}
+
 		fmt.Println("-----------")
 	}
 

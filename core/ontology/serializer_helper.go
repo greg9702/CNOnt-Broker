@@ -2,7 +2,9 @@ package ontology
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -60,16 +62,23 @@ func newBuilderHelpers() *builderHelper {
 	tmpMap = make(map[string]func(interface{}) string)
 
 	tmpMap[":name"] = func(object interface{}) string {
-		rsObject := object.(*appsv1.ReplicaSetSpec)
-		return rsObject.Template.Name
+		rsObject := object.(*appsv1.ReplicaSet)
+		lastInd := strings.LastIndex(rsObject.Name, "-")
+		if lastInd != -1 {
+			return rsObject.Name[:lastInd]
+		}
+		return rsObject.Name
 	}
 	tmpMap[":app"] = func(object interface{}) string {
-		return "MOCK APP"
+		rsObject := object.(*appsv1.ReplicaSet)
+		if x, found := rsObject.Spec.Selector.MatchLabels["app"]; found {
+			return x
+		}
+		return ""
 	}
 	tmpMap[":replicas"] = func(object interface{}) string {
-		rsObject := object.(*appsv1.ReplicaSetSpec)
-
-		return strconv.Itoa(int(*rsObject.Replicas))
+		rsObject := object.(*appsv1.ReplicaSet)
+		return strconv.Itoa(int(*rsObject.Spec.Replicas))
 	}
 
 	dataPropertyFunctions[podsClassName] = tmpMap
@@ -88,9 +97,9 @@ func newBuilderHelpers() *builderHelper {
 	}
 	tmpMap[":port"] = func(object interface{}) string {
 		containerObject := object.(*apiv1.Container)
-		// TODO we assume we have only 1 port...
 		if len(containerObject.Ports) != 0 {
-			return containerObject.Ports[0].Name
+			fmt.Println(containerObject.Ports)
+			return strconv.Itoa(int(containerObject.Ports[0].ContainerPort))
 		}
 		return ""
 	}
@@ -102,7 +111,7 @@ func newBuilderHelpers() *builderHelper {
 	tmpMap = make(map[string]func(interface{}) string)
 
 	tmpMap[":name"] = func(object interface{}) string {
-		return "MOCKCLUSTERNAME"
+		return "kind"
 	}
 
 	dataPropertyFunctions[clusterClassName] = tmpMap
