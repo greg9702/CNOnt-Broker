@@ -201,7 +201,6 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 			fmt.Printf("[OntologyBuilder] GenerateCollection: objectPropertiesList error: %s", err.Error())
 			return err
 		}
-
 		objectsToSet := ow.objectsToDump.ObjectsByClassName(className)
 		for i := range objectsToSet {
 			object := objectsToSet[i]
