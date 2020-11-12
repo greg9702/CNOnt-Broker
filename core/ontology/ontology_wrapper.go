@@ -162,6 +162,17 @@ func (ow *OntologyWrapper) DataPropertyNamesByClass(className string) ([]string,
 	return dataPropertyNames, nil
 }
 
+// GenerateFilterFunction generates filter function for given property
+func (ow *OntologyWrapper) GenerateFilterFunction(name string) func(interface{}, interface{}) bool {
+	// mock TODO
+
+	fn := func(interface{}, interface{}) bool {
+
+		return false
+	}
+	return fn
+}
+
 func (ow *OntologyWrapper) objectPropertyByName(name string) (ObjectPropertyTuple, error) {
 	allObjectPropertyRanges := ow.ontology.K.AllObjectPropertyRanges()
 
@@ -177,7 +188,8 @@ func (ow *OntologyWrapper) objectPropertyByName(name string) (ObjectPropertyTupl
 		return ObjectPropertyTuple{}, errors.New("Multiple '" + name + "' object properties found")
 	}
 
-	return ObjectPropertyTuple{name, convertIRI2Name(filteredObjectProperties[0].C.(*decl.ClassDecl).IRI)}, nil
+	fn := ow.GenerateFilterFunction(name)
+	return ObjectPropertyTuple{name, convertIRI2Name(filteredObjectProperties[0].C.(*decl.ClassDecl).IRI), fn}, nil
 }
 
 // ObjectPropertiesByClass returns ObjectPropertyTuple slice with object properties of a given class

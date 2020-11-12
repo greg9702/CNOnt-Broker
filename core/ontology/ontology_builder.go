@@ -15,6 +15,7 @@ type ObjectToDump struct {
 	objectName               string
 	dataPropertyAssertions   map[string]string
 	objectPropertyAssertions map[string][]string
+	originalObjectPointer    interface{}
 }
 
 // ObjectsToDumpCollection stores all ObjectToDump objects
@@ -36,6 +37,23 @@ func (oc *ObjectsToDumpCollection) ObjectsByClassName(className string) []*Objec
 	for ix := range oc.collection {
 		if oc.collection[ix].className == className {
 			tempList = append(tempList, oc.collection[ix])
+		}
+	}
+
+	return tempList
+}
+
+// ObjectsByClassNameFiltered returns list of objects of className given type, related to one
+// specific object
+func (oc *ObjectsToDumpCollection) ObjectsByClassNameFiltered(className string, object interface{}, function func(interface{}, interface{}) bool) []*ObjectToDump {
+
+	var tempList []*ObjectToDump
+
+	for ix := range oc.collection {
+		if oc.collection[ix].className == className {
+			if function(object, oc.collection[ix].originalObjectPointer) == true {
+				tempList = append(tempList, oc.collection[ix])
+			}
 		}
 	}
 
@@ -184,9 +202,9 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 				dataProperties[property] = fn(object)
 			}
 
-			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string][]string)}
+			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string][]string), object}
 			ow.objectsToDump.add(obj)
-			fmt.Println(obj)
+			// fmt.Println(obj)
 		}
 	}
 
@@ -195,6 +213,8 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 
 	for ix := range allClassesKeys {
 		className := allClassesKeys[ix]
+
+		// [runs_on_node, NODE], [contains_container, CONTAINER]
 		allObjectPropertiesForClass, err := ow.objectPropertiesList(className)
 
 		if err != nil {
@@ -208,7 +228,8 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 			for it := range allObjectPropertiesForClass {
 
 				singlePropertyTuple := allObjectPropertiesForClass[it]
-				relatedObjects := ow.objectsToDump.ObjectsByClassName(singlePropertyTuple.RelatedClassName)
+				// [Node1, Node2] it gives all Nodes here, need only specific one
+				relatedObjects := ow.objectsToDump.ObjectsByClassNameFiltered(singlePropertyTuple.RelatedClassName, object.originalObjectPointer, singlePropertyTuple.FilterFunction)
 
 				for iter := range relatedObjects {
 					relatedObject := relatedObjects[iter]
@@ -216,13 +237,6 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 				}
 			}
 		}
-
-		for it := range objectsToSet {
-			obj := objectsToSet[it]
-			fmt.Println(obj.objectName, obj.objectPropertyAssertions)
-		}
-
-		fmt.Println("-----------")
 	}
 
 	fmt.Println("---------------DUMPING DATA---------------")
@@ -288,5 +302,6 @@ func (ow *OntologyBuilder) objectPropertiesList(className string) ([]*ObjectProp
 // and related class to it
 type ObjectPropertyTuple struct {
 	PropertyName     string
-	RelatedClassName string
+	RelatedClassName string                                        // range
+	FilterFunction   func(obj1 interface{}, obj2 interface{}) bool // checks if given object is related to
 }

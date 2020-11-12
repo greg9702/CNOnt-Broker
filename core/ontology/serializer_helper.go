@@ -24,6 +24,8 @@ const containerEngineClassName string = ":ContainerEngine"
 // TODO get this from ontology
 var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
 
+// ClusterStruct used to describe cluster object for our requirements,
+// k8s do not define structure like this, so we do
 type ClusterStruct struct {
 	Name string
 }
