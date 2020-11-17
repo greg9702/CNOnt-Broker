@@ -9,6 +9,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 const clusterClassName string = ":KubernetesCluster"
@@ -61,7 +62,7 @@ func newBuilderHelpers() *builderHelper {
 	dataPropertyFunctions[nodesClassName] = tmpMap
 	tmpMap = nil
 
-	// pod
+	// replicaSet
 	tmpMap = make(map[string]func(interface{}) string)
 
 	tmpMap[":name"] = func(object interface{}) string {
@@ -82,6 +83,33 @@ func newBuilderHelpers() *builderHelper {
 	tmpMap[":replicas"] = func(object interface{}) string {
 		rsObject := object.(*appsv1.ReplicaSet)
 		return strconv.Itoa(int(*rsObject.Spec.Replicas))
+	}
+
+	dataPropertyFunctions[replicaSetClassName] = tmpMap
+	tmpMap = nil
+
+	// pod
+	tmpMap = make(map[string]func(interface{}) string)
+
+	tmpMap[":name"] = func(object interface{}) string {
+		podObject := object.(*v1.Pod)
+		lastIx := strings.LastIndex(podObject.Name, "-")
+		name := podObject.Name
+		if lastIx != -1 {
+			name = name[:lastIx]
+		}
+		preLastInd := strings.LastIndex(name, "-")
+		if preLastInd != -1 {
+			return name[:preLastInd]
+		}
+		return name
+	}
+	tmpMap[":app"] = func(object interface{}) string {
+		podObject := object.(*v1.Pod)
+		if x, found := podObject.Labels["app"]; found {
+			return x
+		}
+		return ""
 	}
 
 	dataPropertyFunctions[podsClassName] = tmpMap
@@ -105,6 +133,22 @@ func newBuilderHelpers() *builderHelper {
 			return strconv.Itoa(int(containerObject.Ports[0].ContainerPort))
 		}
 		return ""
+	}
+	tmpMap[":memory_limits"] = func(object interface{}) string {
+		containerObject := object.(*apiv1.Container)
+		return containerObject.Resources.Limits.Memory().String()
+	}
+	tmpMap[":memory_requests"] = func(object interface{}) string {
+		containerObject := object.(*apiv1.Container)
+		return containerObject.Resources.Requests.Memory().String()
+	}
+	tmpMap[":cpu_limits"] = func(object interface{}) string {
+		containerObject := object.(*apiv1.Container)
+		return containerObject.Resources.Limits.Cpu().String()
+	}
+	tmpMap[":cpu_requests"] = func(object interface{}) string {
+		containerObject := object.(*apiv1.Container)
+		return containerObject.Resources.Requests.Cpu().String()
 	}
 
 	dataPropertyFunctions[containersClassName] = tmpMap
