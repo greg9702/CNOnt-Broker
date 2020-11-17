@@ -404,6 +404,46 @@ func (ow *OntologyWrapper) containers(pod string) ([]string, error) {
 	return ow.objectPropertyAssertionValues(containsContainerAssertion, pod)
 }
 
+// buildContainerResources returns container resources (requests and limits)
+func (ow *OntologyWrapper) buildContainerResources(container string) (map[string]interface{}, error) {
+	var resources = map[string]interface{}{}
+
+	memReq, memReqErr := ow.dataPropertyAssertionValue(":memory_requests", container)
+	cpuReq, cpuReqErr := ow.dataPropertyAssertionValue(":cpu_requests", container)
+	if memReqErr == nil || cpuReqErr == nil {
+		resources["requests"] = map[string]interface{}{}
+
+		if memReqErr == nil && memReq != "0" {
+			resources["requests"].(map[string]interface{})["memory"] = memReq
+		}
+		if cpuReqErr == nil && cpuReq != "0" {
+			resources["requests"].(map[string]interface{})["cpu"] = cpuReq
+		}
+	}
+
+	memLim, memLimErr := ow.dataPropertyAssertionValue(":memory_limits", container)
+	cpuLim, cpuLimErr := ow.dataPropertyAssertionValue(":cpu_limits", container)
+	if memLimErr == nil || cpuLimErr == nil {
+		resources["limits"] = map[string]interface{}{}
+
+		// 'memLim != "0"' etc. is a workaround in case the ontology gives us inconsistent entries (lim > req)
+		// F.e. :memory_limits = 0 is returned by serializer when there are no memory limits specified
+		// TODO implement handling of this case in serializer and write a better consistency check here
+		if memLimErr == nil && memLim != "0" {
+			resources["limits"].(map[string]interface{})["memory"] = memLim
+		}
+		if cpuLimErr == nil && cpuLim != "0" {
+			resources["limits"].(map[string]interface{})["cpu"] = cpuLim
+		}
+	}
+
+	if len(resources) == 0 {
+		return map[string]interface{}{}, errors.New("No resources data found in ontology for container: " + container)
+	}
+
+	return resources, nil
+}
+
 // BuildDeploymentConfiguration returns Kubernetes Deployments basing on parsed ontology
 func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstructured, error) {
 	var deployments []*unstructured.Unstructured
@@ -489,6 +529,13 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstr
 					return nil, errors.New("Could not get 'image' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
 				}
 				containerSpec["image"] = containerImage
+
+				resources, err := ow.buildContainerResources(container)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					containerSpec["resources"] = resources
+				}
 
 				deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] =
 					append(deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]map[string]interface{}), containerSpec)
