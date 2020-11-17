@@ -16,8 +16,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-const podClass = ":Pod"
-
 const nameAssertion = ":name"
 const apiVersionAssertion = ":apiVersion"
 const appAssertion = ":app"
@@ -26,8 +24,8 @@ const replicasAssertion = ":replicas"
 const imageAssertion = ":image"
 const portAssertion = ":port"
 
-const belongsToNodeAssertion = ":belongs_to_node"
 const containsContainerAssertion = ":contains_container"
+const ownsAssertion = ":owns"
 
 // OntologyWrapper functional OWL ontology wrapper
 type OntologyWrapper struct {
@@ -169,10 +167,19 @@ func (ow *OntologyWrapper) generateFilterFunction(objPropName string) func(inter
 
 		return false
 	}
-
-	if objPropName == ":belongs_to_cluster" {
-		fn =  func(interface{}, interface{}) bool {
+	// we assume that all nodes belong to one cluster, so :contains_node and :belongs_to_cluster filter functions
+	// always return true
+	if objPropName == ":contains_node" {
+		fn = func(interface{}, interface{}) bool {
 			return true
+		}
+	} else if objPropName == ":belongs_to_cluster" {
+		fn = func(interface{}, interface{}) bool {
+			return true
+		}
+	} else if objPropName == ":contains_pod" {
+		fn = func(interface{}, interface{}) bool {
+			return false // TODO
 		}
 	}
 
@@ -246,9 +253,27 @@ func (ow *OntologyWrapper) individualsByClass(className string) (individuals []s
 	return individuals
 }
 
-// pods returns all pod individuals
-func (ow *OntologyWrapper) pods() []string {
-	return ow.individualsByClass(podClass)
+// replicaSets returns all rs individuals
+func (ow *OntologyWrapper) replicaSets() []string {
+	return ow.individualsByClass(replicaSetClassName)
+}
+
+// podOwnedByReplicaSet returns pod individual that is owned by rs individual
+func (ow *OntologyWrapper) podOwnedByReplicaSet(rs string) (string, error) {
+	pod, err := ow.objectPropertyAssertionValue(ownsAssertion, rs)
+	if err != nil {
+		return "", err
+	}
+	rsAppLabel, err := ow.dataPropertyAssertionValue(appAssertion, rs)
+	podAppLabel, err := ow.dataPropertyAssertionValue(appAssertion, pod)
+	if err != nil {
+		return "", err
+	}
+	if rsAppLabel != podAppLabel {
+		return "", errors.New("Ontology not consistent: 'app' label in ReplicaSet " + rs + " selector ('app'='" + rsAppLabel +
+			"') differs from the app label of pod " + pod + " owned by the ReplicaSet ('app'='" + podAppLabel + "').")
+	}
+	return pod, nil
 }
 
 // name returns name of a given individual
@@ -330,34 +355,40 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 	// TODO first get names from all Pods - this will specify how many different deployment would we need to create
 	// now we create only one deployment and if all Pods have the same value set it makes no problem
 
-	for _, pod := range ow.pods() {
+	for _, rs := range ow.replicaSets() {
 
-		podName, err := ow.name(pod)
+		rsName, err := ow.name(rs)
 		if err != nil {
-			fmt.Println("Could not get 'name' for Pod, error " + err.Error())
-			return nil, errors.New("Could not get 'name' for Pod, error " + err.Error())
+			fmt.Println("Could not get 'name' for ReplicaSet, error " + err.Error())
+			return nil, errors.New("Could not get 'name' for ReplicaSet, error " + err.Error())
 		}
 
 		// set deployment name, but all Pods from this deployment will use this name too
-		deployment.Object["metadata"].(map[string]interface{})["name"] = podName
+		deployment.Object["metadata"].(map[string]interface{})["name"] = rsName
 
-		app, err := ow.app(pod)
+		app, err := ow.app(rs)
 		if err != nil {
-			fmt.Println("Could not get 'app' for Pod " + podName + ", error: " + err.Error())
-			return nil, errors.New("Could not get 'app' for Pod " + podName + ", error: " + err.Error())
+			fmt.Println("Could not get 'app' label for ReplicaSet " + rsName + ", error: " + err.Error())
+			return nil, errors.New("Could not get 'app' for ReplicaSet " + rsName + ", error: " + err.Error())
 		}
 
 		deployment.Object["spec"].(map[string]interface{})["selector"].(map[string]interface{})["matchLabels"].(map[string]interface{})["app"] = app
 		deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})["app"] = app
 
-		replicas, err := ow.replicas(pod)
+		replicas, err := ow.replicas(rs)
 		if err != nil {
-			fmt.Println("Could not get 'replicas' for Pod " + podName + ", error: " + err.Error())
-			return nil, errors.New("Could not get 'replicas' for Pod " + podName + ", error: " + err.Error())
+			fmt.Println("Could not get 'replicas' for ReplicaSet " + rsName + ", error: " + err.Error())
+			return nil, errors.New("Could not get 'replicas' for ReplicaSet " + rsName + ", error: " + err.Error())
 		}
 
 		deployment.Object["spec"].(map[string]interface{})["replicas"] = replicas
 
+		pod, err := ow.podOwnedByReplicaSet(rs)
+
+		if err != nil {
+			fmt.Println("Could not get any pods owned by ReplicaSet " + rsName + ", error: " + err.Error())
+			return nil, errors.New("Could not get any pods owned by ReplicaSet " + rsName + ", error: " + err.Error())
+		}
 		containers, err := ow.containers(pod)
 		if err != nil {
 			fmt.Println(err)
@@ -371,15 +402,15 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 
 				containerName, err := ow.name(container)
 				if err != nil {
-					fmt.Println("Could not get 'name' for container in Pod " + podName + ", error: " + err.Error())
-					return nil, errors.New("Could not get 'name' for container in Pod " + podName + ", error: " + err.Error())
+					fmt.Println("Could not get 'name' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
+					return nil, errors.New("Could not get 'name' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
 				}
 				containerSpec["name"] = containerName
 
 				containerImage, err := ow.image(container)
 				if err != nil {
-					fmt.Println("Could not get 'image' for container in Pod " + podName + ", error: " + err.Error())
-					return nil, errors.New("Could not get 'image' for container in Pod " + podName + ", error: " + err.Error())
+					fmt.Println("Could not get 'image' for container in Pod " + rsName + ", error: " + err.Error())
+					return nil, errors.New("Could not get 'image' for container in Pod " + rsName + ", error: " + err.Error())
 				}
 				containerSpec["image"] = containerImage
 
