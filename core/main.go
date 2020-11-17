@@ -3,12 +3,18 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
+	"CNOnt-Broker/core/api/controllers"
 	"CNOnt-Broker/core/kubernetes/client"
 	"CNOnt-Broker/core/ontology"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -33,25 +39,25 @@ func main() {
 
 	var ontologyWrapper = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
 	var ontologyBuilder = ontology.NewOntologyBuilder(kubernetesClient, ontologyWrapper)
-	// deploymentController := controllers.NewDeploymentController(kubernetesClient, ontologyWrapper, ontologyBuilder)
+	deploymentController := controllers.NewDeploymentController(kubernetesClient, ontologyWrapper, ontologyBuilder)
 
 	ontologyBuilder.GenerateCollection()
 
-	// router := gin.Default()
-	// router.Use(cors.Default())
+	router := gin.Default()
+	router.Use(cors.Default())
 
-	// v1Router := router.Group("/api/v1")
+	v1Router := router.Group("/api/v1")
 
-	// v1Router.GET("/create-deployment", deploymentController.CreateDeployment)
-	// v1Router.GET("/delete-deployment", deploymentController.DeleteDeployment)
-	// v1Router.GET("/preview-deployment", deploymentController.PreviewDeployment)
-	// v1Router.GET("/serialize-cluster-conf", deploymentController.SerializeClusterConf)
+	v1Router.GET("/create-deployment", deploymentController.CreateDeployment)
+	v1Router.GET("/delete-deployment", deploymentController.DeleteDeployment)
+	v1Router.GET("/preview-deployment", deploymentController.PreviewDeployment)
+	v1Router.GET("/serialize-cluster-conf", deploymentController.SerializeClusterConf)
 
-	// port := os.Getenv("PORT")
-	// if port == "" {
-	// 	port = "8080"
-	// 	log.Printf("Defaulting to port %s", port)
-	// }
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+		log.Printf("Defaulting to port %s", port)
+	}
 
-	// router.Run(":" + port)
+	router.Run(":" + port)
 }

@@ -234,12 +234,19 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 
 		// [runs_on_node, NODE], [contains_container, CONTAINER]
 		allObjectPropertiesForClass, err := ow.objectPropertiesList(className)
+		// _ = err
+		// fmt.Println(className)
+
+		// for abc := range allObjectPropertiesForClass {
+		// 	fmt.Println(allObjectPropertiesForClass[abc])
+		// }
 
 		if err != nil {
 			fmt.Printf("[OntologyBuilder] GenerateCollection: objectPropertiesList error: %s", err.Error())
 			return err
 		}
 		objectsToSet := ow.objectsToDump.ObjectsByClassName(className)
+
 		for i := range objectsToSet {
 			object := objectsToSet[i]
 
@@ -274,6 +281,18 @@ func (ow *OntologyBuilder) saveToFile(stream []string) error {
 		fmt.Printf(stream[ix])
 	}
 	fmt.Printf("\n")
+	// b := []byte{}
+
+	// for ix := range stream {
+	// 	b = append(b, (stream[ix]).([]byte))
+	// 	fmt.Println(b) // [65 66 67 226 130 172]
+	// }
+
+	// // write the whole body at once
+	// _ = ioutil.WriteFile("/tmp/onto.txt", stream, 0644)
+	// if err != nil {
+	// 	panic(err)
+	// }
 	return nil
 }
 

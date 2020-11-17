@@ -3,7 +3,6 @@ package ontology
 import (
 	"errors"
 	"fmt"
-	v1 "k8s.io/api/core/v1"
 	"log"
 	"os"
 	"strconv"
@@ -14,6 +13,8 @@ import (
 	"github.com/shful/gofp/owlfunctional/axioms"
 	"github.com/shful/gofp/owlfunctional/decl"
 
+	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -69,8 +70,6 @@ func (ow *OntologyWrapper) objectPropertyAssertionValue(assertionName string, in
 	filteredAssertions := filterObjPropAssertions(allObjectPropertyAssertions, isAssertionAboutIndividual)
 	if len(filteredAssertions) == 0 {
 		return "", errors.New("No '" + assertionName + "' assertions found for " + individual)
-	} else if len(filteredAssertions) > 1 {
-		return "", errors.New("Multiple '" + assertionName + "' assertions found for " + individual)
 	}
 
 	return filteredAssertions[0].A2.Name, nil
@@ -163,24 +162,91 @@ func (ow *OntologyWrapper) DataPropertyNamesByClass(className string) ([]string,
 
 // generateFilterFunction generates filter function for given property
 func (ow *OntologyWrapper) generateFilterFunction(objPropName string) func(interface{}, interface{}) bool {
-	// mock TODO
-	fn := func(interface{}, interface{}) bool {
 
+	// default
+	fn := func(interface{}, interface{}) bool {
 		return false
 	}
-	// we assume that all nodes belong to one cluster, so :contains_node and :belongs_to_cluster filter functions
-	// always return true
-	if objPropName == ":contains_node" {
+	// we assume that all nodes belong to one cluster, so :contains_node and
+	// :belongs_to_cluster filter functions always return true
+
+	if objPropName == ":belongs_to_cluster" {
 		fn = func(interface{}, interface{}) bool {
 			return true
 		}
-	} else if objPropName == ":belongs_to_cluster" {
+	} else if objPropName == ":contains_node" {
 		fn = func(interface{}, interface{}) bool {
 			return true
+		}
+	} else if objPropName == ":belongs_to_node" {
+		fn = func(obj1 interface{}, obj2 interface{}) bool {
+			podObj := obj1.(*v1.Pod)
+			nodeObj := obj2.(*v1.Node)
+
+			if podObj.Spec.NodeName == nodeObj.Name {
+				return true
+			}
+			return false
+		}
+	} else if objPropName == ":is_owned_by" {
+		fn = func(obj1 interface{}, obj2 interface{}) bool {
+			podObj := obj1.(*v1.Pod)
+			rsObj := obj2.(*appsv1.ReplicaSet)
+
+			var podHash string
+			var rsHash string
+
+			if x, found := podObj.Labels["pod-template-hash"]; found {
+				podHash = x
+			} else {
+				return false
+			}
+
+			if x, found := rsObj.Labels["pod-template-hash"]; found {
+				rsHash = x
+			} else {
+				return false
+			}
+
+			if podHash == rsHash {
+				return true
+			}
+			return false
+		}
+	} else if objPropName == ":owns" {
+		fn = func(obj1 interface{}, obj2 interface{}) bool {
+			rsObj := obj1.(*appsv1.ReplicaSet)
+			podObj := obj2.(*v1.Pod)
+
+			var podHash string
+			var rsHash string
+
+			if x, found := podObj.Labels["pod-template-hash"]; found {
+				podHash = x
+			} else {
+				return false
+			}
+
+			if x, found := rsObj.Labels["pod-template-hash"]; found {
+				rsHash = x
+			} else {
+				return false
+			}
+
+			if podHash == rsHash {
+				return true
+			}
+			return false
 		}
 	} else if objPropName == ":contains_pod" {
-		fn = func(interface{}, interface{}) bool {
-			return false // TODO
+		fn = func(obj1 interface{}, obj2 interface{}) bool {
+			nodeObj := obj1.(*v1.Node)
+			podObj := obj2.(*v1.Pod)
+
+			if podObj.Spec.NodeName == nodeObj.Name {
+				return true
+			}
+			return false
 		}
 	} else if objPropName == ":belongs_to_group" {
 		fn = func(obj1 interface{}, obj2 interface{}) bool {
@@ -193,11 +259,10 @@ func (ow *OntologyWrapper) generateFilterFunction(objPropName string) func(inter
 		fn = func(obj1 interface{}, obj2 interface{}) bool {
 			podObj := obj1.(*v1.Pod)
 			containerStruct := obj2.(*ContainerStruct)
-			
+
 			return containerStruct.PodName == podObj.Name
 		}
 	}
-
 	return fn
 }
 
