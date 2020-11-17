@@ -112,6 +112,7 @@ Declaration(NamedIndividual(:Hardware1))
 Declaration(NamedIndividual(:Hardware2))
 Declaration(NamedIndividual(:Node1))
 Declaration(NamedIndividual(:Pod1))
+Declaration(NamedIndividual(:ReplicaSet1))
 Declaration(NamedIndividual(:machine_running))
 Declaration(NamedIndividual(:machine_stopped))
 
@@ -288,6 +289,7 @@ ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
 # Data Property: :app (:app)
 
 DataPropertyDomain(:app :Pod)
+DataPropertyDomain(:app :ReplicaSet)
 DataPropertyRange(:app xsd:string)
 
 # Data Property: :cpu_limits (:cpu_limits)
@@ -602,8 +604,17 @@ ClassAssertion(:Pod :Pod1)
 ObjectPropertyAssertion(:belongs_to_node :Pod1 :Node1)
 ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer1)
 ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer2)
+ObjectPropertyAssertion(:is_owned_by :Pod1 :ReplicaSet1)
 DataPropertyAssertion(:app :Pod1 "pod1")
 DataPropertyAssertion(:name :Pod1 "pod1name")
+
+# Individual: :ReplicaSet1 (:ReplicaSet1)
+
+ClassAssertion(:ReplicaSet :ReplicaSet1)
+ObjectPropertyAssertion(:owns :ReplicaSet1 :Pod1)
+DataPropertyAssertion(:app :ReplicaSet1 "pod1")
+DataPropertyAssertion(:name :ReplicaSet1 "pod1name")
+DataPropertyAssertion(:replicas :ReplicaSet1 "1"^^xsd:string)
 
 # Individual: :machine_running (running)
 
