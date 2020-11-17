@@ -404,38 +404,34 @@ func (ow *OntologyWrapper) containers(pod string) ([]string, error) {
 	return ow.objectPropertyAssertionValues(containsContainerAssertion, pod)
 }
 
-// BuildDeploymentConfiguration returns Kubernetes Deployment basing on parsed ontology
-func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstructured, error) {
+// BuildDeploymentConfiguration returns Kubernetes Deployments basing on parsed ontology
+func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstructured, error) {
+	var deployments []*unstructured.Unstructured
 
-	// we will call this base deployment structure in the future
-	deployment := &unstructured.Unstructured{
-		Object: map[string]interface{}{
-			"apiVersion": "apps/v1",
-			"kind":       "Deployment",
-			"metadata": map[string]interface{}{
-				"name": "",
-			},
-			"spec": map[string]interface{}{
-				"selector": map[string]interface{}{
-					"matchLabels": map[string]interface{}{
-						"app": "",
-					},
+	for i, rs := range ow.replicaSets() {
+		deployments = append(deployments, &unstructured.Unstructured{
+			Object: map[string]interface{}{
+				"apiVersion": "apps/v1",
+				"kind":       "Deployment",
+				"metadata": map[string]interface{}{
+					"name": "",
 				},
-				"template": map[string]interface{}{
-					"metadata": map[string]interface{}{
-						"labels": map[string]interface{}{
+				"spec": map[string]interface{}{
+					"selector": map[string]interface{}{
+						"matchLabels": map[string]interface{}{
 							"app": "",
+						},
+					},
+					"template": map[string]interface{}{
+						"metadata": map[string]interface{}{
+							"labels": map[string]interface{}{
+								"app": "",
+							},
 						},
 					},
 				},
 			},
-		},
-	}
-
-	// TODO first get names from all Pods - this will specify how many different deployment would we need to create
-	// now we create only one deployment and if all Pods have the same value set it makes no problem
-
-	for _, rs := range ow.replicaSets() {
+		})
 
 		rsName, err := ow.name(rs)
 		if err != nil {
@@ -444,7 +440,7 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 		}
 
 		// set deployment name, but all Pods from this deployment will use this name too
-		deployment.Object["metadata"].(map[string]interface{})["name"] = rsName
+		deployments[i].Object["metadata"].(map[string]interface{})["name"] = rsName
 
 		app, err := ow.app(rs)
 		if err != nil {
@@ -452,8 +448,8 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 			return nil, errors.New("Could not get 'app' for ReplicaSet " + rsName + ", error: " + err.Error())
 		}
 
-		deployment.Object["spec"].(map[string]interface{})["selector"].(map[string]interface{})["matchLabels"].(map[string]interface{})["app"] = app
-		deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})["app"] = app
+		deployments[i].Object["spec"].(map[string]interface{})["selector"].(map[string]interface{})["matchLabels"].(map[string]interface{})["app"] = app
+		deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})["app"] = app
 
 		replicas, err := ow.replicas(rs)
 		if err != nil {
@@ -461,7 +457,7 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 			return nil, errors.New("Could not get 'replicas' for ReplicaSet " + rsName + ", error: " + err.Error())
 		}
 
-		deployment.Object["spec"].(map[string]interface{})["replicas"] = replicas
+		deployments[i].Object["spec"].(map[string]interface{})["replicas"] = replicas
 
 		pod, err := ow.podOwnedByReplicaSet(rs)
 
@@ -473,8 +469,8 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"] = map[string]interface{}{}
-			deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] = []map[string]interface{}{}
+			deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"] = map[string]interface{}{}
+			deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] = []map[string]interface{}{}
 
 			for _, container := range containers {
 
@@ -489,16 +485,16 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() (*unstructured.Unstruc
 
 				containerImage, err := ow.image(container)
 				if err != nil {
-					fmt.Println("Could not get 'image' for container in Pod " + rsName + ", error: " + err.Error())
-					return nil, errors.New("Could not get 'image' for container in Pod " + rsName + ", error: " + err.Error())
+					fmt.Println("Could not get 'image' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
+					return nil, errors.New("Could not get 'image' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
 				}
 				containerSpec["image"] = containerImage
 
-				deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] =
-					append(deployment.Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]map[string]interface{}), containerSpec)
+				deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] =
+					append(deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]map[string]interface{}), containerSpec)
 			}
 		}
 	}
 
-	return deployment, nil
+	return deployments, nil
 }

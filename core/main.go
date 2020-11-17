@@ -48,9 +48,9 @@ func main() {
 
 	v1Router := router.Group("/api/v1")
 
-	v1Router.GET("/create-deployment", deploymentController.CreateDeployment)
-	v1Router.GET("/delete-deployment", deploymentController.DeleteDeployment)
-	v1Router.GET("/preview-deployment", deploymentController.PreviewDeployment)
+	v1Router.GET("/create-deployment", deploymentController.CreateDeployments)
+	v1Router.GET("/delete-deployment", deploymentController.DeleteDeployments)
+	v1Router.GET("/preview-deployment", deploymentController.PreviewDeployments)
 	v1Router.GET("/serialize-cluster-conf", deploymentController.SerializeClusterConf)
 
 	port := os.Getenv("PORT")
