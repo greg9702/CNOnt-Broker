@@ -146,7 +146,9 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 		pod := ow.apiData[podsClassName][ix].(*v1.Pod)
 		containers := pod.Spec.Containers
 		for i := range containers {
-			tempList = append(tempList, &containers[i])
+			cs := ContainerStruct{pod.Name, &containers[i]}
+
+			tempList = append(tempList, &cs)
 		}
 	}
 

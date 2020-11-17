@@ -3,6 +3,7 @@ package ontology
 import (
 	"errors"
 	"fmt"
+	v1 "k8s.io/api/core/v1"
 	"log"
 	"os"
 	"strconv"
@@ -180,6 +181,20 @@ func (ow *OntologyWrapper) generateFilterFunction(objPropName string) func(inter
 	} else if objPropName == ":contains_pod" {
 		fn = func(interface{}, interface{}) bool {
 			return false // TODO
+		}
+	} else if objPropName == ":belongs_to_group" {
+		fn = func(obj1 interface{}, obj2 interface{}) bool {
+			containerStruct := obj1.(*ContainerStruct)
+			podObj := obj2.(*v1.Pod)
+
+			return containerStruct.PodName == podObj.Name
+		}
+	} else if objPropName == ":contains_container" {
+		fn = func(obj1 interface{}, obj2 interface{}) bool {
+			podObj := obj1.(*v1.Pod)
+			containerStruct := obj2.(*ContainerStruct)
+			
+			return containerStruct.PodName == podObj.Name
 		}
 	}
 

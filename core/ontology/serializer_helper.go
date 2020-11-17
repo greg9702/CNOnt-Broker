@@ -32,6 +32,11 @@ type ClusterStruct struct {
 	Name string
 }
 
+type ContainerStruct struct {
+	PodName string
+	Data    *apiv1.Container
+}
+
 var buildHelperInstance *builderHelper
 var once sync.Once
 
@@ -119,15 +124,18 @@ func newBuilderHelpers() *builderHelper {
 	tmpMap = make(map[string]func(interface{}) string)
 
 	tmpMap[":name"] = func(object interface{}) string {
-		containerObject := object.(*apiv1.Container)
+		containerStruct := object.(*ContainerStruct)
+		containerObject := containerStruct.Data
 		return containerObject.Name
 	}
 	tmpMap[":image"] = func(object interface{}) string {
-		containerObject := object.(*apiv1.Container)
+		containerStruct := object.(*ContainerStruct)
+		containerObject := containerStruct.Data
 		return containerObject.Image
 	}
 	tmpMap[":port"] = func(object interface{}) string {
-		containerObject := object.(*apiv1.Container)
+		containerStruct := object.(*ContainerStruct)
+		containerObject := containerStruct.Data
 		if len(containerObject.Ports) != 0 {
 			fmt.Println(containerObject.Ports)
 			return strconv.Itoa(int(containerObject.Ports[0].ContainerPort))
@@ -135,19 +143,23 @@ func newBuilderHelpers() *builderHelper {
 		return ""
 	}
 	tmpMap[":memory_limits"] = func(object interface{}) string {
-		containerObject := object.(*apiv1.Container)
+		containerStruct := object.(*ContainerStruct)
+		containerObject := containerStruct.Data
 		return containerObject.Resources.Limits.Memory().String()
 	}
 	tmpMap[":memory_requests"] = func(object interface{}) string {
-		containerObject := object.(*apiv1.Container)
+		containerStruct := object.(*ContainerStruct)
+		containerObject := containerStruct.Data
 		return containerObject.Resources.Requests.Memory().String()
 	}
 	tmpMap[":cpu_limits"] = func(object interface{}) string {
-		containerObject := object.(*apiv1.Container)
+		containerStruct := object.(*ContainerStruct)
+		containerObject := containerStruct.Data
 		return containerObject.Resources.Limits.Cpu().String()
 	}
 	tmpMap[":cpu_requests"] = func(object interface{}) string {
-		containerObject := object.(*apiv1.Container)
+		containerStruct := object.(*ContainerStruct)
+		containerObject := containerStruct.Data
 		return containerObject.Resources.Requests.Cpu().String()
 	}
 
