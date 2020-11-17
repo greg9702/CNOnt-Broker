@@ -5,6 +5,23 @@ import (
 	"testing"
 )
 
+type ObjectPropertyPair struct {
+	PropertyName     string
+	RelatedClassName string
+}
+
+func objectPropertyTuple2Pair(tuple *ObjectPropertyTuple) *ObjectPropertyPair {
+	return &ObjectPropertyPair{tuple.PropertyName, tuple.RelatedClassName}
+}
+
+func objectPropertyTuples2Pairs(tuples []*ObjectPropertyTuple) []*ObjectPropertyPair {
+	var pairs []*ObjectPropertyPair
+	for _, t := range tuples {
+		pairs = append(pairs, objectPropertyTuple2Pair(t))
+	}
+	return pairs
+}
+
 func haveSlicesTheSameElems(x []string, y []string) bool {
 	xMap := make(map[string]int)
 	yMap := make(map[string]int)
@@ -28,12 +45,12 @@ func haveSlicesTheSameElems(x []string, y []string) bool {
 	return true
 }
 
-func haveObjPropSlicesTheSameElems(x []*ObjectPropertyTuple, y []*ObjectPropertyTuple) bool {
-	xMap := make(map[ObjectPropertyTuple]int)
-	yMap := make(map[ObjectPropertyTuple]int)
+func haveObjPropSlicesTheSameElems(x []*ObjectPropertyTuple, y []*ObjectPropertyPair) bool {
+	xMap := make(map[ObjectPropertyPair]int)
+	yMap := make(map[ObjectPropertyPair]int)
 
 	for _, xElem := range x {
-		xMap[*xElem]++
+		xMap[*objectPropertyTuple2Pair(xElem)]++
 	}
 	for _, yElem := range y {
 		yMap[*yElem]++
@@ -59,7 +76,7 @@ func dataPropsToStr(dataProps []string) string {
 	return dataPropsStr[:len(dataPropsStr)-2]
 }
 
-func objPropsToStr(dataProps []*ObjectPropertyTuple) string {
+func objPropsToStr(dataProps []*ObjectPropertyPair) string {
 	objPropsStr := ""
 	if len(dataProps) == 0 {
 		return ""
@@ -82,6 +99,7 @@ func TestOntologyWrapper(t *testing.T) {
 			{nodesClassName, []string{":name"}},
 			{podsClassName, []string{":name", ":app", ":replicas"}},
 			{containersClassName, []string{":name", ":image", ":port"}},
+			{replicaSetClassName, []string{":name", ":replicas"}},
 		}
 
 		for _, param := range testParams {
@@ -100,22 +118,23 @@ func TestOntologyWrapper(t *testing.T) {
 	t.Run("Test getting object property names by class", func(t *testing.T) {
 		testParams := []struct {
 			className string
-			dataProps []*ObjectPropertyTuple
+			dataProps []*ObjectPropertyPair
 		}{
-			{clusterClassName, []*ObjectPropertyTuple{
+			{clusterClassName, []*ObjectPropertyPair{
 				{":contains_node", nodesClassName}}},
-			{nodesClassName, []*ObjectPropertyTuple{
+			{nodesClassName, []*ObjectPropertyPair{
 				{":belongs_to_cluster", clusterClassName},
 				{":contains_pod", podsClassName}}},
-			{podsClassName, []*ObjectPropertyTuple{
+			{podsClassName, []*ObjectPropertyPair{
 				{":belongs_to_node", nodesClassName},
 				{":contains_container", containersClassName},
-				{":runs_inside", microservicesClassName}}},
-			{containersClassName, []*ObjectPropertyTuple{
-				{":has_limits", hardwareClassName},
-				{":requests", hardwareClassName},
+				{":runs_inside", microservicesClassName},
+				{":is_owned_by", replicaSetClassName}}},
+			{containersClassName, []*ObjectPropertyPair{
 				{":is_managed_by", containerEngineClassName},
 				{":belongs_to_group", podsClassName}}},
+			{replicaSetClassName, []*ObjectPropertyPair{
+				{":owns", podsClassName}}},
 		}
 
 		for _, param := range testParams {
@@ -126,7 +145,7 @@ func TestOntologyWrapper(t *testing.T) {
 			if !haveObjPropSlicesTheSameElems(objProps, param.dataProps) {
 				t.Errorf("Error ObjectPropertyNamesByClass\n"+
 					"Expected data props for class %s are : %s\n"+
-					"The result was: %s", param.className, objPropsToStr(param.dataProps), objPropsToStr(objProps))
+					"The result was: %s", param.className, objPropsToStr(param.dataProps), objPropsToStr(objectPropertyTuples2Pairs(objProps)))
 			}
 		}
 	})

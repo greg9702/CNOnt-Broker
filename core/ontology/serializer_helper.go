@@ -20,6 +20,7 @@ const nodesClassName string = ":Node"
 const microservicesClassName string = ":Microservice"
 const hardwareClassName string = ":Hardware"
 const containerEngineClassName string = ":ContainerEngine"
+const replicaSetClassName string = ":ReplicaSet"
 
 // TODO get this from ontology
 var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}

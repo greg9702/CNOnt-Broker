@@ -162,14 +162,20 @@ func (ow *OntologyWrapper) DataPropertyNamesByClass(className string) ([]string,
 	return dataPropertyNames, nil
 }
 
-// GenerateFilterFunction generates filter function for given property
-func (ow *OntologyWrapper) GenerateFilterFunction(name string) func(interface{}, interface{}) bool {
+// generateFilterFunction generates filter function for given property
+func (ow *OntologyWrapper) generateFilterFunction(objPropName string) func(interface{}, interface{}) bool {
 	// mock TODO
-
 	fn := func(interface{}, interface{}) bool {
 
 		return false
 	}
+
+	if objPropName == ":belongs_to_cluster" {
+		fn =  func(interface{}, interface{}) bool {
+			return true
+		}
+	}
+
 	return fn
 }
 
@@ -188,7 +194,7 @@ func (ow *OntologyWrapper) objectPropertyByName(name string) (ObjectPropertyTupl
 		return ObjectPropertyTuple{}, errors.New("Multiple '" + name + "' object properties found")
 	}
 
-	fn := ow.GenerateFilterFunction(name)
+	fn := ow.generateFilterFunction(name)
 	return ObjectPropertyTuple{name, convertIRI2Name(filteredObjectProperties[0].C.(*decl.ClassDecl).IRI), fn}, nil
 }
 
