@@ -23,7 +23,7 @@ const containerEngineClassName string = ":ContainerEngine"
 const replicaSetClassName string = ":ReplicaSet"
 
 // TODO get this from ontology
-var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, nodesClassName}
+var allClassesKeys = []string{clusterClassName, containersClassName, podsClassName, replicaSetClassName, nodesClassName}
 
 // ClusterStruct used to describe cluster object for our requirements,
 // k8s do not define structure like this, so we do

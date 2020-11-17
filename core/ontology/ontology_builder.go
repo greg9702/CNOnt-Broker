@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 // ObjectToDump contains all required data for dumping object
@@ -107,7 +107,7 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 	tempList = nil
 
-	// pods
+	// replicasets
 	replicaSets, err := ow.k8sClient.AllReplicaSets("default")
 	if err != nil {
 		return err
@@ -116,7 +116,23 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 	for ix := range replicaSets.Items {
 		rs := &replicaSets.Items[ix]
 		tempList = append(tempList, rs)
-		fmt.Println(rs.Name)
+	}
+
+	ow.apiData[replicaSetClassName] = tempList
+
+	fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d replica sets\n", len(tempList))
+
+	tempList = nil
+
+	// pods
+	pods, err := ow.k8sClient.AllPods("default")
+	if err != nil {
+		return err
+	}
+
+	for ix := range pods.Items {
+		pod := &pods.Items[ix]
+		tempList = append(tempList, pod)
 	}
 
 	ow.apiData[podsClassName] = tempList
@@ -127,8 +143,8 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 	// containers
 	for ix := range ow.apiData[podsClassName] {
-		pod := ow.apiData[podsClassName][ix].(*appsv1.ReplicaSet)
-		containers := pod.Spec.Template.Spec.Containers
+		pod := ow.apiData[podsClassName][ix].(*v1.Pod)
+		containers := pod.Spec.Containers
 		for i := range containers {
 			tempList = append(tempList, &containers[i])
 		}
