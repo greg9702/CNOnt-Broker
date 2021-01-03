@@ -29,6 +29,11 @@ func (oc *ObjectsToDumpCollection) add(object *ObjectToDump) {
 	fmt.Printf("[ObjectsToDumpCollection] add: Added new element: %s\n", object.objectName)
 }
 
+// clears ObjectsToDumpCollection buffer
+func (oc *ObjectsToDumpCollection) clear() {
+	oc.collection = nil
+}
+
 // ObjectsByClassName returns list of objects of className given type
 func (oc *ObjectsToDumpCollection) ObjectsByClassName(className string) []*ObjectToDump {
 
@@ -173,6 +178,8 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 	}
 
 	// based on ow.apiData we have to fill ow.objectsToDump collection
+
+	ow.objectsToDump.clear()
 
 	// first we create all ObjectToDump objects with its className, objectName
 	// and its dataPropertyAssertions
