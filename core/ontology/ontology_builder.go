@@ -91,6 +91,8 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 	var tempList []interface{}
 
+	ow.apiData = make(map[string][]interface{})
+
 	// cluster
 	cs := ClusterStruct{"TEST_CLUSTER"}
 	tempList = append(tempList, &cs)
@@ -114,57 +116,68 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 	tempList = nil
 
-	// replicasets
-	replicaSets, err := ow.k8sClient.AllReplicaSets("default")
+	namespaces, err := ow.k8sClient.AllNamespaces()
+
 	if err != nil {
 		return err
 	}
 
-	for ix := range replicaSets.Items {
-		rs := &replicaSets.Items[ix]
-		tempList = append(tempList, rs)
-	}
-
-	ow.apiData[replicaSetClassName] = tempList
-
-	fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d replica sets\n", len(tempList))
-
-	tempList = nil
-
-	// pods
-	pods, err := ow.k8sClient.AllPods("default")
-	if err != nil {
-		return err
-	}
-
-	for ix := range pods.Items {
-		pod := &pods.Items[ix]
-		tempList = append(tempList, pod)
-	}
-
-	ow.apiData[podsClassName] = tempList
-
-	fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d pods\n", len(tempList))
-
-	tempList = nil
-
-	// containers
-	for ix := range ow.apiData[podsClassName] {
-		pod := ow.apiData[podsClassName][ix].(*v1.Pod)
-		containers := pod.Spec.Containers
-		for i := range containers {
-			cs := ContainerStruct{pod.Name, &containers[i]}
-
-			tempList = append(tempList, &cs)
+	for it := range namespaces.Items {
+		namespace := namespaces.Items[it].Name
+		fmt.Println("for namespce: " + namespace)
+		// replicasets
+		replicaSets, err := ow.k8sClient.AllReplicaSets(namespace)
+		if err != nil {
+			return err
 		}
+
+		for ix := range replicaSets.Items {
+			rs := &replicaSets.Items[ix]
+			tempList = append(tempList, rs)
+		}
+
+		ow.apiData[replicaSetClassName] = append(ow.apiData[replicaSetClassName], tempList...)
+
+		fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d replica sets\n", len(tempList))
+
+		tempList = nil
+
+		// pods
+		pods, err := ow.k8sClient.AllPods(namespace)
+		if err != nil {
+			return err
+		}
+
+		for ix := range pods.Items {
+			pod := &pods.Items[ix]
+			tempList = append(tempList, pod)
+		}
+
+		ow.apiData[podsClassName] = append(ow.apiData[podsClassName], tempList...)
+
+		fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d pods\n", len(tempList))
+
+		thisNamespacePods := tempList
+
+		tempList = nil
+
+		// containers
+		for ix := range thisNamespacePods {
+			pod := thisNamespacePods[ix].(*v1.Pod)
+			containers := pod.Spec.Containers
+			for i := range containers {
+				cs := ContainerStruct{pod.Name, &containers[i]}
+
+				tempList = append(tempList, &cs)
+			}
+		}
+
+		ow.apiData[containersClassName] = append(ow.apiData[containersClassName], tempList...)
+
+		fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d containers\n", len(tempList))
+
+		tempList = nil
 	}
-
-	ow.apiData[containersClassName] = tempList
-
-	fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d containers\n", len(tempList))
-
-	tempList = nil
-
 	return nil
 }
 
@@ -231,12 +244,14 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 
 			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string][]string), object}
 			ow.objectsToDump.add(obj)
-			// fmt.Println(obj)
+			fmt.Printf("Added object to the collection: %s\n", obj.objectName)
 		}
 	}
 
 	// we have to link all objects with each other setting proper objectPropertyAssertions
 	// for every of them
+
+	fmt.Println("--------------OBJECT PROPERTIES--------------")
 
 	for ix := range allClassesKeys {
 		className := allClassesKeys[ix]
@@ -244,8 +259,10 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 		// [runs_on_node, NODE], [contains_container, CONTAINER]
 		allObjectPropertiesForClass, err := ow.objectPropertiesList(className)
 		// _ = err
-		// fmt.Println(className)
+		// fmt.Println("----------------------------")
+		// fmt.Println("Processing class: " + className)
 
+		// fmt.Println("All object properties for this class: ")
 		// for abc := range allObjectPropertiesForClass {
 		// 	fmt.Println(allObjectPropertiesForClass[abc])
 		// }
@@ -256,6 +273,11 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 		}
 		objectsToSet := ow.objectsToDump.ObjectsByClassName(className)
 
+		// fmt.Println("----------------------------")
+		// fmt.Println("All object to set for this class: ")
+		// for abc := range objectsToSet {
+		// 	fmt.Println(objectsToSet[abc])
+		// }
 		for i := range objectsToSet {
 			object := objectsToSet[i]
 
@@ -265,6 +287,11 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 				// [Node1, Node2] it gives all Nodes here, need only specific one
 				relatedObjects := ow.objectsToDump.ObjectsByClassNameFiltered(singlePropertyTuple.RelatedClassName, object.originalObjectPointer, singlePropertyTuple.FilterFunction)
 
+				// fmt.Println("----------------------------")
+				// fmt.Println("All related objects for this object: " + object.objectName)
+				// for abc := range relatedObjects {
+				// 	fmt.Println(relatedObjects[abc])
+				// }
 				for iter := range relatedObjects {
 					relatedObject := relatedObjects[iter]
 					object.objectPropertyAssertions[singlePropertyTuple.PropertyName] = append(object.objectPropertyAssertions[singlePropertyTuple.PropertyName], relatedObject.objectName)
