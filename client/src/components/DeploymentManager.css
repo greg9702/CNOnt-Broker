@@ -5,20 +5,28 @@
   flex-direction: column;
 }
 
-#deployment-creator {
-  height: 40%;
-  margin: 5px;
-}
-
 #command-buttons {
   display: flex;
   flex-direction: row;
-  margin: 5px;
+  margin-top: 5%;
   justify-content: center;
+  font-family: 'Open Sans', sans-serif;
+}
+
+#command-button {
+  margin-left: 20px;
+  width: 15%;
+  height: 80px;
+  font-weight: 400;
+  border: 3px solid black;
+  border-radius: 25px;
 }
 
 #status-logger {
+  margin-top: 2%;
   height: 10%;
+  color: rgb(146, 0, 0);
+  font-weight: 600;
 }
 
 #deployment-preview {

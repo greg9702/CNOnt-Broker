@@ -24,7 +24,6 @@ Declaration(Class(:Credentials))
 Declaration(Class(:DockerContainer))
 Declaration(Class(:Firewall))
 Declaration(Class(:FullVirtualizationHypervisor))
-Declaration(Class(:Hardware))
 Declaration(Class(:HypervisorType))
 Declaration(Class(:IPAddress))
 Declaration(Class(:IPv4Network))
@@ -51,9 +50,9 @@ Declaration(Class(:ParavirtualizationHypervisor))
 Declaration(Class(:Pod))
 Declaration(Class(:ProprietaryMicroservice))
 Declaration(Class(:Proxy))
+Declaration(Class(:ReplicaSet))
 Declaration(Class(:Router))
 Declaration(Class(:SaasCloud))
-Declaration(Class(:Site))
 Declaration(Class(:ThirdPartyMicroservice))
 Declaration(Class(:VirtualMachine))
 Declaration(Class(:VirtualMachineContainer))
@@ -75,46 +74,38 @@ Declaration(ObjectProperty(:contains_pod))
 Declaration(ObjectProperty(:controls))
 Declaration(ObjectProperty(:forms))
 Declaration(ObjectProperty(:from_network))
-Declaration(ObjectProperty(:has_limits))
 Declaration(ObjectProperty(:hypervisor))
 Declaration(ObjectProperty(:is_controlled_by))
 Declaration(ObjectProperty(:is_installed_on))
 Declaration(ObjectProperty(:is_managed_by))
+Declaration(ObjectProperty(:is_owned_by))
 Declaration(ObjectProperty(:machine_container))
 Declaration(ObjectProperty(:machine_state))
 Declaration(ObjectProperty(:network_interface))
+Declaration(ObjectProperty(:owns))
 Declaration(ObjectProperty(:package))
 Declaration(ObjectProperty(:provides_resources))
-Declaration(ObjectProperty(:requests))
 Declaration(ObjectProperty(:runs))
 Declaration(ObjectProperty(:runs_inside))
 Declaration(ObjectProperty(:runs_on))
-Declaration(ObjectProperty(:site))
 Declaration(ObjectProperty(:supports_lifecycle))
-Declaration(DataProperty(:app))
-Declaration(DataProperty(:containerPort))
-Declaration(DataProperty(:cpu))
+Declaration(DataProperty(:namespace))
+Declaration(DataProperty(:cpu_limits))
+Declaration(DataProperty(:cpu_requests))
 Declaration(DataProperty(:dns_name))
 Declaration(DataProperty(:image))
 Declaration(DataProperty(:ip_address))
 Declaration(DataProperty(:ip_mask))
 Declaration(DataProperty(:login))
-Declaration(DataProperty(:memory))
+Declaration(DataProperty(:memory_limits))
+Declaration(DataProperty(:memory_requests))
 Declaration(DataProperty(:name))
 Declaration(DataProperty(:password))
 Declaration(DataProperty(:port))
 Declaration(DataProperty(:replicas))
 Declaration(DataProperty(:server_cores))
 Declaration(DataProperty(:server_ram))
-Declaration(NamedIndividual(:Cluster1))
-Declaration(NamedIndividual(:DockerContainer1))
-Declaration(NamedIndividual(:DockerContainer2))
-Declaration(NamedIndividual(:Hardware1))
-Declaration(NamedIndividual(:Hardware2))
-Declaration(NamedIndividual(:Node1))
-Declaration(NamedIndividual(:Pod1))
-Declaration(NamedIndividual(:machine_running))
-Declaration(NamedIndividual(:machine_stopped))
+
 
 ############################
 #   Object Properties
@@ -135,21 +126,21 @@ ObjectPropertyRange(:application_container :ApplicationContainer)
 
 SubObjectPropertyOf(:belongs_to_cluster owl:topObjectProperty)
 InverseObjectProperties(:belongs_to_cluster :contains_node)
-ObjectPropertyDomain(:belongs_to_cluster :VirtualMachine)
-ObjectPropertyRange(:belongs_to_cluster :VirtualMachineGroup)
+ObjectPropertyDomain(:belongs_to_cluster :Node)
+ObjectPropertyRange(:belongs_to_cluster :KubernetesCluster)
 
 # Object Property: :belongs_to_group (:belongs_to_group)
 
 SubObjectPropertyOf(:belongs_to_group owl:topObjectProperty)
 InverseObjectProperties(:belongs_to_group :contains_container)
 ObjectPropertyDomain(:belongs_to_group :ApplicationContainer)
-ObjectPropertyRange(:belongs_to_group :ApplicationContainerGroup)
+ObjectPropertyRange(:belongs_to_group :Pod)
 
 # Object Property: :belongs_to_node (:belongs_to_node)
 
 InverseObjectProperties(:belongs_to_node :contains_pod)
 ObjectPropertyDomain(:belongs_to_node :ApplicationContainerGroup)
-ObjectPropertyRange(:belongs_to_node :VirtualMachine)
+ObjectPropertyRange(:belongs_to_node :Node)
 
 # Object Property: :consists_of (:consists_of)
 
@@ -165,7 +156,7 @@ ObjectPropertyDomain(:contains_application :ApplicationContainer)
 # Object Property: :contains_container (:contains_container)
 
 ObjectPropertyDomain(:contains_container :ApplicationContainerGroup)
-ObjectPropertyRange(:contains_container :ApplicationContainer)
+ObjectPropertyRange(:contains_container :DockerContainer)
 
 # Object Property: :contains_machine (:contains_machine)
 
@@ -177,12 +168,12 @@ ObjectPropertyRange(:contains_machine :VirtualMachine)
 # Object Property: :contains_node (:contains_node)
 
 ObjectPropertyDomain(:contains_node :VirtualMachineGroup)
-ObjectPropertyRange(:contains_node :VirtualMachine)
+ObjectPropertyRange(:contains_node :Node)
 
 # Object Property: :contains_pod (:contains_pod)
 
-ObjectPropertyDomain(:contains_pod :VirtualMachine)
-ObjectPropertyRange(:contains_pod :ApplicationContainerGroup)
+ObjectPropertyDomain(:contains_pod :Node)
+ObjectPropertyRange(:contains_pod :Pod)
 
 # Object Property: :controls (:controls)
 
@@ -200,11 +191,6 @@ ObjectPropertyRange(:forms :CloudNativeApplication)
 FunctionalObjectProperty(:from_network)
 ObjectPropertyDomain(:from_network :NetworkAddress)
 ObjectPropertyRange(:from_network :Network)
-
-# Object Property: :has_limits (:has_limits)
-
-ObjectPropertyDomain(:has_limits :DockerContainer)
-ObjectPropertyRange(:has_limits :Hardware)
 
 # Object Property: :hypervisor (:hypervisor)
 
@@ -229,6 +215,12 @@ InverseObjectProperties(:is_managed_by :supports_lifecycle)
 ObjectPropertyDomain(:is_managed_by :ApplicationContainer)
 ObjectPropertyRange(:is_managed_by :ContainerEngine)
 
+# Object Property: :is_owned_by (:is_owned_by)
+
+SubObjectPropertyOf(:is_owned_by owl:topObjectProperty)
+ObjectPropertyDomain(:is_owned_by :Pod)
+ObjectPropertyRange(:is_owned_by :ReplicaSet)
+
 # Object Property: :machine_container (:machine_container)
 
 FunctionalObjectProperty(:machine_container)
@@ -242,6 +234,11 @@ FunctionalObjectProperty(:machine_state)
 ObjectPropertyDomain(:machine_state :VirtualMachine)
 ObjectPropertyRange(:machine_state :MachineState)
 
+# Object Property: :owns (:owns)
+
+ObjectPropertyDomain(:owns :ReplicaSet)
+ObjectPropertyRange(:owns :Pod)
+
 # Object Property: :package (Package)
 
 AnnotationAssertion(rdfs:label :package "Package"^^xsd:string)
@@ -253,11 +250,6 @@ ObjectPropertyRange(:package :VirtualMachinePackage)
 
 ObjectPropertyDomain(:provides_resources :InfrastructureResource)
 ObjectPropertyRange(:provides_resources :ConcreteOS)
-
-# Object Property: :requests (:requests)
-
-ObjectPropertyDomain(:requests :DockerContainer)
-ObjectPropertyRange(:requests :Hardware)
 
 # Object Property: :runs (:runs)
 
@@ -275,13 +267,6 @@ ObjectPropertyRange(:runs_inside :Microservice)
 ObjectPropertyDomain(:runs_on :ContainerEngine)
 ObjectPropertyRange(:runs_on :ConcreteOS)
 
-# Object Property: :site (site)
-
-AnnotationAssertion(rdfs:label :site "site"^^xsd:string)
-FunctionalObjectProperty(:site)
-ObjectPropertyDomain(:site :InfrastructureLayerElement)
-ObjectPropertyRange(:site :Site)
-
 # Object Property: :supports_lifecycle (:supports_lifecycle)
 
 ObjectPropertyDomain(:supports_lifecycle :ContainerEngine)
@@ -292,15 +277,21 @@ ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
 #   Data Properties
 ############################
 
-# Data Property: :containerPort (:containerPort)
+# Data Property: :namespace (:namespace)
 
-DataPropertyDomain(:containerPort :ApplicationContainer)
-DataPropertyRange(:containerPort xsd:int)
+DataPropertyDomain(:namespace :Pod)
+DataPropertyDomain(:namespace :ReplicaSet)
+DataPropertyRange(:namespace xsd:string)
 
-# Data Property: :cpu (:cpu)
+# Data Property: :cpu_limits (:cpu_limits)
 
-DataPropertyDomain(:cpu :Hardware)
-DataPropertyRange(:cpu xsd:string)
+DataPropertyDomain(:cpu_limits :DockerContainer)
+DataPropertyRange(:cpu_limits xsd:string)
+
+# Data Property: :cpu_requests (:cpu_requests)
+
+DataPropertyDomain(:cpu_requests :DockerContainer)
+DataPropertyRange(:cpu_requests xsd:string)
 
 # Data Property: :dns_name (DNS name)
 
@@ -331,10 +322,15 @@ FunctionalDataProperty(:login)
 DataPropertyDomain(:login :LoginAndPasswordCredentials)
 DataPropertyRange(:login xsd:string)
 
-# Data Property: :memory (:memory)
+# Data Property: :memory_limits (:memory_limits)
 
-DataPropertyDomain(:memory :Hardware)
-DataPropertyRange(:memory xsd:string)
+DataPropertyDomain(:memory_limits :DockerContainer)
+DataPropertyRange(:memory_limits xsd:string)
+
+# Data Property: :memory_requests (:memory_requests)
+
+DataPropertyDomain(:memory_requests :DockerContainer)
+DataPropertyRange(:memory_requests xsd:string)
 
 # Data Property: :name (:name)
 
@@ -344,6 +340,7 @@ DataPropertyDomain(:name :ApplicationContainerGroup)
 DataPropertyDomain(:name :Cluster)
 DataPropertyDomain(:name :Node)
 DataPropertyDomain(:name :Pod)
+DataPropertyDomain(:name :ReplicaSet)
 DataPropertyDomain(:name :VirtualMachine)
 DataPropertyDomain(:name :VirtualMachineGroup)
 DataPropertyRange(:name xsd:string)
@@ -356,13 +353,13 @@ DataPropertyRange(:password xsd:string)
 
 # Data Property: :port (:port)
 
-DataPropertyDomain(:port :DockerContainer)
+DataPropertyDomain(:port :ApplicationContainer)
 DataPropertyRange(:port xsd:int)
 
 # Data Property: :replicas (:replicas)
 
-DataPropertyDomain(:replicas :Pod)
-DataPropertyRange(:replicas xsd:int)
+DataPropertyDomain(:replicas :ReplicaSet)
+DataPropertyRange(:replicas xsd:string)
 
 # Data Property: :server_cores (:server_cores)
 
@@ -419,10 +416,6 @@ SubClassOf(:Firewall :Connectivity)
 # Class: :FullVirtualizationHypervisor (:FullVirtualizationHypervisor)
 
 SubClassOf(:FullVirtualizationHypervisor :HypervisorType)
-
-# Class: :Hardware (:Hardware)
-
-SubClassOf(:Hardware :InfrastructureLayerElement)
 
 # Class: :IPAddress (:IPAddress)
 
@@ -520,6 +513,10 @@ SubClassOf(:ProprietaryMicroservice :Microservice)
 
 SubClassOf(:Proxy :Connectivity)
 
+# Class: :ReplicaSet (:ReplicaSet)
+
+SubClassOf(:ReplicaSet :ContenerizationLayerElement)
+
 # Class: :Router (:Router)
 
 SubClassOf(:Router :Connectivity)
@@ -528,10 +525,6 @@ SubClassOf(:Router :Connectivity)
 
 AnnotationAssertion(rdfs:comment :SaasCloud "Software as a service cloud"^^xsd:string)
 SubClassOf(:SaasCloud :Cloud)
-
-# Class: :Site (:Site)
-
-AnnotationAssertion(rdfs:comment :Site "Physical location of infrastructure elements"^^xsd:string)
 
 # Class: :ThirdPartyMicroservice (:ThirdPartyMicroservice)
 
@@ -565,66 +558,6 @@ SubClassOf(:XenHypervisor :ParavirtualizationHypervisor)
 ############################
 #   Named Individuals
 ############################
-
-# Individual: :Cluster1 (:Cluster1)
-
-ClassAssertion(:KubernetesCluster :Cluster1)
-ObjectPropertyAssertion(:contains_node :Cluster1 :Node1)
-DataPropertyAssertion(:name :Cluster1 "kind")
-
-# Individual: :DockerContainer1 (:DockerContainer1)
-
-ClassAssertion(:DockerContainer :DockerContainer1)
-ObjectPropertyAssertion(:belongs_to_group :DockerContainer1 :Pod1)
-ObjectPropertyAssertion(:has_limits :DockerContainer1 :Hardware2)
-ObjectPropertyAssertion(:requests :DockerContainer1 :Hardware1)
-DataPropertyAssertion(:image :DockerContainer1 "k8s.gcr.io/echoserver:1.4")
-DataPropertyAssertion(:name :DockerContainer1 "hello-kubernetes1")
-
-# Individual: :DockerContainer2 (:DockerContainer2)
-
-ObjectPropertyAssertion(:belongs_to_group :DockerContainer2 :Pod1)
-ObjectPropertyAssertion(:has_limits :DockerContainer2 :Hardware1)
-DataPropertyAssertion(:image :DockerContainer2 "k8s.gcr.io/echoserver:1.4")
-DataPropertyAssertion(:name :DockerContainer2 "hello-kubernetes2")
-DataPropertyAssertion(:port :DockerContainer2 "80"^^xsd:integer)
-
-# Individual: :Hardware1 (:Hardware1)
-
-DataPropertyAssertion(:cpu :Hardware1 "100m")
-DataPropertyAssertion(:memory :Hardware1 "500Mi")
-
-# Individual: :Hardware2 (:Hardware2)
-
-DataPropertyAssertion(:cpu :Hardware2 "500m")
-DataPropertyAssertion(:memory :Hardware2 "100Mi")
-
-# Individual: :Node1 (:Node1)
-
-ClassAssertion(:Node :Node1)
-ObjectPropertyAssertion(:belongs_to_cluster :Node1 :Cluster1)
-ObjectPropertyAssertion(:contains_pod :Node1 :Pod1)
-DataPropertyAssertion(:name :Node1 "kind-control-plane")
-
-# Individual: :Pod1 (:Pod1)
-
-ClassAssertion(:Pod :Pod1)
-ObjectPropertyAssertion(:belongs_to_node :Pod1 :Node1)
-ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer1)
-ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer2)
-DataPropertyAssertion(:app :Pod1 "pod1")
-DataPropertyAssertion(:name :Pod1 "pod1name")
-DataPropertyAssertion(:replicas :Pod1 "3"^^xsd:integer)
-
-# Individual: :machine_running (running)
-
-AnnotationAssertion(rdfs:label :machine_running "running"^^xsd:string)
-ClassAssertion(:MachineRunningState :machine_running)
-
-# Individual: :machine_stopped (stopped)
-
-AnnotationAssertion(rdfs:label :machine_stopped "stopped"^^xsd:string)
-ClassAssertion(:MachineStoppedState :machine_stopped)
 
 
 )

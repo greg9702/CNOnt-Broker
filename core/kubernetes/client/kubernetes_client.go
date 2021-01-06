@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -43,9 +44,50 @@ func (k *KubernetesClient) Init() {
 	k.clientset = clientset
 }
 
-// GetAllPods prints pods from default namespace
-func (k *KubernetesClient) GetAllPods() {
-	fmt.Println(k.clientset.CoreV1().Pods("default").List(context.TODO(), v1.ListOptions{}))
+// AllPods returns pods from default namespace
+// If empty string provided as namespace argument, "default" namespace is used
+func (k *KubernetesClient) AllPods(namespace string) (*apiv1.PodList, error) {
+
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	return k.clientset.CoreV1().Pods(namespace).List(context.TODO(), v1.ListOptions{})
+}
+
+func (k *KubernetesClient) AllReplicaSets(namespace string) (*appsv1.ReplicaSetList, error) {
+
+	if namespace == "" {
+		namespace = "default"
+	}
+
+	return k.clientset.AppsV1().ReplicaSets(namespace).List(context.TODO(), v1.ListOptions{})
+}
+
+// AllNodes returns list of all nodes in cluster
+func (k *KubernetesClient) AllNodes() (*apiv1.NodeList, error) {
+	return k.clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+}
+
+// ContainersFromPod returns list of all nodes in cluster
+func (k *KubernetesClient) ContainersFromPod(pod apiv1.Pod) ([]*apiv1.Container, error) {
+
+	// TODO errors checks?
+
+	containers := pod.Spec.Containers
+
+	var containersList []*apiv1.Container
+
+	for i := range containers {
+		containersList = append(containersList, &containers[i])
+	}
+
+	return containersList, nil
+}
+
+// AllNamespaces returns list of all namespaces
+func (k *KubernetesClient) AllNamespaces() (*apiv1.NamespaceList, error) {
+	return k.clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
 }
 
 // CreateDeployment creates deployment deployment passed in

@@ -34,20 +34,24 @@ func main() {
 	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	flag.Parse()
 
-	kuberenetesClient := client.NewKubernetesClient(kubeconfig)
-	kuberenetesClient.Init()
+	kubernetesClient := client.NewKubernetesClient(kubeconfig)
+	kubernetesClient.Init()
 
-	var ontologyWrapper = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
-	deploymentController := controllers.NewDeploymentController(kuberenetesClient, ontologyWrapper)
+	ontologyTemplateFile := filepath.Join("ontology", "assets", "CNOnt_template.owl")
+
+	var ontologyWrapper = ontology.NewOntologyWrapper(ontologyTemplateFile)
+	var ontologyBuilder = ontology.NewOntologyBuilder(kubernetesClient, ontologyWrapper, ontologyTemplateFile)
+	deploymentController := controllers.NewDeploymentController(kubernetesClient, ontologyWrapper, ontologyBuilder)
 
 	router := gin.Default()
 	router.Use(cors.Default())
 
 	v1Router := router.Group("/api/v1")
 
-	v1Router.GET("/create-deployment", deploymentController.CreateDeployment)
-	v1Router.GET("/delete-deployment", deploymentController.DeleteDeployment)
-	v1Router.GET("/preview-deployment", deploymentController.PreviewDeployment)
+	v1Router.GET("/create-deployment", deploymentController.CreateDeployments)
+	v1Router.GET("/delete-deployment", deploymentController.DeleteDeployments)
+	v1Router.GET("/preview-deployment", deploymentController.PreviewDeployments)
+	v1Router.GET("/serialize-cluster-conf", deploymentController.SerializeClusterConf)
 
 	port := os.Getenv("PORT")
 	if port == "" {
