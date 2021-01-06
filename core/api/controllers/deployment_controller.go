@@ -3,6 +3,8 @@ package controllers
 import (
 	"CNOnt-Broker/core/kubernetes/client"
 	"CNOnt-Broker/core/ontology"
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -119,8 +121,21 @@ func (d *DeploymentController) DeleteDeployments(ctx *gin.Context) {
 	return
 }
 
-// TODO call OntologyBuilder properly when ready
-// SerializeClusterConf serializes cluster configuration and stores it in the ontology
+// SerializeClusterConf create a cluster mapping and return it as response
+// 304 status code is returned when attempt was sucesfully
 func (d *DeploymentController) SerializeClusterConf(ctx *gin.Context) {
-	d.ontologyBuilder.GenerateCollection()
+
+	pathFile, err := d.ontologyBuilder.GenerateCollection()
+
+	if err != nil {
+		ctx.JSON(200, gin.H{
+			"error":   "Could not create a mapping",
+			"details": err,
+		})
+		return
+	}
+
+	ctx.Writer.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename=%s", "cluster_mapping.owl"))
+	ctx.Writer.Header().Add("Content-Type", "application/octet-stream")
+	ctx.File(pathFile) // automatically respond with 404 if wrong file passed
 }

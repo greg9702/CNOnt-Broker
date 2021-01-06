@@ -183,13 +183,13 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 // GenerateCollection creates objects for all individuals and
 // fills their Class- and DataProperty- Assertions
-func (ow *OntologyBuilder) GenerateCollection() error {
+func (ow *OntologyBuilder) GenerateCollection() (string, error) {
 
 	err := ow.fetchDataFromAPI()
 
 	if err != nil {
 		fmt.Printf("[OntologyBuilder] GenerateCollection: fetchDataFromAPI error: %s\n", err.Error())
-		return err
+		return "", err
 	}
 
 	// based on ow.apiData we have to fill ow.objectsToDump collection
@@ -269,7 +269,7 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 
 		if err != nil {
 			fmt.Printf("[OntologyBuilder] GenerateCollection: objectPropertiesList error: %s", err.Error())
-			return err
+			return "", err
 		}
 		objectsToSet := ow.objectsToDump.ObjectsByClassName(className)
 
@@ -301,18 +301,18 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 	}
 
 	fmt.Println("---------------DUMPING DATA---------------")
-	err = ow.dumpData()
+	savedFile, err := ow.dumpData()
 
 	if err != nil {
 		fmt.Printf("[OntologyBuilder] GenerateCollection: dumpData error: %s", err.Error())
-		return err
+		return "", err
 	}
 
-	return nil
+	return savedFile, nil
 }
 
 // saveToFile saves passed data stream into the target file
-func (ow *OntologyBuilder) saveToFile(stream string) error {
+func (ow *OntologyBuilder) saveToFile(stream string) (string, error) {
 
 	// read ontology template file
 	b, err := ioutil.ReadFile(ow.templatePath)
@@ -330,13 +330,13 @@ func (ow *OntologyBuilder) saveToFile(stream string) error {
 	if err != nil {
 		panic("Writing file error")
 	}
-
-	return nil
+	// TODO make it class member!!!!!!!!!!1
+	return "/tmp/cluster_mapping.owl", nil
 }
 
 // dumpData prepare all objects to dump and convert them into
 // final form stream of data
-func (ow *OntologyBuilder) dumpData() error {
+func (ow *OntologyBuilder) dumpData() (string, error) {
 
 	var finalStream string
 
@@ -362,8 +362,13 @@ func (ow *OntologyBuilder) dumpData() error {
 		}
 		finalStream += individualHeader + classAssertion + objectPropertyAssertions + dataPropertyAssertions + "\n"
 	}
-	ow.saveToFile(finalStream)
-	return nil
+	path, err := ow.saveToFile(finalStream)
+
+	if err != nil {
+		return "", err
+	}
+
+	return path, nil
 }
 
 //dataPropertiesList returns list of data properties for given class
