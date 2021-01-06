@@ -1,0 +1,572 @@
+Prefix(:=<http://www.unifiedcloud.org/2009/2/26/uci.owl#>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+
+
+Ontology(<http://www.unifiedcloud.org/2009/2/26/uci.owl>
+Annotation(rdfs:comment "Unified Cloud Ontology"^^xsd:string)
+Annotation(owl:versionInfo "0.1"^^xsd:string)
+
+Declaration(Class(:ApplicationContainer))
+Declaration(Class(:ApplicationContainerGroup))
+Declaration(Class(:ApplicationLayerElement))
+Declaration(Class(:Cloud))
+Declaration(Class(:CloudNativeApplication))
+Declaration(Class(:Cluster))
+Declaration(Class(:ConcreteOS))
+Declaration(Class(:Connectivity))
+Declaration(Class(:ContainerEngine))
+Declaration(Class(:ContenerizationLayerElement))
+Declaration(Class(:Credentials))
+Declaration(Class(:DockerContainer))
+Declaration(Class(:Firewall))
+Declaration(Class(:FullVirtualizationHypervisor))
+Declaration(Class(:HypervisorType))
+Declaration(Class(:IPAddress))
+Declaration(Class(:IPv4Network))
+Declaration(Class(:IaasCloud))
+Declaration(Class(:InfrastructureFacility))
+Declaration(Class(:InfrastructureLayerElement))
+Declaration(Class(:InfrastructureResource))
+Declaration(Class(:KVMHypervisor))
+Declaration(Class(:KubernetesCluster))
+Declaration(Class(:LoadBallancer))
+Declaration(Class(:LoginAndPasswordCredentials))
+Declaration(Class(:MachineRunningState))
+Declaration(Class(:MachineState))
+Declaration(Class(:MachineStoppedState))
+Declaration(Class(:MasterNode))
+Declaration(Class(:Microservice))
+Declaration(Class(:Network))
+Declaration(Class(:NetworkAddress))
+Declaration(Class(:NetworkElement))
+Declaration(Class(:Node))
+Declaration(Class(:Orchestrator))
+Declaration(Class(:PaasCloud))
+Declaration(Class(:ParavirtualizationHypervisor))
+Declaration(Class(:Pod))
+Declaration(Class(:ProprietaryMicroservice))
+Declaration(Class(:Proxy))
+Declaration(Class(:ReplicaSet))
+Declaration(Class(:Router))
+Declaration(Class(:SaasCloud))
+Declaration(Class(:ThirdPartyMicroservice))
+Declaration(Class(:VirtualMachine))
+Declaration(Class(:VirtualMachineContainer))
+Declaration(Class(:VirtualMachineGroup))
+Declaration(Class(:VirtualMachinePackage))
+Declaration(Class(:WorkerNode))
+Declaration(Class(:XenHypervisor))
+Declaration(ObjectProperty(:address))
+Declaration(ObjectProperty(:application_container))
+Declaration(ObjectProperty(:belongs_to_cluster))
+Declaration(ObjectProperty(:belongs_to_group))
+Declaration(ObjectProperty(:belongs_to_node))
+Declaration(ObjectProperty(:consists_of))
+Declaration(ObjectProperty(:contains_application))
+Declaration(ObjectProperty(:contains_container))
+Declaration(ObjectProperty(:contains_machine))
+Declaration(ObjectProperty(:contains_node))
+Declaration(ObjectProperty(:contains_pod))
+Declaration(ObjectProperty(:controls))
+Declaration(ObjectProperty(:forms))
+Declaration(ObjectProperty(:from_network))
+Declaration(ObjectProperty(:hypervisor))
+Declaration(ObjectProperty(:is_controlled_by))
+Declaration(ObjectProperty(:is_installed_on))
+Declaration(ObjectProperty(:is_managed_by))
+Declaration(ObjectProperty(:is_owned_by))
+Declaration(ObjectProperty(:machine_container))
+Declaration(ObjectProperty(:machine_state))
+Declaration(ObjectProperty(:network_interface))
+Declaration(ObjectProperty(:owns))
+Declaration(ObjectProperty(:package))
+Declaration(ObjectProperty(:provides_resources))
+Declaration(ObjectProperty(:runs))
+Declaration(ObjectProperty(:runs_inside))
+Declaration(ObjectProperty(:runs_on))
+Declaration(ObjectProperty(:supports_lifecycle))
+Declaration(DataProperty(:app))
+Declaration(DataProperty(:cpu_limits))
+Declaration(DataProperty(:cpu_requests))
+Declaration(DataProperty(:dns_name))
+Declaration(DataProperty(:image))
+Declaration(DataProperty(:ip_address))
+Declaration(DataProperty(:ip_mask))
+Declaration(DataProperty(:login))
+Declaration(DataProperty(:memory_limits))
+Declaration(DataProperty(:memory_requests))
+Declaration(DataProperty(:name))
+Declaration(DataProperty(:password))
+Declaration(DataProperty(:port))
+Declaration(DataProperty(:replicas))
+Declaration(DataProperty(:server_cores))
+Declaration(DataProperty(:server_ram))
+Declaration(NamedIndividual(:Cluster1))
+Declaration(NamedIndividual(:DockerContainer1))
+Declaration(NamedIndividual(:DockerContainer2))
+Declaration(NamedIndividual(:Hardware1))
+Declaration(NamedIndividual(:Hardware2))
+Declaration(NamedIndividual(:Node1))
+Declaration(NamedIndividual(:Pod1))
+Declaration(NamedIndividual(:ReplicaSet1))
+Declaration(NamedIndividual(:machine_running))
+Declaration(NamedIndividual(:machine_stopped))
+
+############################
+#   Object Properties
+############################
+
+# Object Property: :address (:address)
+
+ObjectPropertyDomain(:address :NetworkElement)
+ObjectPropertyRange(:address :NetworkAddress)
+
+# Object Property: :application_container (:application_container)
+
+InverseObjectProperties(:application_container :contains_application)
+FunctionalObjectProperty(:application_container)
+ObjectPropertyRange(:application_container :ApplicationContainer)
+
+# Object Property: :belongs_to_cluster (:belongs_to_cluster)
+
+SubObjectPropertyOf(:belongs_to_cluster owl:topObjectProperty)
+InverseObjectProperties(:belongs_to_cluster :contains_node)
+ObjectPropertyDomain(:belongs_to_cluster :Node)
+ObjectPropertyRange(:belongs_to_cluster :KubernetesCluster)
+
+# Object Property: :belongs_to_group (:belongs_to_group)
+
+SubObjectPropertyOf(:belongs_to_group owl:topObjectProperty)
+InverseObjectProperties(:belongs_to_group :contains_container)
+ObjectPropertyDomain(:belongs_to_group :ApplicationContainer)
+ObjectPropertyRange(:belongs_to_group :Pod)
+
+# Object Property: :belongs_to_node (:belongs_to_node)
+
+InverseObjectProperties(:belongs_to_node :contains_pod)
+ObjectPropertyDomain(:belongs_to_node :ApplicationContainerGroup)
+ObjectPropertyRange(:belongs_to_node :Node)
+
+# Object Property: :consists_of (:consists_of)
+
+InverseObjectProperties(:consists_of :forms)
+ObjectPropertyDomain(:consists_of :CloudNativeApplication)
+ObjectPropertyRange(:consists_of :Microservice)
+
+# Object Property: :contains_application (:contains_application)
+
+InverseFunctionalObjectProperty(:contains_application)
+ObjectPropertyDomain(:contains_application :ApplicationContainer)
+
+# Object Property: :contains_container (:contains_container)
+
+ObjectPropertyDomain(:contains_container :ApplicationContainerGroup)
+ObjectPropertyRange(:contains_container :DockerContainer)
+
+# Object Property: :contains_machine (:contains_machine)
+
+InverseObjectProperties(:contains_machine :machine_container)
+InverseFunctionalObjectProperty(:contains_machine)
+ObjectPropertyDomain(:contains_machine :VirtualMachineContainer)
+ObjectPropertyRange(:contains_machine :VirtualMachine)
+
+# Object Property: :contains_node (:contains_node)
+
+ObjectPropertyDomain(:contains_node :VirtualMachineGroup)
+ObjectPropertyRange(:contains_node :Node)
+
+# Object Property: :contains_pod (:contains_pod)
+
+ObjectPropertyDomain(:contains_pod :Node)
+ObjectPropertyRange(:contains_pod :Pod)
+
+# Object Property: :controls (:controls)
+
+InverseObjectProperties(:controls :is_controlled_by)
+ObjectPropertyDomain(:controls :Orchestrator)
+ObjectPropertyRange(:controls :ContainerEngine)
+
+# Object Property: :forms (:forms)
+
+ObjectPropertyDomain(:forms :Microservice)
+ObjectPropertyRange(:forms :CloudNativeApplication)
+
+# Object Property: :from_network (:from_network)
+
+FunctionalObjectProperty(:from_network)
+ObjectPropertyDomain(:from_network :NetworkAddress)
+ObjectPropertyRange(:from_network :Network)
+
+# Object Property: :hypervisor (:hypervisor)
+
+FunctionalObjectProperty(:hypervisor)
+ObjectPropertyDomain(:hypervisor :VirtualMachineContainer)
+ObjectPropertyRange(:hypervisor :HypervisorType)
+
+# Object Property: :is_controlled_by (:is_controlled_by)
+
+ObjectPropertyDomain(:is_controlled_by :ContainerEngine)
+ObjectPropertyRange(:is_controlled_by :Orchestrator)
+
+# Object Property: :is_installed_on (:is_installed_on)
+
+InverseObjectProperties(:is_installed_on :provides_resources)
+ObjectPropertyDomain(:is_installed_on :ConcreteOS)
+ObjectPropertyRange(:is_installed_on :InfrastructureResource)
+
+# Object Property: :is_managed_by (:is_managed_by)
+
+InverseObjectProperties(:is_managed_by :supports_lifecycle)
+ObjectPropertyDomain(:is_managed_by :ApplicationContainer)
+ObjectPropertyRange(:is_managed_by :ContainerEngine)
+
+# Object Property: :is_owned_by (:is_owned_by)
+
+SubObjectPropertyOf(:is_owned_by owl:topObjectProperty)
+ObjectPropertyDomain(:is_owned_by :Pod)
+ObjectPropertyRange(:is_owned_by :ReplicaSet)
+
+# Object Property: :machine_container (:machine_container)
+
+FunctionalObjectProperty(:machine_container)
+ObjectPropertyDomain(:machine_container :VirtualMachine)
+ObjectPropertyRange(:machine_container :VirtualMachineContainer)
+
+# Object Property: :machine_state (machine state)
+
+AnnotationAssertion(rdfs:label :machine_state "machine state"^^xsd:string)
+FunctionalObjectProperty(:machine_state)
+ObjectPropertyDomain(:machine_state :VirtualMachine)
+ObjectPropertyRange(:machine_state :MachineState)
+
+# Object Property: :owns (:owns)
+
+ObjectPropertyDomain(:owns :ReplicaSet)
+ObjectPropertyRange(:owns :Pod)
+
+# Object Property: :package (Package)
+
+AnnotationAssertion(rdfs:label :package "Package"^^xsd:string)
+FunctionalObjectProperty(:package)
+ObjectPropertyDomain(:package :VirtualMachine)
+ObjectPropertyRange(:package :VirtualMachinePackage)
+
+# Object Property: :provides_resources (:provides_resources)
+
+ObjectPropertyDomain(:provides_resources :InfrastructureResource)
+ObjectPropertyRange(:provides_resources :ConcreteOS)
+
+# Object Property: :runs (:runs)
+
+InverseObjectProperties(:runs :runs_on)
+ObjectPropertyDomain(:runs :ConcreteOS)
+ObjectPropertyRange(:runs :ContainerEngine)
+
+# Object Property: :runs_inside (:runs_inside)
+
+ObjectPropertyDomain(:runs_inside :ApplicationContainerGroup)
+ObjectPropertyRange(:runs_inside :Microservice)
+
+# Object Property: :runs_on (:runs_on)
+
+ObjectPropertyDomain(:runs_on :ContainerEngine)
+ObjectPropertyRange(:runs_on :ConcreteOS)
+
+# Object Property: :supports_lifecycle (:supports_lifecycle)
+
+ObjectPropertyDomain(:supports_lifecycle :ContainerEngine)
+ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
+
+
+############################
+#   Data Properties
+############################
+
+# Data Property: :app (:app)
+
+DataPropertyDomain(:app :Pod)
+DataPropertyDomain(:app :ReplicaSet)
+DataPropertyRange(:app xsd:string)
+
+# Data Property: :cpu_limits (:cpu_limits)
+
+DataPropertyDomain(:cpu_limits :DockerContainer)
+DataPropertyRange(:cpu_limits xsd:string)
+
+# Data Property: :cpu_requests (:cpu_requests)
+
+DataPropertyDomain(:cpu_requests :DockerContainer)
+DataPropertyRange(:cpu_requests xsd:string)
+
+# Data Property: :dns_name (DNS name)
+
+AnnotationAssertion(rdfs:label :dns_name "DNS name"^^xsd:string)
+DataPropertyDomain(:dns_name :NetworkElement)
+DataPropertyRange(:dns_name xsd:string)
+
+# Data Property: :image (:image)
+
+DataPropertyDomain(:image :ApplicationContainer)
+DataPropertyRange(:image xsd:string)
+
+# Data Property: :ip_address (:ip_address)
+
+FunctionalDataProperty(:ip_address)
+DataPropertyDomain(:ip_address :IPv4Network)
+DataPropertyRange(:ip_address xsd:string)
+
+# Data Property: :ip_mask (:ip_mask)
+
+FunctionalDataProperty(:ip_mask)
+DataPropertyDomain(:ip_mask :IPv4Network)
+DataPropertyRange(:ip_mask xsd:string)
+
+# Data Property: :login (:login)
+
+FunctionalDataProperty(:login)
+DataPropertyDomain(:login :LoginAndPasswordCredentials)
+DataPropertyRange(:login xsd:string)
+
+# Data Property: :memory_limits (:memory_limits)
+
+DataPropertyDomain(:memory_limits :DockerContainer)
+DataPropertyRange(:memory_limits xsd:string)
+
+# Data Property: :memory_requests (:memory_requests)
+
+DataPropertyDomain(:memory_requests :DockerContainer)
+DataPropertyRange(:memory_requests xsd:string)
+
+# Data Property: :name (:name)
+
+FunctionalDataProperty(:name)
+DataPropertyDomain(:name :ApplicationContainer)
+DataPropertyDomain(:name :ApplicationContainerGroup)
+DataPropertyDomain(:name :Cluster)
+DataPropertyDomain(:name :Node)
+DataPropertyDomain(:name :Pod)
+DataPropertyDomain(:name :ReplicaSet)
+DataPropertyDomain(:name :VirtualMachine)
+DataPropertyDomain(:name :VirtualMachineGroup)
+DataPropertyRange(:name xsd:string)
+
+# Data Property: :password (:password)
+
+FunctionalDataProperty(:password)
+DataPropertyDomain(:password :LoginAndPasswordCredentials)
+DataPropertyRange(:password xsd:string)
+
+# Data Property: :port (:port)
+
+DataPropertyDomain(:port :ApplicationContainer)
+DataPropertyRange(:port xsd:int)
+
+# Data Property: :replicas (:replicas)
+
+DataPropertyDomain(:replicas :ReplicaSet)
+DataPropertyRange(:replicas xsd:string)
+
+# Data Property: :server_cores (:server_cores)
+
+FunctionalDataProperty(:server_cores)
+DataPropertyRange(:server_cores xsd:int)
+
+# Data Property: :server_ram (:server_ram)
+
+FunctionalDataProperty(:server_ram)
+DataPropertyRange(:server_ram xsd:int)
+
+
+
+############################
+#   Classes
+############################
+
+# Class: :ApplicationContainer (:ApplicationContainer)
+
+SubClassOf(:ApplicationContainer :ContenerizationLayerElement)
+
+# Class: :ApplicationContainerGroup (:ApplicationContainerGroup)
+
+SubClassOf(:ApplicationContainerGroup :ContenerizationLayerElement)
+
+# Class: :CloudNativeApplication (:CloudNativeApplication)
+
+SubClassOf(:CloudNativeApplication :ApplicationLayerElement)
+
+# Class: :Cluster (:Cluster)
+
+SubClassOf(:Cluster :VirtualMachineGroup)
+
+# Class: :ConcreteOS (:ConcreteOS)
+
+SubClassOf(:ConcreteOS :InfrastructureLayerElement)
+
+# Class: :Connectivity (:Connectivity)
+
+SubClassOf(:Connectivity :InfrastructureLayerElement)
+
+# Class: :ContainerEngine (:ContainerEngine)
+
+SubClassOf(:ContainerEngine :ContenerizationLayerElement)
+
+# Class: :DockerContainer (:DockerContainer)
+
+SubClassOf(:DockerContainer :ApplicationContainer)
+
+# Class: :Firewall (:Firewall)
+
+SubClassOf(:Firewall :Connectivity)
+
+# Class: :FullVirtualizationHypervisor (:FullVirtualizationHypervisor)
+
+SubClassOf(:FullVirtualizationHypervisor :HypervisorType)
+
+# Class: :IPAddress (:IPAddress)
+
+SubClassOf(:IPAddress :NetworkAddress)
+
+# Class: :IPv4Network (:IPv4Network)
+
+SubClassOf(:IPv4Network :Network)
+
+# Class: :IaasCloud (:IaasCloud)
+
+AnnotationAssertion(rdfs:comment :IaasCloud "Infrastructure as a service cloud"^^xsd:string)
+SubClassOf(:IaasCloud :Cloud)
+
+# Class: :InfrastructureFacility (:InfrastructureFacility)
+
+SubClassOf(:InfrastructureFacility :InfrastructureLayerElement)
+
+# Class: :InfrastructureLayerElement (:InfrastructureLayerElement)
+
+AnnotationAssertion(rdfs:comment :InfrastructureLayerElement "Element of site infrastructure"^^xsd:string)
+
+# Class: :InfrastructureResource (:InfrastructureResource)
+
+AnnotationAssertion(rdfs:comment :InfrastructureResource "Cloud hosted resource"^^xsd:string)
+SubClassOf(:InfrastructureResource :InfrastructureLayerElement)
+
+# Class: :KVMHypervisor (:KVMHypervisor)
+
+SubClassOf(:KVMHypervisor :FullVirtualizationHypervisor)
+DisjointClasses(:KVMHypervisor :XenHypervisor)
+
+# Class: :KubernetesCluster (:KubernetesCluster)
+
+SubClassOf(:KubernetesCluster :Cluster)
+
+# Class: :LoadBallancer (:LoadBallancer)
+
+SubClassOf(:LoadBallancer :Connectivity)
+
+# Class: :LoginAndPasswordCredentials (:LoginAndPasswordCredentials)
+
+SubClassOf(:LoginAndPasswordCredentials :Credentials)
+
+# Class: :MachineRunningState (:MachineRunningState)
+
+SubClassOf(:MachineRunningState :MachineState)
+
+# Class: :MachineStoppedState (:MachineStoppedState)
+
+SubClassOf(:MachineStoppedState :MachineState)
+
+# Class: :MasterNode (:MasterNode)
+
+SubClassOf(:MasterNode :Node)
+
+# Class: :Microservice (:Microservice)
+
+SubClassOf(:Microservice :ApplicationLayerElement)
+
+# Class: :Network (:Network)
+
+SubClassOf(:Network :InfrastructureLayerElement)
+
+# Class: :NetworkElement (:NetworkElement)
+
+SubClassOf(:NetworkElement :InfrastructureLayerElement)
+
+# Class: :Node (:Node)
+
+SubClassOf(:Node :ContenerizationLayerElement)
+
+# Class: :Orchestrator (:Orchestrator)
+
+SubClassOf(:Orchestrator :ContenerizationLayerElement)
+
+# Class: :PaasCloud (:PaasCloud)
+
+AnnotationAssertion(rdfs:comment :PaasCloud "Platform as a service cloud"^^xsd:string)
+SubClassOf(:PaasCloud :Cloud)
+
+# Class: :ParavirtualizationHypervisor (:ParavirtualizationHypervisor)
+
+SubClassOf(:ParavirtualizationHypervisor :HypervisorType)
+
+# Class: :Pod (:Pod)
+
+SubClassOf(:Pod :ApplicationContainerGroup)
+
+# Class: :ProprietaryMicroservice (:ProprietaryMicroservice)
+
+SubClassOf(:ProprietaryMicroservice :Microservice)
+
+# Class: :Proxy (:Proxy)
+
+SubClassOf(:Proxy :Connectivity)
+
+# Class: :ReplicaSet (:ReplicaSet)
+
+SubClassOf(:ReplicaSet :ContenerizationLayerElement)
+
+# Class: :Router (:Router)
+
+SubClassOf(:Router :Connectivity)
+
+# Class: :SaasCloud (:SaasCloud)
+
+AnnotationAssertion(rdfs:comment :SaasCloud "Software as a service cloud"^^xsd:string)
+SubClassOf(:SaasCloud :Cloud)
+
+# Class: :ThirdPartyMicroservice (:ThirdPartyMicroservice)
+
+SubClassOf(:ThirdPartyMicroservice :Microservice)
+
+# Class: :VirtualMachine (:VirtualMachine)
+
+SubClassOf(:VirtualMachine :ApplicationContainer)
+SubClassOf(:VirtualMachine :NetworkElement)
+
+# Class: :VirtualMachineContainer (:VirtualMachineContainer)
+
+AnnotationAssertion(rdfs:comment :VirtualMachineContainer "Container which physically hosts virtual machine"^^xsd:string)
+SubClassOf(:VirtualMachineContainer :InfrastructureLayerElement)
+
+# Class: :VirtualMachineGroup (:VirtualMachineGroup)
+
+AnnotationAssertion(rdfs:comment :VirtualMachineGroup "Logical group of virtual machines"^^xsd:string)
+SubClassOf(:VirtualMachineGroup :InfrastructureLayerElement)
+
+# Class: :WorkerNode (:WorkerNode)
+
+SubClassOf(:WorkerNode :Node)
+
+# Class: :XenHypervisor (:XenHypervisor)
+
+SubClassOf(:XenHypervisor :FullVirtualizationHypervisor)
+SubClassOf(:XenHypervisor :ParavirtualizationHypervisor)
+
+
+############################
+#   Named Individuals
+############################
+
+
+)
