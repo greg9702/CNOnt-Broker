@@ -71,13 +71,14 @@ type OntologyBuilder struct {
 	objectsToDump *ObjectsToDumpCollection
 	apiData       map[string][]interface{}
 	wrapper       *OntologyWrapper
+	templatePath  string
 }
 
 // NewOntologyBuilder creates new OntologyBuilder instance
-func NewOntologyBuilder(kubernetesClient *client.KubernetesClient, wrapper *OntologyWrapper) *OntologyBuilder {
+func NewOntologyBuilder(kubernetesClient *client.KubernetesClient, wrapper *OntologyWrapper, path string) *OntologyBuilder {
 	objectCollection := ObjectsToDumpCollection{}
 	apiData := make(map[string][]interface{})
-	ob := OntologyBuilder{kubernetesClient, &objectCollection, apiData, wrapper}
+	ob := OntologyBuilder{kubernetesClient, &objectCollection, apiData, wrapper, path}
 	return &ob
 }
 
