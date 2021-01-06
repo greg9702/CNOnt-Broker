@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactJson from 'react-json-view'
+import ReactJson from 'react-json-view';
 import './DeploymentManager.css';
 
 export default class DeploymentManager extends React.Component {
@@ -38,13 +38,28 @@ export default class DeploymentManager extends React.Component {
         })
     }
 
+    downloadFile = (blob, fileName) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(link.href), 7000);
+    }
+
     serializeClusterConfig = () => {
+
         fetch(this.state.serverUrl + "/api/v1/serialize-cluster-conf")
             .then((response) => {
                 if (response.status === 200) {
-                        this.setState({message: "Received pods list (see core logs)"});
+                    this.setState({message: "Obtained generated file"});
+                    const b = new Blob([response.blob()]);
+                    this.downloadFile(b, "cluster_mapping.owl");
                 } else if (response.status === 404) {
-                    this.setState({message: "Error obtaining pods list"});
+                    this.setState({message: "Generated file not found"});
+                } else if (response.status === 409) {
+                    this.setState({message: "Generating mapping error"});
                 } else {
                     throw Error(response.statusText)
                 }
@@ -76,7 +91,7 @@ export default class DeploymentManager extends React.Component {
 
     closeDeploymentPreview = () => {
         this.setState({
-            message: "Deployment preview hidden",
+            message: "",
             preview: null
         })
     }
@@ -84,26 +99,28 @@ export default class DeploymentManager extends React.Component {
     render() {
         return (
             <div id="deployment-manager">
-                <div id="deployment-creator">
-                </div>
                 <div id="command-buttons">
                     <button
+                        id="command-button"
                         onClick={this.state.preview === null ? this.fetchDeploymentPreview : this.closeDeploymentPreview}>
                         {this.state.preview === null ? "Show deployment preview" : "Close deployment preview"}
                     </button>
 
-                    <button
+                    <button 
+                        id="command-button"
                         onClick={this.sendCreateDeployment}>
                         Create deployment
                     </button>
 
-                    <button
+                    <button 
+                        id="command-button"
                         onClick={this.sendDeleteDeployment}>
                         Delete deployment
                     </button>
-                    <button
+                    <button 
+                        id="command-button"
                         onClick={this.serializeClusterConfig}>
-                        Serialize (WIP)
+                        Create mapping
                     </button>
                 </div>
                 <div id="status-logger">

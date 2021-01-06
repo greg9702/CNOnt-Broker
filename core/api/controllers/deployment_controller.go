@@ -92,12 +92,13 @@ func (d *DeploymentController) DeleteDeployments(ctx *gin.Context) {
 	}
 
 	for _, deployment := range deployments {
+
 		var deploymentName string
 		getName := deployment.Object["metadata"].(map[string]interface{})["name"]
 
 		if getName == nil {
-			ctx.JSON(422, gin.H{
-				"error": "Could not get deployment name",
+			ctx.JSON(404, gin.H{
+				"error": "Could not found deployment",
 			})
 			return
 		}
@@ -128,8 +129,8 @@ func (d *DeploymentController) SerializeClusterConf(ctx *gin.Context) {
 	pathFile, err := d.ontologyBuilder.GenerateCollection()
 
 	if err != nil {
-		ctx.JSON(200, gin.H{
-			"error":   "Could not create a mapping",
+		ctx.JSON(409, gin.H{
+			"error":   "Could not generate file",
 			"details": err,
 		})
 		return
