@@ -37,8 +37,10 @@ func main() {
 	kubernetesClient := client.NewKubernetesClient(kubeconfig)
 	kubernetesClient.Init()
 
-	var ontologyWrapper = ontology.NewOntologyWrapper(filepath.Join("ontology", "assets", "CNOnt.owl"))
-	var ontologyBuilder = ontology.NewOntologyBuilder(kubernetesClient, ontologyWrapper, filepath.Join("core", "ontology", "assets", "CNOnt_template.owl"))
+	ontologyTemplateFile := filepath.Join("ontology", "assets", "CNOnt_template.owl")
+
+	var ontologyWrapper = ontology.NewOntologyWrapper(ontologyTemplateFile)
+	var ontologyBuilder = ontology.NewOntologyBuilder(kubernetesClient, ontologyWrapper, ontologyTemplateFile)
 	deploymentController := controllers.NewDeploymentController(kubernetesClient, ontologyWrapper, ontologyBuilder)
 
 	ontologyBuilder.GenerateCollection()
