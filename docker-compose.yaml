@@ -12,8 +12,6 @@ services:
     container_name: "core"
     build: core/.
     network_mode: host
-    ports:
-      - "8080:8080"
     volumes:
       - './secret:/secret'
     depends_on:
