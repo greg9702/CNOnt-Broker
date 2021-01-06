@@ -89,7 +89,7 @@ Declaration(ObjectProperty(:runs))
 Declaration(ObjectProperty(:runs_inside))
 Declaration(ObjectProperty(:runs_on))
 Declaration(ObjectProperty(:supports_lifecycle))
-Declaration(DataProperty(:app))
+Declaration(DataProperty(:namespace))
 Declaration(DataProperty(:cpu_limits))
 Declaration(DataProperty(:cpu_requests))
 Declaration(DataProperty(:dns_name))
@@ -105,16 +105,7 @@ Declaration(DataProperty(:port))
 Declaration(DataProperty(:replicas))
 Declaration(DataProperty(:server_cores))
 Declaration(DataProperty(:server_ram))
-Declaration(NamedIndividual(:Cluster1))
-Declaration(NamedIndividual(:DockerContainer1))
-Declaration(NamedIndividual(:DockerContainer2))
-Declaration(NamedIndividual(:Hardware1))
-Declaration(NamedIndividual(:Hardware2))
-Declaration(NamedIndividual(:Node1))
-Declaration(NamedIndividual(:Pod1))
-Declaration(NamedIndividual(:ReplicaSet1))
-Declaration(NamedIndividual(:machine_running))
-Declaration(NamedIndividual(:machine_stopped))
+
 
 ############################
 #   Object Properties
@@ -286,11 +277,11 @@ ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
 #   Data Properties
 ############################
 
-# Data Property: :app (:app)
+# Data Property: :namespace (:namespace)
 
-DataPropertyDomain(:app :Pod)
-DataPropertyDomain(:app :ReplicaSet)
-DataPropertyRange(:app xsd:string)
+DataPropertyDomain(:namespace :Pod)
+DataPropertyDomain(:namespace :ReplicaSet)
+DataPropertyRange(:namespace xsd:string)
 
 # Data Property: :cpu_limits (:cpu_limits)
 
@@ -568,6 +559,7 @@ SubClassOf(:XenHypervisor :ParavirtualizationHypervisor)
 #   Named Individuals
 ############################
 
+
 # Individual: :KubernetesCluster1 (:KubernetesCluster1)
 
 ClassAssertion(:KubernetesCluster :KubernetesCluster1)
@@ -629,7 +621,7 @@ ClassAssertion(:Pod :Pod1)
 ObjectPropertyAssertion(:contains_container :Pod1 :DockerContainer1)
 ObjectPropertyAssertion(:is_owned_by :Pod1 :ReplicaSet1)
 ObjectPropertyAssertion(:belongs_to_node :Pod1 :Node2)
-DataPropertyAssertion(:app :Pod1 "http-echo")
+DataPropertyAssertion(:namespace :Pod1 "default")
 DataPropertyAssertion(:name :Pod1 "example-2")
 
 # Individual: :Pod2 (:Pod2)
@@ -638,7 +630,7 @@ ClassAssertion(:Pod :Pod2)
 ObjectPropertyAssertion(:is_owned_by :Pod2 :ReplicaSet2)
 ObjectPropertyAssertion(:belongs_to_node :Pod2 :Node2)
 ObjectPropertyAssertion(:contains_container :Pod2 :DockerContainer2)
-DataPropertyAssertion(:app :Pod2 "http-echo")
+DataPropertyAssertion(:namespace :Pod2 "default")
 DataPropertyAssertion(:name :Pod2 "example-deployment")
 
 # Individual: :Pod3 (:Pod3)
@@ -647,7 +639,7 @@ ClassAssertion(:Pod :Pod3)
 ObjectPropertyAssertion(:belongs_to_node :Pod3 :Node1)
 ObjectPropertyAssertion(:contains_container :Pod3 :DockerContainer3)
 ObjectPropertyAssertion(:is_owned_by :Pod3 :ReplicaSet2)
-DataPropertyAssertion(:app :Pod3 "http-echo")
+DataPropertyAssertion(:namespace :Pod3 "default")
 DataPropertyAssertion(:name :Pod3 "example-deployment")
 
 # Individual: :Pod4 (:Pod4)
@@ -657,7 +649,7 @@ ObjectPropertyAssertion(:belongs_to_node :Pod4 :Node2)
 ObjectPropertyAssertion(:contains_container :Pod4 :DockerContainer4)
 ObjectPropertyAssertion(:is_owned_by :Pod4 :ReplicaSet2)
 DataPropertyAssertion(:name :Pod4 "example-deployment")
-DataPropertyAssertion(:app :Pod4 "http-echo")
+DataPropertyAssertion(:namespace :Pod4 "default")
 
 # Individual: :ReplicaSet1 (:ReplicaSet1)
 
@@ -665,7 +657,7 @@ ClassAssertion(:ReplicaSet :ReplicaSet1)
 ObjectPropertyAssertion(:owns :ReplicaSet1 :Pod1)
 DataPropertyAssertion(:name :ReplicaSet1 "example-2")
 DataPropertyAssertion(:replicas :ReplicaSet1 "1")
-DataPropertyAssertion(:app :ReplicaSet1 "http-echo")
+DataPropertyAssertion(:namespace :ReplicaSet1 "default")
 
 # Individual: :ReplicaSet2 (:ReplicaSet2)
 
@@ -675,7 +667,7 @@ ObjectPropertyAssertion(:owns :ReplicaSet2 :Pod3)
 ObjectPropertyAssertion(:owns :ReplicaSet2 :Pod4)
 DataPropertyAssertion(:name :ReplicaSet2 "example-deployment")
 DataPropertyAssertion(:replicas :ReplicaSet2 "3")
-DataPropertyAssertion(:app :ReplicaSet2 "http-echo")
+DataPropertyAssertion(:namespace :ReplicaSet2 "default")
 
 # Individual: :Node1 (:Node1)
 
