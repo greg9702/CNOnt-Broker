@@ -89,7 +89,7 @@ Declaration(ObjectProperty(:runs))
 Declaration(ObjectProperty(:runs_inside))
 Declaration(ObjectProperty(:runs_on))
 Declaration(ObjectProperty(:supports_lifecycle))
-Declaration(DataProperty(:app))
+Declaration(DataProperty(:namespace))
 Declaration(DataProperty(:cpu_limits))
 Declaration(DataProperty(:cpu_requests))
 Declaration(DataProperty(:dns_name))
@@ -105,16 +105,7 @@ Declaration(DataProperty(:port))
 Declaration(DataProperty(:replicas))
 Declaration(DataProperty(:server_cores))
 Declaration(DataProperty(:server_ram))
-Declaration(NamedIndividual(:Cluster1))
-Declaration(NamedIndividual(:DockerContainer1))
-Declaration(NamedIndividual(:DockerContainer2))
-Declaration(NamedIndividual(:Hardware1))
-Declaration(NamedIndividual(:Hardware2))
-Declaration(NamedIndividual(:Node1))
-Declaration(NamedIndividual(:Pod1))
-Declaration(NamedIndividual(:ReplicaSet1))
-Declaration(NamedIndividual(:machine_running))
-Declaration(NamedIndividual(:machine_stopped))
+
 
 ############################
 #   Object Properties
@@ -286,11 +277,11 @@ ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
 #   Data Properties
 ############################
 
-# Data Property: :app (:app)
+# Data Property: :namespace (:namespace)
 
-DataPropertyDomain(:app :Pod)
-DataPropertyDomain(:app :ReplicaSet)
-DataPropertyRange(:app xsd:string)
+DataPropertyDomain(:namespace :Pod)
+DataPropertyDomain(:namespace :ReplicaSet)
+DataPropertyRange(:namespace xsd:string)
 
 # Data Property: :cpu_limits (:cpu_limits)
 

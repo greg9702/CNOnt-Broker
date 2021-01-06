@@ -78,12 +78,9 @@ func newBuilderHelpers() *builderHelper {
 		}
 		return rsObject.Name
 	}
-	tmpMap[":app"] = func(object interface{}) string {
+	tmpMap[":namespace"] = func(object interface{}) string {
 		rsObject := object.(*appsv1.ReplicaSet)
-		if x, found := rsObject.Spec.Selector.MatchLabels["app"]; found {
-			return x
-		}
-		return ""
+		return rsObject.Namespace
 	}
 	tmpMap[":replicas"] = func(object interface{}) string {
 		rsObject := object.(*appsv1.ReplicaSet)
@@ -109,12 +106,9 @@ func newBuilderHelpers() *builderHelper {
 		}
 		return name
 	}
-	tmpMap[":app"] = func(object interface{}) string {
+	tmpMap[":namespace"] = func(object interface{}) string {
 		podObject := object.(*v1.Pod)
-		if x, found := podObject.Labels["app"]; found {
-			return x
-		}
-		return ""
+		return podObject.Namespace
 	}
 
 	dataPropertyFunctions[podsClassName] = tmpMap

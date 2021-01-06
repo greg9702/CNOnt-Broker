@@ -20,7 +20,7 @@ import (
 
 const nameAssertion = ":name"
 const apiVersionAssertion = ":apiVersion"
-const appAssertion = ":app"
+const namespaceAssertion = ":namespace"
 const kindAssertion = ":kind"
 const replicasAssertion = ":replicas"
 const imageAssertion = ":image"
@@ -367,8 +367,8 @@ func (ow *OntologyWrapper) apiVersion(pod string) (string, error) {
 }
 
 // app returns app of a given pod
-func (ow *OntologyWrapper) app(pod string) (string, error) {
-	return ow.dataPropertyAssertionValue(appAssertion, pod)
+func (ow *OntologyWrapper) namespace(pod string) (string, error) {
+	return ow.dataPropertyAssertionValue(namespaceAssertion, pod)
 }
 
 // kind returns kind for a given pod (deployment, server etc.)

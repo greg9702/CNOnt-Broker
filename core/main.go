@@ -43,8 +43,6 @@ func main() {
 	var ontologyBuilder = ontology.NewOntologyBuilder(kubernetesClient, ontologyWrapper, ontologyTemplateFile)
 	deploymentController := controllers.NewDeploymentController(kubernetesClient, ontologyWrapper, ontologyBuilder)
 
-	ontologyBuilder.GenerateCollection()
-
 	router := gin.Default()
 	router.Use(cors.Default())
 
