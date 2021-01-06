@@ -344,14 +344,22 @@ func (ow *OntologyWrapper) podOwnedByReplicaSet(rs string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	rsAppLabel, err := ow.dataPropertyAssertionValue(appAssertion, rs)
-	podAppLabel, err := ow.dataPropertyAssertionValue(appAssertion, pod)
+	rsName, err := ow.dataPropertyAssertionValue(nameAssertion, rs)
+	podName, err := ow.dataPropertyAssertionValue(nameAssertion, pod)
+
+	rsNamespace, err := ow.dataPropertyAssertionValue(namespaceAssertion, rs)
+	podNamespace, err := ow.dataPropertyAssertionValue(namespaceAssertion, pod)
+
 	if err != nil {
 		return "", err
 	}
-	if rsAppLabel != podAppLabel {
-		return "", errors.New("Ontology not consistent: 'app' label in ReplicaSet " + rs + " selector ('app'='" + rsAppLabel +
-			"') differs from the app label of pod " + pod + " owned by the ReplicaSet ('app'='" + podAppLabel + "').")
+	if rsName != podName {
+		return "", errors.New("Ontology not consistent: 'name' label in ReplicaSet " + rs + " selector ('name'='" + rsName +
+			"') differs from the app label of pod " + pod + " owned by the ReplicaSet ('name'='" + podName + "').")
+	}
+	if rsNamespace != podNamespace {
+		return "", errors.New("Ontology not consistent: 'namespace' label in ReplicaSet " + rs + " selector ('namespace'='" + rsNamespace +
+			"') differs from the app label of pod " + pod + " owned by the ReplicaSet ('namespace'='" + podNamespace + "').")
 	}
 	return pod, nil
 }
@@ -459,19 +467,21 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstr
 				"spec": map[string]interface{}{
 					"selector": map[string]interface{}{
 						"matchLabels": map[string]interface{}{
-							"app": "",
+							"name": "",
 						},
 					},
 					"template": map[string]interface{}{
 						"metadata": map[string]interface{}{
 							"labels": map[string]interface{}{
-								"app": "",
+								"name": "",
 							},
 						},
 					},
 				},
 			},
 		})
+
+		// !!!! namespace is not taken under consideration when creating deployment
 
 		rsName, err := ow.name(rs)
 		if err != nil {
@@ -482,14 +492,8 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstr
 		// set deployment name, but all Pods from this deployment will use this name too
 		deployments[i].Object["metadata"].(map[string]interface{})["name"] = rsName
 
-		app, err := ow.app(rs)
-		if err != nil {
-			fmt.Println("Could not get 'app' label for ReplicaSet " + rsName + ", error: " + err.Error())
-			return nil, errors.New("Could not get 'app' for ReplicaSet " + rsName + ", error: " + err.Error())
-		}
-
-		deployments[i].Object["spec"].(map[string]interface{})["selector"].(map[string]interface{})["matchLabels"].(map[string]interface{})["app"] = app
-		deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})["app"] = app
+		deployments[i].Object["spec"].(map[string]interface{})["selector"].(map[string]interface{})["matchLabels"].(map[string]interface{})["name"] = rsName
+		deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})["name"] = rsName
 
 		replicas, err := ow.replicas(rs)
 		if err != nil {
