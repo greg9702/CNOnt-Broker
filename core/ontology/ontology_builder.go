@@ -307,9 +307,11 @@ func (ow *OntologyBuilder) saveToFile(stream string) error {
 	return nil
 }
 
-// TODO dumpData dumps all objects from ObjectsToDumpCollection
-// into the file
+// dumpData prepare all objects to dump and convert them into
+// final form stream of data
 func (ow *OntologyBuilder) dumpData() error {
+
+	var finalStream string
 
 	for ix := range ow.objectsToDump.collection {
 		ind := ow.objectsToDump.collection[ix]
@@ -331,8 +333,9 @@ func (ow *OntologyBuilder) dumpData() error {
 		for key := range ind.dataPropertyAssertions {
 			dataPropertyAssertions += fmt.Sprintf("DataPropertyAssertion(%s %s \"%s\")\n", key, ind.objectName, ind.dataPropertyAssertions[key])
 		}
-		ow.saveToFile([]string{individualHeader, classAssertion, objectPropertyAssertions, dataPropertyAssertions})
+		finalStream += individualHeader + classAssertion + objectPropertyAssertions + dataPropertyAssertions + "\n"
 	}
+	ow.saveToFile(finalStream)
 	return nil
 }
 
