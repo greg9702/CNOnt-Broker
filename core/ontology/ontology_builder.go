@@ -3,6 +3,7 @@ package ontology
 import (
 	"CNOnt-Broker/core/kubernetes/client"
 	"fmt"
+	"io/ioutil"
 	"strconv"
 
 	v1 "k8s.io/api/core/v1"
@@ -284,23 +285,25 @@ func (ow *OntologyBuilder) GenerateCollection() error {
 }
 
 // saveToFile saves passed data stream into the target file
-func (ow *OntologyBuilder) saveToFile(stream []string) error {
-	for ix := range stream {
-		fmt.Printf(stream[ix])
+func (ow *OntologyBuilder) saveToFile(stream string) error {
+
+	// read ontology template file
+	b, err := ioutil.ReadFile(ow.templatePath)
+	if err != nil {
+		panic("Template file not found")
 	}
-	fmt.Printf("\n")
-	// b := []byte{}
 
-	// for ix := range stream {
-	// 	b = append(b, (stream[ix]).([]byte))
-	// 	fmt.Println(b) // [65 66 67 226 130 172]
-	// }
+	var dataToWrite []byte
 
-	// // write the whole body at once
-	// _ = ioutil.WriteFile("/tmp/onto.txt", stream, 0644)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	dataToWrite = append(dataToWrite, b[:len(b)-1]...)
+	dataToWrite = append(dataToWrite, []byte(stream)...)
+	dataToWrite = append(dataToWrite, b[len(b)-1:]...)
+
+	err = ioutil.WriteFile("/tmp/cluster_mapping.owl", dataToWrite, 0644)
+	if err != nil {
+		panic("Writing file error")
+	}
+
 	return nil
 }
 
