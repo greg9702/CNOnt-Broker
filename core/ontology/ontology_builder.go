@@ -96,7 +96,7 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 	ow.apiData = make(map[string][]interface{})
 
 	// cluster
-	cs := ClusterStruct{"TEST_CLUSTER"}
+	cs := ClusterStruct{"k8s-cluster"}
 	tempList = append(tempList, &cs)
 
 	ow.apiData[clusterClassName] = tempList
@@ -242,7 +242,13 @@ func (ow *OntologyBuilder) GenerateCollection() (string, error) {
 						return ""
 					}
 				}
-				dataProperties[property] = fn(object)
+
+				generatedValue := fn(object)
+
+				// if data property function returns "", ignore this property
+				if generatedValue != "" {
+					dataProperties[property] = generatedValue
+				}
 			}
 
 			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string][]string), object}
