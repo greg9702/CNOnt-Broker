@@ -19,7 +19,7 @@ If you would like to run server directly on your machine run:
 ```
 export GO111MODULE=on
 cd core
-go run main.go
+go run main.go --kubeconfig <PATH_TO_KUBE_CONFIG> --logLevel <LOGLEVEL>
 ```
 > Make sure to set _GO111MODULE_ to on. Without this issues with dependencies can occur.
 
@@ -65,7 +65,7 @@ kubectl -n kube-system delete pod -l k8s-app=kube-dns
 
 ### __System functionality and architecture__
 
-System is able to create deployment based on the ontology file. 
+System is able to create deployment based on the ontology file.
 
 Every system element runs in its own docker container. <br> There are three of them:
 - `core` - Web API server
@@ -80,3 +80,4 @@ Server exposes three enpoints:
 - `api/v1/create-deployment` - creates deployment
 - `api/v1/delete-deployment` - delete deployment if exists
 - `api/v1/preview-deployment` - returns preview of deployment
+- `/api/v1/serialize-cluster-conf` - create a cluster mapping based on used ontology template file
