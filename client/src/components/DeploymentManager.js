@@ -47,15 +47,14 @@ export default class DeploymentManager extends React.Component {
         link.remove();
         setTimeout(() => URL.revokeObjectURL(link.href), 7000);
     }
-
     serializeClusterConfig = () => {
 
         fetch(this.state.serverUrl + "/api/v1/serialize-cluster-conf")
             .then((response) => {
                 if (response.status === 200) {
-                    this.setState({message: "Obtained generated file"});
                     const b = new Blob([response.blob()]);
                     this.downloadFile(b, "cluster_mapping.owl");
+                    this.setState({message: "Obtained generated file"});
                 } else if (response.status === 404) {
                     this.setState({message: "Generated file not found"});
                 } else if (response.status === 409) {
