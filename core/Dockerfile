@@ -16,4 +16,4 @@ RUN cp /go/src/CNOnt-Broker/core/ontology/assets/* ./ontology/assets
 
 EXPOSE 8080
 
-CMD ["/dist/main", "--kubeconfig", "kubeconfig"]
+CMD ["/dist/main", "--kubeconfig", "kubeconfig", "--logLevel", "14"]
