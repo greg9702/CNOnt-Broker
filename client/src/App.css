@@ -1,0 +1,31 @@
+html, body {
+    background: #3739513d;
+    width: 100%;
+    height: 100%;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+}
+
+#header {
+    font-size: 6vh;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.eye-catching {
+    justify-content: center;
+    font-weight: 800;
+    background-color: aliceblue;
+}
+/* 
+@keyframes color_change {
+	from { color: blue; }
+	to { color: red; }
+} */

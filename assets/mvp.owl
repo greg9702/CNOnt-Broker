@@ -1,0 +1,742 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.unifiedcloud.org/2009/2/26/uci.owl#"
+     xml:base="http://www.unifiedcloud.org/2009/2/26/uci.owl"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    <owl:Ontology rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl">
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Unified Cloud Ontology</rdfs:comment>
+        <owl:versionInfo rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0.1</owl:versionInfo>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#address -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#address">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkElement"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkAddress"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#application_container -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#application_container">
+        <owl:inverseOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_application"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Application"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#belongs_to_node -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#belongs_to_node">
+        <owl:inverseOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_pod"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#belongs_to_pod -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#belongs_to_pod">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <owl:inverseOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_container"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_application -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_application">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#InverseFunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Application"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_container -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_container">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_machine -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_machine">
+        <owl:inverseOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_container"/>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#InverseFunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineContainer"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_node -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_node"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_pod -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#contains_pod">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#from_network -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#from_network">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkAddress"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Network"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#group_machine -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#group_machine">
+        <owl:inverseOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_group"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineGroup"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#hypervisor -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#hypervisor">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineContainer"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#HypervisorType"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_container -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_container">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineContainer"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_group -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_group">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineGroup"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_state -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_state">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineState"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">machine state</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#network_interface -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#network_interface"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#package -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#package">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachinePackage"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Package</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#site -->
+
+    <owl:ObjectProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#site">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+        <rdfs:range rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Site"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">site</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#apiVersion -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#apiVersion">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Pod"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#containerPort -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#containerPort">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#dns_name -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#dns_name">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkElement"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DNS name</rdfs:label>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#image -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#image">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#ip_address -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ip_address">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#IPv4Network"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#ip_mask -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ip_mask">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#IPv4Network"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#login -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#login">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#LoginAndPasswordCredentials"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#name -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#name">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Application"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Node"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Pod"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#password -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#password">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#LoginAndPasswordCredentials"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#replicas -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#replicas">
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Pod"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#server_cores -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#server_cores">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Server"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#server_ram -->
+
+    <owl:DatatypeProperty rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#server_ram">
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
+        <rdfs:domain rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Server"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#int"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Application -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Application">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Resource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Cloud -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Cloud"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Cluster -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Cluster">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineGroup"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Connectivity -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Connectivity">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Credentials -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Credentials"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Data -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Data">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Resource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#DockerContainer -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#DockerContainer">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Firewall -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Firewall">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Connectivity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#FullVirtualizationHypervisor -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#FullVirtualizationHypervisor">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#HypervisorType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#HypervisorType -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#HypervisorType"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#IPAddress -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#IPAddress">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkAddress"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#IPv4Network -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#IPv4Network">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Network"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#IaasCloud -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#IaasCloud">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Cloud"/>
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Infrastructure as a service cloud</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement">
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Element of site infrastructure</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureFacility -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureFacility">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#KVMHypervisor -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#KVMHypervisor">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#FullVirtualizationHypervisor"/>
+        <owl:disjointWith rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#XenHypervisor"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#KubernetesCluster -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#KubernetesCluster">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Cluster"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#LoadBallancer -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#LoadBallancer">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Connectivity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#LoginAndPasswordCredentials -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#LoginAndPasswordCredentials">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Credentials"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineRunningState -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineRunningState">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineState"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineState -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineState"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineStoppedState -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineStoppedState">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineState"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Network -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Network">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkAddress -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkAddress"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkElement -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkElement">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Node -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Node">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#PaasCloud -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#PaasCloud">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Cloud"/>
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Platform as a service cloud</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#ParavirtualizationHypervisor -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ParavirtualizationHypervisor">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#HypervisorType"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Pod -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Pod">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainerGroup"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Proxy -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Proxy">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Connectivity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Resource -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Resource">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Cloud hosted resource</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Router -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Router">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Connectivity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#SaasCloud -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#SaasCloud">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Cloud"/>
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Software as a service cloud</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Server -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Server">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#Site -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#Site">
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Physical location of infrastructure elements</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachine">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ApplicationContainer"/>
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#NetworkElement"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineContainer -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineContainer">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Container which physically hosts virtual machine</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineGroup -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineGroup">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#InfrastructureElement"/>
+        <rdfs:comment rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Logical group of virtual machines</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachinePackage -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachinePackage"/>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualizationServer -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualizationServer">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Server"/>
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#VirtualMachineContainer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#XenHypervisor -->
+
+    <owl:Class rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#XenHypervisor">
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#FullVirtualizationHypervisor"/>
+        <rdfs:subClassOf rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ParavirtualizationHypervisor"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#ExampleDockerContainer -->
+
+    <owl:NamedIndividual rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExampleDockerContainer">
+        <rdf:type rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#DockerContainer"/>
+        <belongs_to_pod rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExamplePod"/>
+        <image>exampleImage</image>
+        <name>dockerNameContainer</name>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#ExamplePod -->
+
+    <owl:NamedIndividual rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExamplePod">
+        <rdf:type rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#Pod"/>
+        <contains_container rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#ExampleDockerContainer"/>
+        <apiVersion>apps/v1</apiVersion>
+        <name>Example1Pod</name>
+        <replicas rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</replicas>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_running -->
+
+    <owl:NamedIndividual rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_running">
+        <rdf:type rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineRunningState"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">running</rdfs:label>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_stopped -->
+
+    <owl:NamedIndividual rdf:about="http://www.unifiedcloud.org/2009/2/26/uci.owl#machine_stopped">
+        <rdf:type rdf:resource="http://www.unifiedcloud.org/2009/2/26/uci.owl#MachineStoppedState"/>
+        <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">stopped</rdfs:label>
+    </owl:NamedIndividual>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+

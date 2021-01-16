@@ -1,0 +1,105 @@
+Prefix(:=<http://www.semanticweb.org/greg9702/ontologies/2020/4/untitled-ontology-9#>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+
+
+Ontology(<http://www.semanticweb.org/CNOnt>
+
+Declaration(Class(<http://www.semanticweb.org/CNOnt#ApplicationContainer>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#CPU>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#CloudElement>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#Cluster>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#ContainerGroup>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#DockerContainer>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#KubernetesCluster>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#Memory>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#Network>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#Node>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#NodeGroup>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#Pod>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#Resource>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#VirtualMachine>))
+Declaration(Class(<http://www.semanticweb.org/CNOnt#VirtualizationMethod>))
+Declaration(ObjectProperty(<http://www.semanticweb.org/CNOnt#belongsToContainerGroup>))
+Declaration(ObjectProperty(<http://www.semanticweb.org/CNOnt#belongsToNodeGroup>))
+Declaration(ObjectProperty(<http://www.semanticweb.org/CNOnt#hasContainer>))
+Declaration(ObjectProperty(<http://www.semanticweb.org/CNOnt#hasNode>))
+############################
+#   Object Properties
+############################
+
+# Object Property: <http://www.semanticweb.org/CNOnt#belongsToContainerGroup> (<http://www.semanticweb.org/CNOnt#belongsToContainerGroup>)
+
+SubObjectPropertyOf(<http://www.semanticweb.org/CNOnt#belongsToContainerGroup> owl:topObjectProperty)
+InverseObjectProperties(<http://www.semanticweb.org/CNOnt#belongsToContainerGroup> <http://www.semanticweb.org/CNOnt#hasContainer>)
+
+# Object Property: <http://www.semanticweb.org/CNOnt#belongsToNodeGroup> (<http://www.semanticweb.org/CNOnt#belongsToNodeGroup>)
+
+InverseObjectProperties(<http://www.semanticweb.org/CNOnt#belongsToNodeGroup> <http://www.semanticweb.org/CNOnt#hasNode>)
+
+# Object Property: <http://www.semanticweb.org/CNOnt#hasContainer> (<http://www.semanticweb.org/CNOnt#hasContainer>)
+
+SubObjectPropertyOf(<http://www.semanticweb.org/CNOnt#hasContainer> owl:topObjectProperty)
+
+
+############################
+#   Classes
+############################
+
+# Class: <http://www.semanticweb.org/CNOnt#ApplicationContainer> (<http://www.semanticweb.org/CNOnt#ApplicationContainer>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#ApplicationContainer> <http://www.semanticweb.org/CNOnt#CloudElement>)
+SubClassOf(<http://www.semanticweb.org/CNOnt#ApplicationContainer> <http://www.semanticweb.org/CNOnt#DockerContainer>)
+
+# Class: <http://www.semanticweb.org/CNOnt#CPU> (<http://www.semanticweb.org/CNOnt#CPU>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#CPU> <http://www.semanticweb.org/CNOnt#Resource>)
+
+# Class: <http://www.semanticweb.org/CNOnt#Cluster> (<http://www.semanticweb.org/CNOnt#Cluster>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#Cluster> <http://www.semanticweb.org/CNOnt#NodeGroup>)
+
+# Class: <http://www.semanticweb.org/CNOnt#ContainerGroup> (<http://www.semanticweb.org/CNOnt#ContainerGroup>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#ContainerGroup> <http://www.semanticweb.org/CNOnt#CloudElement>)
+SubClassOf(<http://www.semanticweb.org/CNOnt#ContainerGroup> ObjectSomeValuesFrom(<http://www.semanticweb.org/CNOnt#hasContainer> <http://www.semanticweb.org/CNOnt#ApplicationContainer>))
+
+# Class: <http://www.semanticweb.org/CNOnt#DockerContainer> (<http://www.semanticweb.org/CNOnt#DockerContainer>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#DockerContainer> <http://www.semanticweb.org/CNOnt#VirtualizationMethod>)
+
+# Class: <http://www.semanticweb.org/CNOnt#KubernetesCluster> (<http://www.semanticweb.org/CNOnt#KubernetesCluster>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#KubernetesCluster> <http://www.semanticweb.org/CNOnt#Cluster>)
+
+# Class: <http://www.semanticweb.org/CNOnt#Memory> (<http://www.semanticweb.org/CNOnt#Memory>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#Memory> <http://www.semanticweb.org/CNOnt#Resource>)
+
+# Class: <http://www.semanticweb.org/CNOnt#Network> (<http://www.semanticweb.org/CNOnt#Network>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#Network> <http://www.semanticweb.org/CNOnt#Resource>)
+
+# Class: <http://www.semanticweb.org/CNOnt#Node> (<http://www.semanticweb.org/CNOnt#Node>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#Node> <http://www.semanticweb.org/CNOnt#CloudElement>)
+SubClassOf(<http://www.semanticweb.org/CNOnt#Node> <http://www.semanticweb.org/CNOnt#VirtualMachine>)
+
+# Class: <http://www.semanticweb.org/CNOnt#NodeGroup> (<http://www.semanticweb.org/CNOnt#NodeGroup>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#NodeGroup> <http://www.semanticweb.org/CNOnt#CloudElement>)
+SubClassOf(<http://www.semanticweb.org/CNOnt#NodeGroup> ObjectSomeValuesFrom(<http://www.semanticweb.org/CNOnt#hasNode> <http://www.semanticweb.org/CNOnt#Node>))
+
+# Class: <http://www.semanticweb.org/CNOnt#Pod> (<http://www.semanticweb.org/CNOnt#Pod>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#Pod> <http://www.semanticweb.org/CNOnt#ContainerGroup>)
+
+# Class: <http://www.semanticweb.org/CNOnt#VirtualMachine> (<http://www.semanticweb.org/CNOnt#VirtualMachine>)
+
+SubClassOf(<http://www.semanticweb.org/CNOnt#VirtualMachine> <http://www.semanticweb.org/CNOnt#VirtualizationMethod>)
+
+
+)

@@ -1,9 +1,29 @@
-version: '3'
+version: '3.8'
 services:
+  cluster:
+    container_name: "cluster"
+    build: cluster/.
+    ports:
+      - "8001:8001"
+    privileged: true
+    volumes:
+      - "./secret:/home/secret"
   core:
     container_name: "core"
     build: core/.
+    network_mode: host
+    volumes:
+      - './secret:/secret'
+    depends_on:
+      - "cluster"
+  client:
+    container_name: "client"
+    build: client/.
     ports:
-      - "8080:8080"
-#   client:
-#     build: client/.
+      - "3000:3000"
+    stdin_open: true
+    volumes:
+      - "./client:/app"
+      - "/app/node_modules"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
