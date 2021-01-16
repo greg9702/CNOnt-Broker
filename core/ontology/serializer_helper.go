@@ -2,7 +2,6 @@ package ontology
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -127,7 +126,6 @@ func newBuilderHelpers() *builderHelper {
 		containerStruct := object.(*ContainerStruct)
 		containerObject := containerStruct.Data
 		if len(containerObject.Ports) != 0 {
-			fmt.Println(containerObject.Ports)
 			return strconv.Itoa(int(containerObject.Ports[0].ContainerPort))
 		}
 		return ""

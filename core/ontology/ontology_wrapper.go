@@ -2,7 +2,6 @@ package ontology
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -12,6 +11,8 @@ import (
 	"github.com/shful/gofp/owlfunctional/assertions"
 	"github.com/shful/gofp/owlfunctional/axioms"
 	"github.com/shful/gofp/owlfunctional/decl"
+
+	logger "CNOnt-Broker/core/common"
 
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -55,7 +56,7 @@ func (ow *OntologyWrapper) PrintClasses() {
 	log.Println("That's what we parsed: ", ow.ontology.About())
 
 	for _, declaration := range ow.ontology.K.AllClassDecls() {
-		fmt.Println(declaration.IRI)
+		logger.BaseLog().Debug(declaration.IRI)
 	}
 }
 
@@ -305,7 +306,7 @@ func (ow *OntologyWrapper) ObjectPropertiesByClass(className string) ([]*ObjectP
 	for name := range objectPropertyNamesSet {
 		op, err := ow.objectPropertyByName(name)
 		if err != nil {
-			fmt.Println(err.Error())
+			logger.BaseLog().Error(err.Error())
 			continue
 		}
 		objectProperties = append(objectProperties, &op)
@@ -485,7 +486,7 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstr
 
 		rsName, err := ow.name(rs)
 		if err != nil {
-			fmt.Println("Could not get 'name' for ReplicaSet, error " + err.Error())
+			logger.BaseLog().Error("Could not get 'name' for ReplicaSet, error " + err.Error())
 			return nil, errors.New("Could not get 'name' for ReplicaSet, error " + err.Error())
 		}
 
@@ -497,7 +498,7 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstr
 
 		replicas, err := ow.replicas(rs)
 		if err != nil {
-			fmt.Println("Could not get 'replicas' for ReplicaSet " + rsName + ", error: " + err.Error())
+			logger.BaseLog().Error("Could not get 'replicas' for ReplicaSet " + rsName + ", error: " + err.Error())
 			return nil, errors.New("Could not get 'replicas' for ReplicaSet " + rsName + ", error: " + err.Error())
 		}
 
@@ -506,12 +507,12 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstr
 		pod, err := ow.podOwnedByReplicaSet(rs)
 
 		if err != nil {
-			fmt.Println("Could not get any pods owned by ReplicaSet " + rsName + ", error: " + err.Error())
+			logger.BaseLog().Error("Could not get any pods owned by ReplicaSet " + rsName + ", error: " + err.Error())
 			return nil, errors.New("Could not get any pods owned by ReplicaSet " + rsName + ", error: " + err.Error())
 		}
 		containers, err := ow.containers(pod)
 		if err != nil {
-			fmt.Println(err)
+			logger.BaseLog().Error(err.Error())
 		} else {
 			deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"] = map[string]interface{}{}
 			deployments[i].Object["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"] = []map[string]interface{}{}
@@ -522,21 +523,21 @@ func (ow *OntologyWrapper) BuildDeploymentConfiguration() ([]*unstructured.Unstr
 
 				containerName, err := ow.name(container)
 				if err != nil {
-					fmt.Println("Could not get 'name' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
+					logger.BaseLog().Error("Could not get 'name' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
 					return nil, errors.New("Could not get 'name' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
 				}
 				containerSpec["name"] = containerName
 
 				containerImage, err := ow.image(container)
 				if err != nil {
-					fmt.Println("Could not get 'image' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
+					logger.BaseLog().Error("Could not get 'image' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
 					return nil, errors.New("Could not get 'image' for container in Pod from template of ReplicaSet " + rsName + ", error: " + err.Error())
 				}
 				containerSpec["image"] = containerImage
 
 				resources, err := ow.buildContainerResources(container)
 				if err != nil {
-					fmt.Println(err)
+					logger.BaseLog().Error(err.Error())
 				} else {
 					containerSpec["resources"] = resources
 				}

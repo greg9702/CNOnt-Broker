@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"strconv"
 
+	logger "CNOnt-Broker/core/common"
+
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -27,7 +29,7 @@ type ObjectsToDumpCollection struct {
 // add inserts new element into ObjectsToDumpCollection
 func (oc *ObjectsToDumpCollection) add(object *ObjectToDump) {
 	oc.collection = append(oc.collection, object)
-	fmt.Printf("[ObjectsToDumpCollection] add: Added new element: %s\n", object.objectName)
+	logger.BaseLog().Debug("[ObjectsToDumpCollection] add: Added new element: " + object.objectName)
 }
 
 // clears ObjectsToDumpCollection buffer
@@ -112,7 +114,7 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 	}
 	ow.apiData[nodesClassName] = tempList
 
-	fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d nodes\n", len(tempList))
+	logger.BaseLog().Debug(fmt.Sprintf("[OntologyBuilder] fetchDataFromAPI: Added %d nodes", len(tempList)))
 
 	tempList = nil
 
@@ -124,7 +126,8 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 	for it := range namespaces.Items {
 		namespace := namespaces.Items[it].Name
-		fmt.Println("for namespce: " + namespace)
+		logger.BaseLog().Debug("for namespce: " + namespace)
+
 		// replicasets
 		replicaSets, err := ow.k8sClient.AllReplicaSets(namespace)
 		if err != nil {
@@ -138,7 +141,7 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 		ow.apiData[replicaSetClassName] = append(ow.apiData[replicaSetClassName], tempList...)
 
-		fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d replica sets\n", len(tempList))
+		logger.BaseLog().Debug(fmt.Sprintf("[OntologyBuilder] fetchDataFromAPI: Added %d replica sets", len(tempList)))
 
 		tempList = nil
 
@@ -155,7 +158,7 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 		ow.apiData[podsClassName] = append(ow.apiData[podsClassName], tempList...)
 
-		fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d pods\n", len(tempList))
+		logger.BaseLog().Debug(fmt.Sprintf("[OntologyBuilder] fetchDataFromAPI: Added %d pods", len(tempList)))
 
 		thisNamespacePods := tempList
 
@@ -174,7 +177,7 @@ func (ow *OntologyBuilder) fetchDataFromAPI() error {
 
 		ow.apiData[containersClassName] = append(ow.apiData[containersClassName], tempList...)
 
-		fmt.Printf("[OntologyBuilder] fetchDataFromAPI: Added %d containers\n", len(tempList))
+		logger.BaseLog().Debug(fmt.Sprintf("[OntologyBuilder] fetchDataFromAPI: Added %d containers", len(tempList)))
 
 		tempList = nil
 	}
@@ -188,7 +191,7 @@ func (ow *OntologyBuilder) GenerateCollection() (string, error) {
 	err := ow.fetchDataFromAPI()
 
 	if err != nil {
-		fmt.Printf("[OntologyBuilder] GenerateCollection: fetchDataFromAPI error: %s\n", err.Error())
+		logger.BaseLog().Error("[OntologyBuilder] GenerateCollection: fetchDataFromAPI error: " + err.Error())
 		return "", err
 	}
 
@@ -205,7 +208,7 @@ func (ow *OntologyBuilder) GenerateCollection() (string, error) {
 		allObjects := ow.apiData[className]
 
 		if len(allObjects) == 0 {
-			fmt.Printf("[OntologyBuilder] GenerateCollection: No data found for classname %s\n", className)
+			logger.BaseLog().Debug("[OntologyBuilder] GenerateCollection: No data found for classname " + className)
 			continue
 		}
 
@@ -222,7 +225,7 @@ func (ow *OntologyBuilder) GenerateCollection() (string, error) {
 
 			propertiesList, err := ow.dataPropertiesList(className)
 			if err != nil {
-				fmt.Printf("[OntologyBuilder] GenerateCollection: %s\n", err.Error())
+				logger.BaseLog().Debug("[OntologyBuilder] GenerateCollection: " + err.Error())
 				continue
 			}
 
@@ -244,40 +247,27 @@ func (ow *OntologyBuilder) GenerateCollection() (string, error) {
 
 			obj := &ObjectToDump{className, objectName, dataProperties, make(map[string][]string), object}
 			ow.objectsToDump.add(obj)
-			fmt.Printf("Added object to the collection: %s\n", obj.objectName)
+			logger.BaseLog().Debug("Added object to the collection: " + obj.objectName)
 		}
 	}
 
 	// we have to link all objects with each other setting proper objectPropertyAssertions
 	// for every of them
 
-	fmt.Println("--------------OBJECT PROPERTIES--------------")
+	logger.BaseLog().Debug("--------------OBJECT PROPERTIES--------------")
 
 	for ix := range allClassesKeys {
 		className := allClassesKeys[ix]
 
 		// [runs_on_node, NODE], [contains_container, CONTAINER]
 		allObjectPropertiesForClass, err := ow.objectPropertiesList(className)
-		// _ = err
-		// fmt.Println("----------------------------")
-		// fmt.Println("Processing class: " + className)
-
-		// fmt.Println("All object properties for this class: ")
-		// for abc := range allObjectPropertiesForClass {
-		// 	fmt.Println(allObjectPropertiesForClass[abc])
-		// }
 
 		if err != nil {
-			fmt.Printf("[OntologyBuilder] GenerateCollection: objectPropertiesList error: %s", err.Error())
+			logger.BaseLog().Error("[OntologyBuilder] GenerateCollection: objectPropertiesList error: " + err.Error())
 			return "", err
 		}
 		objectsToSet := ow.objectsToDump.ObjectsByClassName(className)
 
-		// fmt.Println("----------------------------")
-		// fmt.Println("All object to set for this class: ")
-		// for abc := range objectsToSet {
-		// 	fmt.Println(objectsToSet[abc])
-		// }
 		for i := range objectsToSet {
 			object := objectsToSet[i]
 
@@ -287,11 +277,6 @@ func (ow *OntologyBuilder) GenerateCollection() (string, error) {
 				// [Node1, Node2] it gives all Nodes here, need only specific one
 				relatedObjects := ow.objectsToDump.ObjectsByClassNameFiltered(singlePropertyTuple.RelatedClassName, object.originalObjectPointer, singlePropertyTuple.FilterFunction)
 
-				// fmt.Println("----------------------------")
-				// fmt.Println("All related objects for this object: " + object.objectName)
-				// for abc := range relatedObjects {
-				// 	fmt.Println(relatedObjects[abc])
-				// }
 				for iter := range relatedObjects {
 					relatedObject := relatedObjects[iter]
 					object.objectPropertyAssertions[singlePropertyTuple.PropertyName] = append(object.objectPropertyAssertions[singlePropertyTuple.PropertyName], relatedObject.objectName)
@@ -300,11 +285,11 @@ func (ow *OntologyBuilder) GenerateCollection() (string, error) {
 		}
 	}
 
-	fmt.Println("---------------DUMPING DATA---------------")
+	logger.BaseLog().Debug("---------------DUMPING DATA---------------")
 	savedFile, err := ow.dumpData()
 
 	if err != nil {
-		fmt.Printf("[OntologyBuilder] GenerateCollection: dumpData error: %s", err.Error())
+		logger.BaseLog().Error("[OntologyBuilder] GenerateCollection: dumpData error: " + err.Error())
 		return "", err
 	}
 
@@ -317,7 +302,8 @@ func (ow *OntologyBuilder) saveToFile(stream string) (string, error) {
 	// read ontology template file
 	b, err := ioutil.ReadFile(ow.templatePath)
 	if err != nil {
-		panic("Template file not found")
+		logger.BaseLog().Error("Template file not found, " + err.Error())
+		return "", err
 	}
 
 	var dataToWrite []byte
@@ -328,7 +314,8 @@ func (ow *OntologyBuilder) saveToFile(stream string) (string, error) {
 
 	err = ioutil.WriteFile("/tmp/cluster_mapping.owl", dataToWrite, 0644)
 	if err != nil {
-		panic("Writing file error")
+		logger.BaseLog().Error("Writing file error, " + err.Error())
+		return "", err
 	}
 	// TODO make it class member!!!!!!!!!!1
 	return "/tmp/cluster_mapping.owl", nil

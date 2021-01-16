@@ -12,6 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	logger "CNOnt-Broker/core/common"
+
 	appsv1 "k8s.io/api/apps/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -92,7 +94,7 @@ func (k *KubernetesClient) AllNamespaces() (*apiv1.NamespaceList, error) {
 
 // CreateDeployment creates deployment deployment passed in
 func (k *KubernetesClient) CreateDeployment(deployment *unstructured.Unstructured) error {
-	fmt.Println("Create deployment...")
+	logger.BaseLog().Debug("Create deployment...")
 
 	namespace := "default"
 
@@ -108,17 +110,18 @@ func (k *KubernetesClient) CreateDeployment(deployment *unstructured.Unstructure
 
 	deploymentRes := schema.GroupVersionResource{Group: "apps", Version: "v1", Resource: "deployments"}
 
-	fmt.Println("Creating deployment...")
+	logger.BaseLog().Debug("Creating deployment...")
 	result, err := client.Resource(deploymentRes).Namespace(namespace).Create(context.TODO(), deployment, metav1.CreateOptions{})
 
 	if err != nil {
-		fmt.Println(err)
+		logger.BaseLog().Error(err.Error())
 		return err
 	}
 
-	fmt.Printf("Created deployment %q.\n", result.GetName())
+	logger.BaseLog().Info(fmt.Sprintf("Created deployment %s", result.GetName()))
+
 	if err != nil {
-		fmt.Printf("Creating deployment error, %s", err.Error())
+		logger.BaseLog().Error(fmt.Sprintf("Creating deployment error, %s", err.Error()))
 		return err
 	}
 
@@ -127,16 +130,16 @@ func (k *KubernetesClient) CreateDeployment(deployment *unstructured.Unstructure
 
 // DeleteDeployment deletes deployment passed in
 func (k *KubernetesClient) DeleteDeployment(deploymentName string) error {
-	fmt.Println("Deleting deployment...")
+	logger.BaseLog().Debug("Deleting deployment...")
 
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := k.clientset.AppsV1().Deployments(apiv1.NamespaceDefault).Delete(context.TODO(), deploymentName, metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
-		fmt.Printf("Deleting deployment error, %s", err.Error())
+		logger.BaseLog().Error(fmt.Sprintf("Deleting deployment error, %s", err.Error()))
 		return err
 	}
-	fmt.Printf("Deleted deployment")
+	logger.BaseLog().Info(fmt.Sprintf("Deleted deployment %s", deploymentName))
 	return nil
 }
 
