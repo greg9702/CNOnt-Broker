@@ -50,29 +50,3 @@ spec:
             memory: "64Mi"
           limits:
             cpu: "500m"
-# kind: Deployment
-# ...
-# metadata:
-#   name: nginx
-#   labels:          
-# // This is a label for the deployment. The deployment is identified 
-# // by this label only.
-#     app: nginx
-#     tier: backend
-# spec:
-#   selector:
-# // If we make some changes in the deployment template or from cli, 
-# // for eg: kubectl scale --replicas=3 deploy/nginx, it will identify 
-# // rest 2 replicas(out of 5) to terminate them with the use of 
-# // selector.
-#     matchLabels:
-#       app: nginx
-#   template:
-#     metadata:
-#       labels:    
-# // This is a label is applied to the pods when the deployment 
-# // deploys the pods. For eg: IF we have 5 pods derived by this deployment, 
-# // all pods will the same labels.
-#         app: nginx
-#         tier: backend...
-
