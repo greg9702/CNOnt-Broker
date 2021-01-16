@@ -2,7 +2,6 @@ package ontology
 
 import (
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -127,7 +126,6 @@ func newBuilderHelpers() *builderHelper {
 		containerStruct := object.(*ContainerStruct)
 		containerObject := containerStruct.Data
 		if len(containerObject.Ports) != 0 {
-			fmt.Println(containerObject.Ports)
 			return strconv.Itoa(int(containerObject.Ports[0].ContainerPort))
 		}
 		return ""
@@ -135,22 +133,46 @@ func newBuilderHelpers() *builderHelper {
 	tmpMap[":memory_limits"] = func(object interface{}) string {
 		containerStruct := object.(*ContainerStruct)
 		containerObject := containerStruct.Data
-		return containerObject.Resources.Limits.Memory().String()
+
+		returnValue := containerObject.Resources.Limits.Memory().String()
+
+		if returnValue != "0" {
+			return returnValue
+		}
+		return ""
 	}
 	tmpMap[":memory_requests"] = func(object interface{}) string {
 		containerStruct := object.(*ContainerStruct)
 		containerObject := containerStruct.Data
-		return containerObject.Resources.Requests.Memory().String()
+
+		returnValue := containerObject.Resources.Requests.Memory().String()
+
+		if returnValue != "0" {
+			return returnValue
+		}
+		return ""
 	}
 	tmpMap[":cpu_limits"] = func(object interface{}) string {
 		containerStruct := object.(*ContainerStruct)
 		containerObject := containerStruct.Data
-		return containerObject.Resources.Limits.Cpu().String()
+
+		returnValue := containerObject.Resources.Limits.Cpu().String()
+
+		if returnValue != "0" {
+			return returnValue
+		}
+		return ""
 	}
 	tmpMap[":cpu_requests"] = func(object interface{}) string {
 		containerStruct := object.(*ContainerStruct)
 		containerObject := containerStruct.Data
-		return containerObject.Resources.Requests.Cpu().String()
+
+		returnValue := containerObject.Resources.Requests.Cpu().String()
+
+		if returnValue != "0" {
+			return returnValue
+		}
+		return ""
 	}
 
 	dataPropertyFunctions[containersClassName] = tmpMap
@@ -160,7 +182,7 @@ func newBuilderHelpers() *builderHelper {
 	tmpMap = make(map[string]func(interface{}) string)
 
 	tmpMap[":name"] = func(object interface{}) string {
-		return "kind"
+		return "k8s-cluster"
 	}
 
 	dataPropertyFunctions[clusterClassName] = tmpMap

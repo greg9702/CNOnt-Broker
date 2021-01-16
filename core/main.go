@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
-	"log"
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"CNOnt-Broker/core/api/controllers"
+	logger "CNOnt-Broker/core/common"
 	"CNOnt-Broker/core/kubernetes/client"
 	"CNOnt-Broker/core/ontology"
 
@@ -14,10 +15,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func usage() {
+	fmt.Println("usage: go run main.go --kubeconfig <PATH_TO_KUBE_CONFIG> --logLevel <LOGLEVEL>")
+}
+
 func main() {
 
 	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	logLevel := flag.Int("logLevel", -1, "specify log level")
 	flag.Parse()
+
+	if *logLevel == -1 {
+		usage()
+		return
+	}
+
+	logger.BaseLog().InitLogger(*logLevel)
 
 	kubernetesClient := client.NewKubernetesClient(kubeconfig)
 	kubernetesClient.Init()
@@ -41,7 +54,7 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
-		log.Printf("Defaulting to port %s", port)
+		logger.BaseLog().Info(fmt.Sprintf("Defaulting to port %s", port))
 	}
 
 	router.Run(":" + port)
