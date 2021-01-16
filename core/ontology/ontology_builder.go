@@ -70,18 +70,20 @@ func (oc *ObjectsToDumpCollection) ObjectsByClassNameFiltered(className string, 
 
 // OntologyBuilder offers serialization utility (cluster configuration -> ontology)
 type OntologyBuilder struct {
-	k8sClient     *client.KubernetesClient
-	objectsToDump *ObjectsToDumpCollection
-	apiData       map[string][]interface{}
-	wrapper       *OntologyWrapper
-	templatePath  string
+	k8sClient       *client.KubernetesClient
+	objectsToDump   *ObjectsToDumpCollection
+	apiData         map[string][]interface{}
+	wrapper         *OntologyWrapper
+	templatePath    string
+	mappingFilePath string
 }
 
 // NewOntologyBuilder creates new OntologyBuilder instance
 func NewOntologyBuilder(kubernetesClient *client.KubernetesClient, wrapper *OntologyWrapper, path string) *OntologyBuilder {
 	objectCollection := ObjectsToDumpCollection{}
 	apiData := make(map[string][]interface{})
-	ob := OntologyBuilder{kubernetesClient, &objectCollection, apiData, wrapper, path}
+	mappingFilePath := "/tmp/cluster_mapping.owl"
+	ob := OntologyBuilder{kubernetesClient, &objectCollection, apiData, wrapper, path, mappingFilePath}
 	return &ob
 }
 
@@ -318,13 +320,12 @@ func (ow *OntologyBuilder) saveToFile(stream string) (string, error) {
 	dataToWrite = append(dataToWrite, []byte(stream)...)
 	dataToWrite = append(dataToWrite, b[len(b)-1:]...)
 
-	err = ioutil.WriteFile("/tmp/cluster_mapping.owl", dataToWrite, 0644)
+	err = ioutil.WriteFile(ow.mappingFilePath, dataToWrite, 0644)
 	if err != nil {
 		logger.BaseLog().Error("Writing file error, " + err.Error())
 		return "", err
 	}
-	// TODO make it class member!!!!!!!!!!1
-	return "/tmp/cluster_mapping.owl", nil
+	return ow.mappingFilePath, nil
 }
 
 // dumpData prepare all objects to dump and convert them into
