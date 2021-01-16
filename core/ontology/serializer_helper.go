@@ -100,10 +100,6 @@ func newBuilderHelpers() *builderHelper {
 		if lastIx != -1 {
 			name = name[:lastIx]
 		}
-		preLastInd := strings.LastIndex(name, "-")
-		if preLastInd != -1 {
-			return name[:preLastInd]
-		}
 		return name
 	}
 	tmpMap[":namespace"] = func(object interface{}) string {
