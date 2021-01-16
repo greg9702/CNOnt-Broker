@@ -21,6 +21,19 @@ func usage() {
 
 func main() {
 
+	// when using docker-compose with local cluster, uncomment this line
+	// for {
+	// 	_, err := http.Get("http://127.0.0.1:8001")
+
+	// 	if err == nil {
+	// 		fmt.Println("Cluster ready!")
+	// 		break
+	// 	}
+
+	// 	fmt.Println("Waiting for cluster...")
+	// 	time.Sleep(5 * time.Second)
+	// }
+
 	var kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	logLevel := flag.Int("logLevel", -1, "specify log level")
 	flag.Parse()
