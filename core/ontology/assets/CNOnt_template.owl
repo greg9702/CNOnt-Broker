@@ -89,7 +89,6 @@ Declaration(ObjectProperty(:runs))
 Declaration(ObjectProperty(:runs_inside))
 Declaration(ObjectProperty(:runs_on))
 Declaration(ObjectProperty(:supports_lifecycle))
-Declaration(DataProperty(:namespace))
 Declaration(DataProperty(:cpu_limits))
 Declaration(DataProperty(:cpu_requests))
 Declaration(DataProperty(:dns_name))
@@ -100,12 +99,12 @@ Declaration(DataProperty(:login))
 Declaration(DataProperty(:memory_limits))
 Declaration(DataProperty(:memory_requests))
 Declaration(DataProperty(:name))
+Declaration(DataProperty(:namespace))
 Declaration(DataProperty(:password))
 Declaration(DataProperty(:port))
 Declaration(DataProperty(:replicas))
 Declaration(DataProperty(:server_cores))
 Declaration(DataProperty(:server_ram))
-
 
 ############################
 #   Object Properties
@@ -134,12 +133,12 @@ ObjectPropertyRange(:belongs_to_cluster :KubernetesCluster)
 SubObjectPropertyOf(:belongs_to_group owl:topObjectProperty)
 InverseObjectProperties(:belongs_to_group :contains_container)
 ObjectPropertyDomain(:belongs_to_group :ApplicationContainer)
-ObjectPropertyRange(:belongs_to_group :Pod)
+ObjectPropertyRange(:belongs_to_group :ApplicationContainerGroup)
 
 # Object Property: :belongs_to_node (:belongs_to_node)
 
 InverseObjectProperties(:belongs_to_node :contains_pod)
-ObjectPropertyDomain(:belongs_to_node :ApplicationContainerGroup)
+ObjectPropertyDomain(:belongs_to_node :Pod)
 ObjectPropertyRange(:belongs_to_node :Node)
 
 # Object Property: :consists_of (:consists_of)
@@ -156,7 +155,7 @@ ObjectPropertyDomain(:contains_application :ApplicationContainer)
 # Object Property: :contains_container (:contains_container)
 
 ObjectPropertyDomain(:contains_container :ApplicationContainerGroup)
-ObjectPropertyRange(:contains_container :DockerContainer)
+ObjectPropertyRange(:contains_container :ApplicationContainer)
 
 # Object Property: :contains_machine (:contains_machine)
 
@@ -167,7 +166,7 @@ ObjectPropertyRange(:contains_machine :VirtualMachine)
 
 # Object Property: :contains_node (:contains_node)
 
-ObjectPropertyDomain(:contains_node :VirtualMachineGroup)
+ObjectPropertyDomain(:contains_node :KubernetesCluster)
 ObjectPropertyRange(:contains_node :Node)
 
 # Object Property: :contains_pod (:contains_pod)
@@ -277,12 +276,6 @@ ObjectPropertyRange(:supports_lifecycle :ApplicationContainer)
 #   Data Properties
 ############################
 
-# Data Property: :namespace (:namespace)
-
-DataPropertyDomain(:namespace :Pod)
-DataPropertyDomain(:namespace :ReplicaSet)
-DataPropertyRange(:namespace xsd:string)
-
 # Data Property: :cpu_limits (:cpu_limits)
 
 DataPropertyDomain(:cpu_limits :DockerContainer)
@@ -344,6 +337,12 @@ DataPropertyDomain(:name :ReplicaSet)
 DataPropertyDomain(:name :VirtualMachine)
 DataPropertyDomain(:name :VirtualMachineGroup)
 DataPropertyRange(:name xsd:string)
+
+# Data Property: :namespace (:namespace)
+
+DataPropertyDomain(:namespace :Pod)
+DataPropertyDomain(:namespace :ReplicaSet)
+DataPropertyRange(:namespace xsd:string)
 
 # Data Property: :password (:password)
 
@@ -486,7 +485,7 @@ SubClassOf(:NetworkElement :InfrastructureLayerElement)
 
 # Class: :Node (:Node)
 
-SubClassOf(:Node :ContenerizationLayerElement)
+SubClassOf(:Node :InfrastructureLayerElement)
 
 # Class: :Orchestrator (:Orchestrator)
 
@@ -553,11 +552,6 @@ SubClassOf(:WorkerNode :Node)
 
 SubClassOf(:XenHypervisor :FullVirtualizationHypervisor)
 SubClassOf(:XenHypervisor :ParavirtualizationHypervisor)
-
-
-############################
-#   Named Individuals
-############################
 
 
 )
