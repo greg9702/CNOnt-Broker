@@ -126,7 +126,7 @@ ObjectPropertyRange(:application_container :ApplicationContainer)
 SubObjectPropertyOf(:belongs_to_cluster owl:topObjectProperty)
 InverseObjectProperties(:belongs_to_cluster :contains_node)
 ObjectPropertyDomain(:belongs_to_cluster :Node)
-ObjectPropertyRange(:belongs_to_cluster :KubernetesCluster)
+ObjectPropertyRange(:belongs_to_cluster :Cluster)
 
 # Object Property: :belongs_to_group (:belongs_to_group)
 
@@ -166,7 +166,7 @@ ObjectPropertyRange(:contains_machine :VirtualMachine)
 
 # Object Property: :contains_node (:contains_node)
 
-ObjectPropertyDomain(:contains_node :KubernetesCluster)
+ObjectPropertyDomain(:contains_node :Cluster)
 ObjectPropertyRange(:contains_node :Node)
 
 # Object Property: :contains_pod (:contains_pod)
@@ -258,13 +258,13 @@ ObjectPropertyRange(:runs :ContainerEngine)
 
 # Object Property: :runs_inside (:runs_inside)
 
-ObjectPropertyDomain(:runs_inside :ApplicationContainerGroup)
+ObjectPropertyDomain(:runs_inside :ApplicationContainer)
 ObjectPropertyRange(:runs_inside :Microservice)
 
 # Object Property: :runs_on (:runs_on)
 
-ObjectPropertyDomain(:runs_on :ContainerEngine)
-ObjectPropertyRange(:runs_on :ConcreteOS)
+ObjectPropertyDomain(:runs_on :ApplicationContainer)
+ObjectPropertyRange(:runs_on :VirtualMachine)
 
 # Object Property: :supports_lifecycle (:supports_lifecycle)
 
