@@ -19,7 +19,7 @@ Declaration(Class(:Cluster))
 Declaration(Class(:ConcreteOS))
 Declaration(Class(:Connectivity))
 Declaration(Class(:ContainerEngine))
-Declaration(Class(:ContenerizationLayerElement))
+Declaration(Class(:ContainerizationLayerElement))
 Declaration(Class(:Credentials))
 Declaration(Class(:DockerContainer))
 Declaration(Class(:Firewall))
@@ -378,11 +378,11 @@ DataPropertyRange(:server_ram xsd:int)
 
 # Class: :ApplicationContainer (:ApplicationContainer)
 
-SubClassOf(:ApplicationContainer :ContenerizationLayerElement)
+SubClassOf(:ApplicationContainer :ContainerizationLayerElement)
 
 # Class: :ApplicationContainerGroup (:ApplicationContainerGroup)
 
-SubClassOf(:ApplicationContainerGroup :ContenerizationLayerElement)
+SubClassOf(:ApplicationContainerGroup :ContainerizationLayerElement)
 
 # Class: :CloudNativeApplication (:CloudNativeApplication)
 
@@ -402,7 +402,7 @@ SubClassOf(:Connectivity :InfrastructureLayerElement)
 
 # Class: :ContainerEngine (:ContainerEngine)
 
-SubClassOf(:ContainerEngine :ContenerizationLayerElement)
+SubClassOf(:ContainerEngine :ContainerizationLayerElement)
 
 # Class: :DockerContainer (:DockerContainer)
 
@@ -489,7 +489,7 @@ SubClassOf(:Node :InfrastructureLayerElement)
 
 # Class: :Orchestrator (:Orchestrator)
 
-SubClassOf(:Orchestrator :ContenerizationLayerElement)
+SubClassOf(:Orchestrator :ContainerizationLayerElement)
 
 # Class: :PaasCloud (:PaasCloud)
 
@@ -514,7 +514,7 @@ SubClassOf(:Proxy :Connectivity)
 
 # Class: :ReplicaSet (:ReplicaSet)
 
-SubClassOf(:ReplicaSet :ContenerizationLayerElement)
+SubClassOf(:ReplicaSet :ContainerizationLayerElement)
 
 # Class: :Router (:Router)
 
